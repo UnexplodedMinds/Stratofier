@@ -140,7 +140,7 @@ void AHRSCanvas::init()
 
     CanvasConstants c = m_pCanvas->contants();
 
-    m_pRollIndicator = new QPixmap( static_cast<int>( c.dW2 ), static_cast<int>( c.dH2 / c.dAspectP * 0.9 ) );	// The 90% scale factor is somewhat arbitrary but scales correctly so when it's rotated the angles line up
+    m_pRollIndicator = new QPixmap( static_cast<int>( c.dW - c.dW5 ), static_cast<int>( c.dW - c.dW5 ) );
     m_pHeadIndicator = new QPixmap( static_cast<int>( c.dW - c.dW20 ), static_cast<int>( c.dW - c.dW20 ) );
     m_pAltTape = new QPixmap( static_cast<int>( c.dW5 ) - 50, c.iTinyFontHeight * 300 );						// 20000 ft / 100 x 1.5x font height
     m_pVertSpeedTape = new QPixmap( 40, c.dH2 );
@@ -259,7 +259,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
     ahrs.translate( c.dW2, (static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 );
     ahrs.rotate( -g_situation.dAHRSroll );
     ahrs.translate( -c.dW2, -((static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 )  );
-    ahrs.drawPixmap( c.dW2 - c.dW4, c.dH40, *m_pRollIndicator );
+    ahrs.drawPixmap( c.dW10, c.dH40, *m_pRollIndicator );
     ahrs.resetTransform();
 
     QPolygonF arrow;

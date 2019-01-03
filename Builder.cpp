@@ -30,13 +30,17 @@ void Builder::buildAltTape( QPixmap *pAltTape, Canvas *pCanvas )
     QPainter        ahrs( pAltTape );
     int             iAlt, iV = 1, iY;
     CanvasConstants c = pCanvas->contants();
+    QString         qsAlt;
 
     ahrs.setFont( tiny );
-	ahrs.setPen( Qt::white );
 	for( iAlt = 20000; iAlt >= 0; iAlt -= 100 )
     {
         iY = static_cast<int>( static_cast<double>( iV ) * static_cast<double>( c.iTinyFontHeight ) * 1.5 );
-        ahrs.drawText( 0, iY, QString::number( iAlt ) );
+        qsAlt = QString::number( iAlt );
+        ahrs.setPen( Qt::black );
+        ahrs.drawText( 1, iY + 1, qsAlt );
+        ahrs.setPen( Qt::white );
+        ahrs.drawText( 0, iY, qsAlt );
         iY = iY - (c.iTinyFontHeight / 2) + 2;
         iV++;
     }
@@ -50,14 +54,20 @@ void Builder::buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas )
     int             iVert, iV = 1, iY;
     CanvasConstants c = pCanvas->contants();
     int             iLineHeight = c.dH2 / 40.0;
+    QString         qsVSpeed;
 
     ahrs.setFont( tiny );
-	ahrs.setPen( Qt::white );
 	for( iVert = 10; iVert >= -10; iVert-- )
     {
         iY = iV * iLineHeight * 2;
         if( (iVert % 2) == 0 )
-            ahrs.drawText( 5, iY, QString::number( abs( iVert * 2 ) ) );
+        {
+            qsVSpeed = QString::number( abs( iVert * 2 ) );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( 6, iY + 1, qsVSpeed );
+            ahrs.setPen( Qt::white );
+            ahrs.drawText( 5, iY, qsVSpeed );
+        }
         iY -= 3;
 		ahrs.drawLine( pVertTape->width() - 10, iY - 1, pVertTape->width() - 5, iY - 1 );
         iV++;
@@ -71,21 +81,30 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
     QPainter        ahrs( pSpeedTape );
     int             iSpeed, iV = 1, iY;
     CanvasConstants c = pCanvas->contants();
+    QString         qsSpeed;
 
-	ahrs.setPen( QPen( Qt::white, 2 ) );
 	for( iSpeed = 300; iSpeed >= 0; iSpeed -= 10 )
     {
 		ahrs.setFont( tiny );
 		iY = static_cast<int>( static_cast<double>( iV ) * static_cast<double>( c.iTinyFontHeight ) * 2.0 );
-		ahrs.drawText( 10, iY, QString::number( iSpeed ) );
+        qsSpeed = QString::number( iSpeed );
+        ahrs.setPen( Qt::black );
+        ahrs.drawText( 11, iY + 1, qsSpeed );
+        ahrs.setPen( Qt::white );
+		ahrs.drawText( 10, iY, qsSpeed );
         iY = iY - (c.iTinyFontHeight / 2) + 5;
+        ahrs.setPen( QPen( Qt::white, 2 ) );
         ahrs.drawLine( 0, iY, 5, iY );
 		if( iSpeed >= 10 )
 		{
 			ahrs.setFont( wee );
 			iY = static_cast<int>( (static_cast<double>( iV ) * static_cast<double>( c.iTinyFontHeight ) * 2.0) + c.iTinyFontHeight );
-			ahrs.drawText( 10, iY, QString::number( iSpeed - 5 ) );
-		}
+            qsSpeed = QString::number( iSpeed - 5 );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( 11, iY + 1, qsSpeed );
+            ahrs.setPen( Qt::white );
+            ahrs.drawText( 10, iY, qsSpeed );
+        }
 		iV++;
     }
 }
