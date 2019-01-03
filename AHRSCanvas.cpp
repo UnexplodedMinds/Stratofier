@@ -483,7 +483,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 			ball.setP2( QPointF( c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dTrafficDist ) );
 
 			// Traffic angle in reference to you (which clock position they're at)
-			ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 90.0 );
+			ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
 			// Draw the black part of the track line
 			planePen.setWidth( 5 );
