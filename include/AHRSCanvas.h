@@ -31,7 +31,6 @@ public slots:
     void traffic( int iICAO, StratuxTraffic t );
 
 protected:
-    void resizeEvent( QResizeEvent *pEvent );
     void paintEvent( QPaintEvent *pEvent );
     void mousePressEvent( QMouseEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );

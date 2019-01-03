@@ -160,30 +160,6 @@ void AHRSCanvas::init()
 }
 
 
-// Resize event - on Android typically happens once at init
-// Current android manifest locks the display to portait so it won't fire on rotating the device.
-// This needs some thought though since I'm not sure it's really necessary to lock it into portrait mode.
-void AHRSCanvas::resizeEvent( QResizeEvent *pEvent )
-{
-    if( pEvent == 0 )
-        return;
-
-    if( m_bInitialized )
-    {
-        if( m_iDispTimer != 0 )
-            killTimer( m_iDispTimer );
-        m_iDispTimer = 0;
-        m_bInitialized = false;
-        delete m_pRollIndicator;
-        delete m_pHeadIndicator;
-        delete m_pAltTape;
-        delete m_pSpeedTape;
-        delete m_pVertSpeedTape;
-        init();
-    }
-}
-
-
 // Just a utility timer that periodically updates the display when it's not being driven by the streams
 // coming from the Stratux.
 void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
