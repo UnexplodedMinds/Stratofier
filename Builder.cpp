@@ -121,11 +121,24 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     double       dW2 = dW / 2.0;
     double       dH2 = dH / 2.0;
     QPen         linePen( Qt::white, 3 );
-    QFont        rollFont( "Piboto Thin", 12 );
-    QFontMetrics rollMetrics( rollFont );
+    QFontMetrics rollMetrics( tiny );
     QString      qsRoll;
     QRect        rollRect;
+    QLineF       clipLine( dW / 2.0, dH / 2.0, dW / 2.0, 20.0 );
 
+    clipLine.setAngle( 29.0 );
+    ahrs.setClipRect( 0.0, 0.0, dW, clipLine.p2().y() );
+
+    // Draw the black base arc surround
+    linePen.setColor( Qt::black );
+    linePen.setWidth( 5 );
+    ahrs.setPen( linePen );
+    ahrs.drawEllipse( 21.0, 21.0, dW - 42.0, dH - 42.0 );
+    linePen.setColor( Qt::white );
+    linePen.setWidth( 3 );
+    ahrs.setPen( linePen );
+
+    ahrs.setFont( tiny );
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
 
     // -30 to 30 with black lines on -30, 0 and 30
@@ -182,16 +195,12 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
     ahrs.resetTransform();
 
+    // Draw the thinner white base arc overtop of the pegs and black shadow
     linePen.setColor( Qt::white );
+    linePen.setWidth( 3 );
     ahrs.setPen( linePen );
-    for( double d = 0; d <= 120.0; d += 0.1 )
-    {
-        ahrs.translate( dW2, dH2 );
-        ahrs.rotate( -60.0 + d );
-        ahrs.translate( -dW2, -dH2 );
-        ahrs.drawLine( dW2, 20.0, dW2, 21.0 );
-        ahrs.resetTransform();
-    }
+    ahrs.drawEllipse( 21.0, 21.0, dW - 42.0, dH - 42.0 );
+    ahrs.setClipping( false );
 }
 
 
