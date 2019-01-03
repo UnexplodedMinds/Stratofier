@@ -182,6 +182,12 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         m_dMyLat = situation.dGPSlat;
         m_dMyLong = situation.dGPSlong;
     }
+    else
+    {
+        m_bHaveMyPos = false;
+        m_dMyLat = 0.0;
+        m_dMyLong = 0.0;
+    }
 
     m_bAHRSStatus = (situation.iAHRSStatus > 0);
 
@@ -319,7 +325,7 @@ void StreamReader::statusUpdate( const QString &qsMessage )
     }
 
     m_bStratuxStatus = true;    // If this signal fired then we're at least talking to the Stratux
-    m_bGPSStatus = status.bGPSConnected;
+    m_bGPSStatus = (status.bGPSConnected && m_bHaveMyPos);
     m_bTrafficStatus = ((status.iUATTrafficTracking > 0) || (status.iESTrafficTracking > 0));
 
     emit newStatus( m_bStratuxStatus, m_bAHRSStatus, m_bGPSStatus, m_bTrafficStatus );
