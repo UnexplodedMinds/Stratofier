@@ -1,0 +1,54 @@
+INSTALLING RoscoPi
+
+These installation instructions are only for installing RoscoPi itself.
+You should already have a development environment set up on your
+Raspberry Pi running the Stratux software.
+
+You also need a working version of Qt installed on your Raspberry Pi.
+At the time of this writing version 5.12.0 was current and what is currently used.
+Earlier versions should work so if you want to save yourself some time and
+frustration, check out the qtrpi project which I believe provides a fairly painless
+way to get Qt 5.7 installed on your Raspberry Pi.
+
+Getting a working version of Qt on your Rasperry Pi beyond the scope of this
+document but it is doable, and you can save yourself a lot of time by setting up
+to cross-compile it if you want to go that route.
+
+Be sure to set up your display in portrait mode following the instructions
+for whichever screen you have.  The Kuman 7-inch 800x480 capacitive touchscreen
+was used for development, so in this case it was set up in 480x800 mode and the
+touchscreen configuration was set to the rotation for that resolution.  The
+instructions that come with that touchscreen are pretty clear and easy to follow.
+
+BUILDING
+
+1) Download the source into /home/pi/RoscoPi
+2) cd /home/pi/RoscoPi
+3) qmake RoscoPi.pro
+4) make
+
+SETTING UP TO AUT0-RUN
+
+cd /home/pi/.config
+mkdir autostart
+nano RoscoPi.desktop
+
+Add this to the file (assumes you're using lightdm):
+
+[Desktop Entry]
+Name=RoscoPi
+Exec=/home/pi/RoscoPi/bin/RoscoPi
+Type=Application
+Encoding=UTF-8
+Terminal=false
+Categories=None;
+
+Ctrl-X, then Y, then Return to save
+
+Reboot:
+
+sudo reboot
+
+If you have a monitor or touchscreen attached you should see
+an AHRS display.  Note that the software assumes you're running
+the screen in portrait mode.  There is no option for landscape.
