@@ -126,13 +126,13 @@ void AHRSCanvas::init()
 	t.dBearing = 40.0;
 	t.dDist = 19.5;
 	t.dTrack = 45.0;
-	t.dAlt = 3000.0;
+	t.dAlt = 4500.0;
 	t.qsTail = "N450FL";
 	g_trafficMap.insert( 12345, t );
 	t.dBearing = 120.0;
 	t.dDist = 13.0;
 	t.dTrack = 250.0;
-	t.dAlt = 5000.0;
+	t.dAlt = 15000.0;
 	t.qsTail = "N1234K";
 	g_trafficMap.insert( 54321, t );
 */

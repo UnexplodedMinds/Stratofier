@@ -31,6 +31,7 @@ SETTING UP TO AUT0-RUN
 
 cd /home/pi/.config
 mkdir autostart
+cd autostart
 nano RoscoPi.desktop
 
 Add this to the file (assumes you're using lightdm):
