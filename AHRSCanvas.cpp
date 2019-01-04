@@ -364,6 +364,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
 	QString qsIntVspeed = qsFullVspeed.left( qsFullVspeed.length() - 2 );
 	QFontMetrics weeMetrics( wee );
 
+    // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
 	ahrs.setFont( wee );
 	QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
 	ahrs.drawText( c.dW - 20.0, 4.0, qsIntVspeed );
@@ -377,7 +378,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
     ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - 40.0, c.iSmallFontHeight + 1 );
     ahrs.setPen( Qt::white );
     ahrs.setFont( small );
-    ahrs.drawText( c.dW - c.dW5 + 5, c.dH4 + (c.iSmallFontHeight / 2) - 4.0, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+    ahrs.drawText( c.dW - c.dW5 + 5, c.dH4 + (c.iSmallFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 
     // Draw the Speed tape
     ahrs.setPen( Qt::white );
@@ -390,7 +391,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
 	ahrs.setBrush( Qt::black );
 	ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - 40.0, c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-    ahrs.drawText( 5, c.dH4 + (c.iSmallFontHeight / 2) - 4.0, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.drawText( 5, c.dH4 + (c.iSmallFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -468,10 +469,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 	double                dAlt;
 	QString               qsSign;
 
-    pAhrs->setFont( tiny );
-
     // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
-	pAhrs->setFont( wee );
 	foreach( traffic, trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
@@ -519,12 +517,16 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 			else if( dAlt < 0 )
 				qsSign = "-";
 			pAhrs->setPen( Qt::black );
-			pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+            pAhrs->setFont( wee );
+            pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+            pAhrs->setFont( tiny );
 			pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
 			pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 			pAhrs->setPen( Qt::green );
-			pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
-			pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
+            pAhrs->setFont( wee );
+            pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+            pAhrs->setFont( tiny );
+            pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
 			pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 		}
     }

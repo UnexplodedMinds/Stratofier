@@ -35,7 +35,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP )
       m_qsIP( qsIP )
 {
     setupUi( this );
-    QTimer::singleShot( 0, this, SLOT( init() ) );
 
     connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 

@@ -125,6 +125,9 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     QString      qsRoll;
     QRect        rollRect;
     QLineF       clipLine( dW / 2.0, dH / 2.0, dW / 2.0, 20.0 );
+    QFont        tinyBold( tiny );
+
+    tinyBold.setBold( true );
 
     clipLine.setAngle( 29.0 );
     ahrs.setClipRect( 0.0, 0.0, dW, clipLine.p2().y() );
@@ -138,7 +141,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     linePen.setWidth( 3 );
     ahrs.setPen( linePen );
 
-    ahrs.setFont( tiny );
+    ahrs.setFont( tinyBold );
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
 
     // -30 to 30 with black lines on -30, 0 and 30
@@ -178,12 +181,16 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     ahrs.drawLine( dW2, 10, dW2, 20 );
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
     ahrs.resetTransform();
+
+    // We need to turn it off so the 60s won't get clipped
+    ahrs.setClipping( false );
+
     // -60
     ahrs.translate( dW2, dH2 );
     ahrs.rotate( -60 );
     ahrs.translate( -dW2, -dH2 );
     ahrs.drawLine( dW2, 10, dW2, 20 );
-    qsRoll = "6";
+    qsRoll = "60";
     rollRect = rollMetrics.boundingRect( qsRoll );
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
     ahrs.resetTransform();
@@ -195,12 +202,14 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
     ahrs.resetTransform();
 
+    // Turn the clipping rect back on
+    ahrs.setClipRect( 0.0, 0.0, dW, clipLine.p2().y() );
+
     // Draw the thinner white base arc overtop of the pegs and black shadow
     linePen.setColor( Qt::white );
     linePen.setWidth( 3 );
     ahrs.setPen( linePen );
     ahrs.drawEllipse( 21.0, 21.0, dW - 42.0, dH - 42.0 );
-    ahrs.setClipping( false );
 }
 
 
