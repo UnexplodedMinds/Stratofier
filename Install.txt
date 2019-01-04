@@ -1,33 +1,135 @@
-INSTALLING RoscoPi
+RoscoPi
+(c) Allen K. Lair, Unexploded Minds
+-----------------------------------
 
-These installation instructions are only for installing RoscoPi itself.
-You should already have a development environment set up on your
-Raspberry Pi running the Stratux software.
+RoscoPi is a simple AHRS and traffic display app that runs parallel to a working Stratux
+setup.  The stratux software can be found here:
 
-You also need a working version of Qt installed on your Raspberry Pi.
-At the time of this writing version 5.12.0 was current and what is currently used.
-Earlier versions should work so if you want to save yourself some time and
-frustration, check out the qtrpi project which I believe provides a fairly painless
-way to get Qt 5.7 installed on your Raspberry Pi.
+http://stratux.me
 
-Getting a working version of Qt on your Rasperry Pi beyond the scope of this
-document but it is doable, and you can save yourself a lot of time by setting up
-to cross-compile it if you want to go that route.
+RoscoPi is completely free for use under the GPL v3 license.
 
-Be sure to set up your display in portrait mode following the instructions
-for whichever screen you have.  The Kuman 7-inch 800x480 capacitive touchscreen
-was used for development, so in this case it was set up in 480x800 mode and the
-touchscreen configuration was set to the rotation for that resolution.  The
-instructions that come with that touchscreen are pretty clear and easy to follow.
 
-BUILDING
+HARDWARE
+--------
 
-1) Download the source into /home/pi/RoscoPi
-2) cd /home/pi/RoscoPi
-3) qmake RoscoPi.pro
-4) make
+Development was done with a Kuman 7-inch 800x480 touchscreen.  They are available
+on Amazon at:
+
+https://smile.amazon.com/gp/product/B01F3801A2/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
+
+Or from Kuman at:
+
+http://www.kumantech.com/kuman-7quot-tft-lcd-capacitive-touch-screen-hdmi-800480-for-raspberry-pi-3-2-model-b-rpi-1-b-a-bb-black-pc-sc7b_p0024.html
+
+Other screens would probably work but this is what I used and it works well and
+is easy to get up and running.  You'll need to build your own case.  The back panel
+has nubs for mounting but there is no case.
+
+Follow the instructions they provide and you should be good to go.
+
+Note I initially had to mess with the touch rotation to get it to work on the
+existing Stratux image but their instructions work fine with the latest
+Raspbian distribution.  Just be aware that installing the Stratux software
+and compiling from source and getting all the devices to work is not trivial,
+but it will give you a good look under the hood of how it works.
+
+A really important note if you decide not to use the Stratux image:  Download
+the stratux image anyway, and use 7zip to open the image and extract the
+static WiringPi libraries located in /usr/lib that are no longer available.
+You can replace the dynamic ones that are installed via apt-get so that the
+Stratux software can link them.  If the Stratux software is updated to use the
+dynamic WiringPi libraries you won't need to do this but as of version 1.4r5
+you'll need to do this.
+
+
+STRATUX SOFTWARE
+----------------
+
+Stratux is a separate project located at http://stratux.me. You can find
+instructions on how to install their plug-and-play image as well as instructions
+on how to compile and install from source.  RoscoPi was developed using the
+November 2018 Raspbian distribution but you should be able to use the existing
+Stratux image as long as you've configured it to use the entire card.  The default
+Stratux image only uses a smaller area of the card so just use the raspi-config
+tool to expand it to the whole card.
+
+Instructions on how to install from source can be found here:
+
+https://github.com/cyoung/stratux/wiki
+
+There is also a script for setting everything up here:
+
+https://github.com/jpoirier/stratux-setup/blob/master/stratux-setup.sh
+
+I can't confirm if this works out-of-the-box or not.  I used it as a guide
+and did everything manually.  Pay special attention to the blacklisting of
+devices.  If the standard kernel modules load they'll block the Stratux software
+from accessing the SDR radios.
+
+
+INSTALLING QT
+-------------
+
+You have a few options here:
+
+Qtrpi:            https://wiki.qt.io/Qtrpi
+Compile locally:  https://wiki.qt.io/Native_Build_of_Qt5_on_a_Raspberry_Pi
+                  https://www.tal.org/tutorials/building-qt-510-raspberry-pi-debian-stretch
+Cross compile:    https://wiki.qt.io/Raspberry_Pi_Beginners_Guide
+
+I experienced problems cross-compiling but your mileage may vary.  It takes a full
+day to build Qt on the Raspberry Pi.  You can use "make -j3" or "make -j4" but you may have
+to keep an eye on it since it seemed to have problems where I had to restart the build from
+where it broke with plain old "make".  You may also need to adjust configuration options
+depending on what other libraries you have installed.
+
+I also found it useful to enable an extra 1GB of swap space during the compile.  Just
+remember to turn it back off when you're done or you'll reduce the life of the card:
+
+sudo nano /etc/dphys-swapfile
+
+set CONF_SWAPSIZE=1000
+
+Ctrl-X, Y, Return
+
+sudo dphys-swapfile swapon
+
+To ensure it took, use:
+
+free -m
+
+You should see the swap space you allocated.
+
+After this, follow the instructions for whichever avenue you decided to use to install
+the Qt libraries onto your Raspberry Pi.
+
+When Qt is finished compiling and you've done a "sudo make install", ensure you have
+either libegl.so or libxcb.so.  I ran into GL problems configuring Qt and just went with
+XCB support which is fine for the simple drawing this app does.  You may need to add:
+
+export QT_QPA_PLATFORM=xcb
+
+to the end of your /home/pi/.profile
+
+which specifies which QPA backend to use.  It may default to something else with unexpected
+results.  For XCB support be sure to specify either -qt-xcb or -xcb (or both) when you
+configure Qt prior to building.
+
+
+BUILDING RoscoPi
+----------------
+
+Clone the repository into /home/pi/RoscoPi and build it:
+
+cd /home/pi
+git clone https://github.com/UnexplodedMinds/RoscoPi.git
+cd RoscoPi
+qmake RoscoPi.pro
+make
 
 SETTING UP TO AUT0-RUN
+----------------------
 
 cd /home/pi/.config
 mkdir autostart
@@ -51,5 +153,10 @@ Reboot:
 sudo reboot
 
 If you have a monitor or touchscreen attached you should see
-an AHRS display.  Note that the software assumes you're running
-the screen in portrait mode.  There is no option for landscape.
+an AHRS display, possibly with traffic on the large heading indicator depending on if
+there is any in your area and the GPS is locked.  Note that the software assumes you're
+running the screen in portrait mode.  There is no option for landscape.
+
+See ReadMe.txt for usage instructions.
+
+Enjoy!
