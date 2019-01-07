@@ -99,13 +99,15 @@ void AHRSMainWin::menu()
 
 void AHRSMainWin::menuAccepted()
 {
+    system( QString( "wget -q --post-data=\"\" http://%1/cageAHRS >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
+/*
     QUrl                  url( QString( "http://%1/cageAHRS" ).arg( m_qsIP ) );
     QNetworkRequest       req( url );
-    QByteArray            empty;
+    QByteArray            empty( "" );
     QNetworkAccessManager netMan( this );
 
     netMan.post( req, empty );
-
+*/
     delete m_pMenuDialog;
     m_pMenuDialog = 0;
 }
