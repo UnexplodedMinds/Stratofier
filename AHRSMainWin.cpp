@@ -117,7 +117,10 @@ void AHRSMainWin::upgradeRosco()
                                                 "Select 'OK' to download and install the latest RoscoPi version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
-        system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1" );
+        system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1 &" );
+        QApplication::processEvents();
+        QMessageBox::information( this, "UPGRADE", "Please wait for upgrade to complete.", QMessageBox::NoButton );
+        QApplication::processEvents();
         qApp->closeAllWindows();
     }
 }
