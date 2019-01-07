@@ -56,8 +56,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_planeIcon.load( ":/graphics/resources/Plane.png" );
     m_headIcon.load( ":/icons/resources/HeadingIcon.png" );
     m_windIcon.load( ":/icons/resources/WindIcon.png" );
-    m_headIcon = m_headIcon.scaled( 32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
-    m_windIcon = m_windIcon.scaled( 32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    m_headIcon = m_headIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    m_windIcon = m_windIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 
     m_pZoomInPixmap = new QPixmap( ":/icons/resources/add.png" );
     m_pZoomOutPixmap = new QPixmap( ":/icons/resources/sub.png" );
@@ -325,7 +325,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
         ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW2 - 16.0, c.dH - m_pHeadIndicator->height() - 21.0, m_headIcon );
+        ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_headIcon );
         ahrs.resetTransform();
     }
 
@@ -335,7 +335,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
         ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW2 - 16.0, c.dH - m_pHeadIndicator->height() - 21.0, m_windIcon );
+        ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_windIcon );
         ahrs.resetTransform();
     }
 
