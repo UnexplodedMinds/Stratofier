@@ -119,8 +119,6 @@ void AHRSMainWin::upgradeRosco()
     {
         system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1 &" );
         QApplication::processEvents();
-        QMessageBox::information( this, "UPGRADE", "Please wait for upgrade to complete.", QMessageBox::NoButton );
-        QApplication::processEvents();
         qApp->closeAllWindows();
     }
 }
