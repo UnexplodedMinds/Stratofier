@@ -84,10 +84,10 @@ void AHRSMainWin::menu()
     {
         m_pMenuDialog = new MenuDialog( this );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - 180, 220, 150 );
+        m_pMenuDialog->setGeometry( x(), y() + height() - 290, 220, 260 );
         m_pMenuDialog->show();
-        connect( m_pMenuDialog, SIGNAL( accepted() ), this, SLOT( menuAccepted() ) );
-        connect( m_pMenuDialog, SIGNAL( accepted() ), this, SLOT( menuRejected() ) );
+        connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
+        connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
     }
     else
     {
@@ -97,17 +97,17 @@ void AHRSMainWin::menu()
 }
 
 
-void AHRSMainWin::menuAccepted()
+void AHRSMainWin::resetLevel()
 {
     system( QString( "wget -q --post-data=\"\" http://%1/cageAHRS >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
-/*
-    QUrl                  url( QString( "http://%1/cageAHRS" ).arg( m_qsIP ) );
-    QNetworkRequest       req( url );
-    QByteArray            empty( "" );
-    QNetworkAccessManager netMan( this );
+    delete m_pMenuDialog;
+    m_pMenuDialog = 0;
+}
 
-    netMan.post( req, empty );
-*/
+
+void AHRSMainWin::resetGMeter()
+{
+    system( QString( "wget -q --post-data=\"\" http://%1/resetGMeter >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
     m_pMenuDialog = 0;
 }

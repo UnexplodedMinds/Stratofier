@@ -1,23 +1,16 @@
 <RCC>
-  <qresource prefix="/graphics">
-    <file>resources/Plane.png</file>
-    <file>resources/AltitudeKey.png</file>
-  </qresource>
   <qresource prefix="/icons">
+    <file>resources/GForce.png</file>
     <file>resources/add.png</file>
     <file>resources/sub.png</file>
     <file>resources/StratuxLogo.png</file>
     <file>resources/Cancel.png</file>
     <file>resources/Level.png</file>
-    <file>resources/Weather.png</file>
     <file>resources/Backspace.png</file>
     <file>resources/HeadingIcon.png</file>
     <file>resources/WindIcon.png</file>
-    <file>resources/Elevation.png</file>
     <file>resources/Rosco.png</file>
-    <file>resources/Settings.png</file>
     <file>resources/Traffic.png</file>
-    <file>resources/StayOn.png</file>
     <file>resources/OK.png</file>
   </qresource>
 </RCC>

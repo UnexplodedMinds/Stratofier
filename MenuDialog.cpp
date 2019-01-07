@@ -14,20 +14,14 @@ MenuDialog::MenuDialog( QWidget *pParent )
     setupUi( this );
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SLOT( exitRoscoPi() ) );
-    connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SLOT( resetLevel() ) );
     connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SLOT( exitRoscoPiApp() ) );
+    connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
+    connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
 }
 
 
 MenuDialog::~MenuDialog()
 {
-}
-
-
-// Bring up the settings dialog that just has an embedded QtWebEngineView
-void MenuDialog::resetLevel()
-{
-    accept();
 }
 
 

@@ -21,9 +21,12 @@ public:
     ~MenuDialog();
 
 private slots:
-    void resetLevel();
     void exitRoscoPi();
     void exitRoscoPiApp();
+
+signals:
+    void resetLevel();
+    void resetGMeter();
 };
 
 #endif // __MENUDIALOG_H__

@@ -40,7 +40,8 @@ private:
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
     void menu();
-    void menuAccepted();
+    void resetLevel();
+    void resetGMeter();
     void menuRejected();
 };
 
