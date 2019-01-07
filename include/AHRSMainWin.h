@@ -42,6 +42,7 @@ private slots:
     void menu();
     void resetLevel();
     void resetGMeter();
+    void upgradeRosco();
     void menuRejected();
 };
 

@@ -10,7 +10,7 @@
     <file>resources/HeadingIcon.png</file>
     <file>resources/WindIcon.png</file>
     <file>resources/Rosco.png</file>
-    <file>resources/Traffic.png</file>
     <file>resources/OK.png</file>
+    <file>resources/Upgrade.png</file>
   </qresource>
 </RCC>

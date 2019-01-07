@@ -6,11 +6,8 @@ Stratux AHRS Display
 #include <QTimer>
 #include <QKeyEvent>
 #include <QVBoxLayout>
-#include <QNetworkAccessManager>
-#include <QByteArray>
-#include <QUrl>
-#include <QNetworkRequest>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -88,6 +85,7 @@ void AHRSMainWin::menu()
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
+        connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
     }
     else
     {
@@ -110,6 +108,17 @@ void AHRSMainWin::resetGMeter()
     system( QString( "wget -q --post-data=\"\" http://%1/resetGMeter >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
     m_pMenuDialog = 0;
+}
+
+
+void AHRSMainWin::upgradeRosco()
+{
+    if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active network connection.\n\n"
+                                                "Select 'OK' to download and install the latest RoscoPi version.",
+                               QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
+    {
+        system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1" );
+    }
 }
 
 

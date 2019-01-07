@@ -17,6 +17,7 @@ MenuDialog::MenuDialog( QWidget *pParent )
     connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SLOT( exitRoscoPiApp() ) );
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
+    connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
 }
 
 

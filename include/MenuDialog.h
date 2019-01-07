@@ -27,6 +27,7 @@ private slots:
 signals:
     void resetLevel();
     void resetGMeter();
+    void upgradeRosco();
 };
 
 #endif // __MENUDIALOG_H__
