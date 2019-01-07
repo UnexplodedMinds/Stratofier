@@ -86,7 +86,8 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
         connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
-        connect( m_pMenuDialog, SIGNAL( rejected() ), this, SLOT( shutdownSystem() ) );
+        connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
+        connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
     }
     else
     {
@@ -114,6 +115,8 @@ void AHRSMainWin::resetGMeter()
 
 void AHRSMainWin::upgradeRosco()
 {
+    delete m_pMenuDialog;
+    m_pMenuDialog = 0;
     if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active network connection.\n\n"
                                                 "Select 'OK' to download and install the latest RoscoPi version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
@@ -125,7 +128,13 @@ void AHRSMainWin::upgradeRosco()
 }
 
 
-void AHRSMainWin::shutdownSystem()
+void AHRSMainWin::shutdownRoscoPi()
+{
+    qApp->closeAllWindows();
+}
+
+
+void AHRSMainWin::shutdownStratux()
 {
     qApp->closeAllWindows();
     system( "sudo shutdown -h now" );

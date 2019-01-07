@@ -43,7 +43,8 @@ private slots:
     void resetLevel();
     void resetGMeter();
     void upgradeRosco();
-    void shutdownSystem();
+    void shutdownStratux();
+    void shutdownRoscoPi();
 };
 
 #endif // __AHRSMAINWIN_H__
