@@ -127,7 +127,7 @@
     <number>2</number>
    </property>
    <item>
-    <widget class="QPushButton" name="m_pExitButton_2">
+    <widget class="QPushButton" name="m_pUpgradeButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
