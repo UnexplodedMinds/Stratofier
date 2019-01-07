@@ -1,6 +1,5 @@
 <RCC>
   <qresource prefix="/icons">
-    <file>resources/Plane.png</file>
     <file>resources/GForce.png</file>
     <file>resources/add.png</file>
     <file>resources/sub.png</file>
@@ -13,5 +12,8 @@
     <file>resources/Rosco.png</file>
     <file>resources/OK.png</file>
     <file>resources/Upgrade.png</file>
+  </qresource>
+  <qresource prefix="graphics">
+    <file>resources/Plane.png</file>
   </qresource>
 </RCC>
