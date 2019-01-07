@@ -81,7 +81,7 @@ void AHRSMainWin::menu()
     {
         m_pMenuDialog = new MenuDialog( this );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - 290, 220, 260 );
+        m_pMenuDialog->setGeometry( x(), y() + height() - 350, 220, 320 );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -118,6 +118,7 @@ void AHRSMainWin::upgradeRosco()
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
         system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1" );
+        qApp->closeAllWindows();
     }
 }
 
