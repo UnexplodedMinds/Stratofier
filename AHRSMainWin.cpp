@@ -86,6 +86,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
         connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
+        connect( m_pMenuDialog, SIGNAL( rejected() ), this, SLOT( shutdownSystem() ) );
     }
     else
     {
@@ -124,7 +125,7 @@ void AHRSMainWin::upgradeRosco()
 }
 
 
-void AHRSMainWin::menuRejected()
+void AHRSMainWin::shutdownSystem()
 {
     qApp->closeAllWindows();
     system( "sudo shutdown -h now" );
