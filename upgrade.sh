@@ -4,3 +4,4 @@
 cd /home/pi/RoscoPi
 git pull
 make
+bin/RoscoPi
