@@ -117,7 +117,7 @@ void AHRSMainWin::upgradeRosco()
 {
     delete m_pMenuDialog;
     m_pMenuDialog = 0;
-    if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active network connection.\n\n"
+    if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active internet connection.\n\n"
                                                 "Select 'OK' to download and install the latest RoscoPi version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
