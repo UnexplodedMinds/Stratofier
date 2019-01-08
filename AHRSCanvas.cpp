@@ -10,6 +10,7 @@ Stratux AHRS Display
 #include <QFont>
 #include <QLinearGradient>
 #include <QLineF>
+#include <QSettings>
 
 #include <math.h>
 
@@ -29,6 +30,7 @@ extern QFont large;
 
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
+QSettings                *g_pSet;
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
@@ -44,10 +46,11 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_pVertSpeedTape( 0 ),
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
-      m_dZoomNM( 20.0 ),
       m_pZoomInPixmap( 0 ),
       m_pZoomOutPixmap( 0 )
 {
+    g_pSet = new QSettings( "/home/pi/RoscoPi/config.ini", QSettings::IniFormat );
+
     // Initialize AHRS settings
     // No need to init the traffic because it starts out as an empty QMap.
     StreamReader::initSituation( g_situation );
@@ -62,6 +65,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_pZoomInPixmap = new QPixmap( ":/icons/resources/add.png" );
     m_pZoomOutPixmap = new QPixmap( ":/icons/resources/sub.png" );
 
+    m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
+
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 500, this, SLOT( init() ) );
 }
@@ -70,6 +75,12 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 // Delete everything that needs deleting
 AHRSCanvas::~AHRSCanvas()
 {
+    if( g_pSet != 0 )
+    {
+        g_pSet->sync();
+        delete g_pSet;
+        g_pSet = 0;
+    }
     if( m_pRollIndicator != 0 )
     {
         delete m_pRollIndicator;
@@ -675,6 +686,8 @@ void AHRSCanvas::zoomIn()
     m_dZoomNM -= 5.0;
     if( m_dZoomNM < 5.0 )
         m_dZoomNM = 5.0;
+    g_pSet->setValue( "ZoomNM", m_dZoomNM );
+    g_pSet->sync();
 }
 
 
@@ -683,4 +696,6 @@ void AHRSCanvas::zoomOut()
     m_dZoomNM += 5.0;
     if( m_dZoomNM > 100.0 )
         m_dZoomNM = 100.0;
+    g_pSet->setValue( "ZoomNM", m_dZoomNM );
+    g_pSet->sync();
 }
