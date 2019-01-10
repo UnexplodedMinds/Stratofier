@@ -10,7 +10,8 @@ QT += core gui websockets widgets network
 TARGET = RoscoPi
 TEMPLATE = app
 
-DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += QT_DEPRECATED_WARNINGS \
+           ROSCOPI_VERSION=\"0.0.3\"
 
 INCLUDEPATH += ./include \
                ../include \

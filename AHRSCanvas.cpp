@@ -138,7 +138,7 @@ void AHRSCanvas::init()
 	t.dDist = 19.5;
 	t.dTrack = 45.0;
 	t.dAlt = 4500.0;
-	t.qsTail = "N450FL";
+	t.qsTail = "N5432L";
 	g_trafficMap.insert( 12345, t );
 	t.dBearing = 120.0;
 	t.dDist = 13.0;
@@ -465,6 +465,8 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
         ahrs.drawText( 100, 100 + (c.iMedFontHeight * 5),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
         ahrs.drawText( 100, 100 + (c.iMedFontHeight * 7),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
         ahrs.drawText( 100, 100 + (c.iMedFontHeight * 9),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
+        ahrs.setPen( Qt::blue );
+        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 12), QString( "Version: %1" ).arg( ROSCOPI_VERSION ) );
     }
 }
 
