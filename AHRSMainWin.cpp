@@ -81,13 +81,14 @@ void AHRSMainWin::menu()
     {
         m_pMenuDialog = new MenuDialog( this );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - 350, 220, 320 );
+        m_pMenuDialog->setGeometry( x(), y() + height() - 430, 220, 400 );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
         connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
+        connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
     }
     else
     {
@@ -162,4 +163,11 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
         m_pStratuxStream->connectStreams();
     }
 }
+
+
+void AHRSMainWin::trafficToggled( bool bAll )
+{
+    m_pAHRSDisp->showAllTraffic( bAll );
+}
+
 

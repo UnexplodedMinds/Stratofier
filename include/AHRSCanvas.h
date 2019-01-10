@@ -25,6 +25,8 @@ public:
     explicit AHRSCanvas( QWidget *parent = 0 );
     ~AHRSCanvas();
 
+    void showAllTraffic( bool bAll );
+
 public slots:
     void init();
     void situation( StratuxSituation s );
@@ -61,6 +63,7 @@ private:
     bool     m_bUpdated;
     bool     m_bShowGPSDetails;
     double   m_dZoomNM;
+    bool     m_bShowAllTraffic;
 };
 
 #endif // __AHRSCANVAS_H__

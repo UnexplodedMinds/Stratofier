@@ -18,9 +18,20 @@ MenuDialog::MenuDialog( QWidget *pParent )
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
+    connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
+    connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
 }
 
 
 MenuDialog::~MenuDialog()
 {
+}
+
+
+void MenuDialog::traffic( bool bAll )
+{
+    if( bAll )
+        m_pTrafficFilterButton->setText( "ALL TRAFFIC  " );
+    else
+        m_pTrafficFilterButton->setText( "CLS TRAFFIC  " );
 }

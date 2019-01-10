@@ -20,12 +20,16 @@ public:
     explicit MenuDialog( QWidget *pParent );
     ~MenuDialog();
 
+private slots:
+    void traffic( bool bAll );
+
 signals:
     void resetLevel();
     void resetGMeter();
     void upgradeRosco();
     void shutdownStratux();
     void shutdownRoscoPi();
+    void trafficToggled( bool );
 };
 
 #endif // __MENUDIALOG_H__

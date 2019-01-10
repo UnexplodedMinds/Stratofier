@@ -26,6 +26,11 @@ public:
     explicit AHRSMainWin( const QString &qsIP );
     ~AHRSMainWin();
 
+    bool menuActive() { return (m_pMenuDialog != 0); }
+
+public slots:
+    void menu();
+
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
@@ -39,12 +44,12 @@ private:
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
-    void menu();
     void resetLevel();
     void resetGMeter();
     void upgradeRosco();
     void shutdownStratux();
     void shutdownRoscoPi();
+    void trafficToggled( bool bAll );
 };
 
 #endif // __AHRSMAINWIN_H__

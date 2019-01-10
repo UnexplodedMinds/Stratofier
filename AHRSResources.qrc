@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>resources/Traffic.png</file>
     <file>resources/GForce.png</file>
     <file>resources/add.png</file>
     <file>resources/sub.png</file>

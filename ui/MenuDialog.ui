@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>320</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>220</width>
-    <height>320</height>
+    <height>400</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>220</width>
-    <height>320</height>
+    <height>400</height>
    </size>
   </property>
   <property name="palette">
@@ -106,9 +106,18 @@
   <property name="styleSheet">
    <string notr="true">QPushButton
 {
-    border: none;
-    background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue ); margin: 2px;
-}</string>
+     border: none;
+     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue );
+     margin: 2px;
+}
+
+QPushButton::pressed
+{
+     border: none;
+     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 CornflowerBlue, stop:1 white );
+     margin: 2px;
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -231,6 +240,62 @@
        <width>32</width>
        <height>32</height>
       </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="m_pTrafficFilterButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Piboto</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+     border: none;
+     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 #641200, stop:1 white );
+     margin: 2px;
+}
+
+QPushButton::checked
+{
+     border: none;
+     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 green, stop:1 white );
+     margin: 2px;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>ALL TRAFFIC  </string>
+     </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/Traffic.png</normaloff>:/icons/resources/Traffic.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
      <property name="autoDefault">
       <bool>false</bool>

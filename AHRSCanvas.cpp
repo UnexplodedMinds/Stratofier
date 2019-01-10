@@ -66,6 +66,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_pZoomOutPixmap = new QPixmap( ":/icons/resources/sub.png" );
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
+    m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 500, this, SLOT( init() ) );
@@ -489,58 +490,62 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
         if( traffic.bHasADSB )
         {
 			double dTrafficDist = traffic.dDist * dPxPerNM;
-			
-			ball.setP1( QPointF( c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 ) );
-			ball.setP2( QPointF( c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dTrafficDist ) );
+            double dAltDist = traffic.dAlt - g_situation.dBaroPressAlt;
 
-			// Traffic angle in reference to you (which clock position they're at)
-			ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+            if( m_bShowAllTraffic || (fabs( dAltDist ) < 5000) )
+            {
+			    ball.setP1( QPointF( c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 ) );
+			    ball.setP2( QPointF( c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dTrafficDist ) );
 
-			// Draw the black part of the track line
-			planePen.setWidth( 5 );
-            planePen.setColor( Qt::black );
-			track.setP1( ball.p2() );
-			track.setP2( QPointF( ball.p2().x(), ball.p2().y() + 30.0 ) );
-            track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
-            pAhrs->setPen( planePen );
-			pAhrs->drawLine( track );
+			    // Traffic angle in reference to you (which clock position they're at)
+			    ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
-            // Draw the dot
-            planePen.setWidth( 15 );
-            planePen.setColor( Qt::black );
-            pAhrs->setPen( planePen );
-            pAhrs->drawPoint( ball.p2() );
-            planePen.setColor( Qt::green );
-            pAhrs->setPen( planePen );
-            pAhrs->drawPoint( ball.p2().x() - 2, ball.p2().y() - 2 );
+			    // Draw the black part of the track line
+			    planePen.setWidth( 5 );
+                planePen.setColor( Qt::black );
+			    track.setP1( ball.p2() );
+			    track.setP2( QPointF( ball.p2().x(), ball.p2().y() + 30.0 ) );
+                track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
+                pAhrs->setPen( planePen );
+			    pAhrs->drawLine( track );
 
-            // Draw the green part of the track line
-            planePen.setWidth( 5 );
-            planePen.setColor( Qt::green );
-            track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
-            track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + 28.0 ) );
-            track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
-            pAhrs->setPen( planePen );
-            pAhrs->drawLine( track );
+                // Draw the dot
+                planePen.setWidth( 15 );
+                planePen.setColor( Qt::black );
+                pAhrs->setPen( planePen );
+                pAhrs->drawPoint( ball.p2() );
+                planePen.setColor( Qt::green );
+                pAhrs->setPen( planePen );
+                pAhrs->drawPoint( ball.p2().x() - 2, ball.p2().y() - 2 );
 
-			// Draw the ID, numerical track heading and altitude delta
-			dAlt = (traffic.dAlt - g_situation.dBaroPressAlt) / 100.0;
-			if( dAlt > 0 )
-				qsSign = "+";
-			else if( dAlt < 0 )
-				qsSign = "-";
-			pAhrs->setPen( Qt::black );
-            pAhrs->setFont( wee );
-            pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
-            pAhrs->setFont( tiny );
-			pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
-			pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
-			pAhrs->setPen( Qt::green );
-            pAhrs->setFont( wee );
-            pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
-            pAhrs->setFont( tiny );
-            pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
-			pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+                // Draw the green part of the track line
+                planePen.setWidth( 5 );
+                planePen.setColor( Qt::green );
+                track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
+                track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + 28.0 ) );
+                track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
+                pAhrs->setPen( planePen );
+                pAhrs->drawLine( track );
+
+			    // Draw the ID, numerical track heading and altitude delta
+			    dAlt = (traffic.dAlt - g_situation.dBaroPressAlt) / 100.0;
+			    if( dAlt > 0 )
+				    qsSign = "+";
+			    else if( dAlt < 0 )
+				    qsSign = "-";
+			    pAhrs->setPen( Qt::black );
+                pAhrs->setFont( wee );
+                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                pAhrs->setFont( tiny );
+			    pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
+			    pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+			    pAhrs->setPen( Qt::green );
+                pAhrs->setFont( wee );
+                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                pAhrs->setFont( tiny );
+                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
+			    pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+            }
 		}
     }
 
@@ -603,6 +608,14 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
 {
     if( pEvent == 0 )
         return;
+
+    AHRSMainWin *pMainWin = static_cast<AHRSMainWin *>( parentWidget()->parentWidget() );
+
+    if( pMainWin->menuActive() )
+    {
+        pMainWin->menu();
+        return;
+    }
 
     if( m_bShowGPSDetails )
     {
@@ -701,3 +714,12 @@ void AHRSCanvas::zoomOut()
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
 }
+
+
+void AHRSCanvas::showAllTraffic( bool bAll )
+{
+    m_bShowAllTraffic = bAll;
+    g_pSet->setValue( "ShowAllTraffic", bAll );
+    update();
+}
+
