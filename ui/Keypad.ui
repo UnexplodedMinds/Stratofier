@@ -101,7 +101,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>KEYPAD</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue ); margin: 2px; }

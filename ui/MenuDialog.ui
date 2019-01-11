@@ -101,7 +101,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>MENU</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QPushButton
