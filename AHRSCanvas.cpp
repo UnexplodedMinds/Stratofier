@@ -467,7 +467,7 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
         ahrs.drawText( 100, 100 + (c.iMedFontHeight * 7),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
         ahrs.drawText( 100, 100 + (c.iMedFontHeight * 9),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
         ahrs.setPen( Qt::blue );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 12), QString( "Version: %1" ).arg( ROSCOPI_VERSION ) );
+        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 12), QString( "Version: %1" ).arg( QString( ROSCOPI_VERSION ) ) );
     }
 }
 
