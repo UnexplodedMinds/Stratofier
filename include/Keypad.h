@@ -19,7 +19,8 @@ public:
     explicit Keypad( QWidget *pParent );
     ~Keypad();
 
-    int value();
+    int  value();
+    void clear();
 
 private slots:
     void keypadClick();

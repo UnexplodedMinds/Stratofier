@@ -84,3 +84,10 @@ int Keypad::value()
     return m_pValueLabel->text().toInt();
 }
 
+
+void Keypad::clear()
+{
+    m_pValueLabel->clear();
+}
+
+

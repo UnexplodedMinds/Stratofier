@@ -42,6 +42,7 @@ private:
     void cullTrafficMap();
     void zoomIn();
     void zoomOut();
+    void handleScreenPress( const QPoint &pressPt );
 
     Canvas *m_pCanvas;
 
@@ -51,6 +52,7 @@ private:
     QPixmap  m_windIcon;
     int      m_iHeadBugAngle;
     int      m_iWindBugAngle;
+    int      m_iWindBugSpeed;
     QPixmap *m_pRollIndicator;
     QPixmap *m_pHeadIndicator;
     QPixmap *m_pAltTape;

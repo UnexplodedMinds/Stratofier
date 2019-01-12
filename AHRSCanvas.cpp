@@ -49,7 +49,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
       m_pZoomInPixmap( 0 ),
-      m_pZoomOutPixmap( 0 )
+      m_pZoomOutPixmap( 0 ),
+      m_iWindBugSpeed( 0 )
 {
     g_pSet = new QSettings( "/home/pi/RoscoPi/config.ini", QSettings::IniFormat );
 
@@ -350,6 +351,16 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
         ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_windIcon );
+
+        QString      qsWind = QString::number( m_iWindBugSpeed );
+        QFontMetrics windMetrics( med );
+        QRect        windRect = windMetrics.boundingRect( qsWind );
+
+        ahrs.setFont( med );
+        ahrs.setPen( Qt::black );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() - 3, qsWind );
+        ahrs.setPen( Qt::white );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - m_pHeadIndicator->height() - 4, qsWind );
         ahrs.resetTransform();
     }
 
@@ -626,21 +637,27 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
         return;
     }
 
+    handleScreenPress( pEvent->pos() );
+
+    m_bUpdated = true;
+    update();
+}
+
+
+void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
+{
     // Otherwise we're looking for specific spots
     CanvasConstants c = m_pCanvas->contants();
-    QPoint          pressPt( pEvent->pos() );
     QRect           headRect( c.dW2 - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
     QRect           gpsRect( c.dW - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
     QRect           zoomInRect( 0.0, c.dH - m_pHeadIndicator->height() + 5, 75, 75 );
     QRect           zoomOutRect( 0.0, c.dH - 130.0, 75, 75 );
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen
-	int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
+    int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
 
     // User pressed the GPS Lat/long area. This needs to be before the test for the heading indicator since it's within that area's rectangle
     if( gpsRect.contains( pressPt ) )
-    {
         m_bShowGPSDetails = (!m_bShowGPSDetails);
-    }
     // User pressed the zoom in button
     else if( zoomInRect.contains( pressPt ) )
         zoomIn();
@@ -658,16 +675,16 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
         iButton = bugSel.exec();
 
         // Back was pressed
-		if (iButton == QDialog::Rejected)
-		{
-			m_iHeadBugAngle = -1;
-			m_iWindBugAngle = -1;
-			return;
-		}
+        if (iButton == QDialog::Rejected)
+        {
+            m_iHeadBugAngle = -1;
+            m_iWindBugAngle = -1;
+            return;
+        }
 
         Keypad keypad( this );
 
-		keypad.setGeometry( iXoff + c.dW2 - 200.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 170.0, 400.0, 320.0 );
+        keypad.setGeometry( iXoff + c.dW2 - 200.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 170.0, 400.0, 320.0 );
 
         if( keypad.exec() == QDialog::Accepted )
         {
@@ -681,7 +698,12 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
                 m_iHeadBugAngle = iAngle;
             // Wind bug
             else if( iButton == static_cast<int>( BugSelector::WindBug ) )
+            {
                 m_iWindBugAngle = iAngle;
+                keypad.clear();
+                keypad.exec();
+                m_iWindBugSpeed = keypad.value();
+            }
         }
         else
         {   // Heading bug
@@ -692,9 +714,6 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
                 m_iWindBugAngle = -1;
         }
     }
-
-    m_bUpdated = true;
-    update();
 }
 
 
