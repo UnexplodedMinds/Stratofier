@@ -35,6 +35,7 @@ public slots:
 
 protected:
     void paintEvent( QPaintEvent *pEvent );
+    void mouseReleaseEvent( QMouseEvent *pEvent );
     void mousePressEvent( QMouseEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
 
@@ -49,27 +50,30 @@ private:
 
     Canvas *m_pCanvas;
 
-    bool     m_bInitialized;
-    QPixmap  m_planeIcon;
-    QPixmap  m_headIcon;
-    QPixmap  m_windIcon;
-    int      m_iHeadBugAngle;
-    int      m_iWindBugAngle;
-    int      m_iWindBugSpeed;
-    QPixmap *m_pRollIndicator;
-    QPixmap *m_pHeadIndicator;
-    QPixmap *m_pAltTape;
-    QPixmap *m_pSpeedTape;
-    QPixmap *m_pVertSpeedTape;
-    QPixmap *m_pZoomInPixmap;
-    QPixmap *m_pZoomOutPixmap;
-    double   m_dDPIMult;
-    bool     m_iDispTimer;
-    bool     m_bUpdated;
-    bool     m_bShowGPSDetails;
-    double   m_dZoomNM;
-    bool     m_bShowAllTraffic;
-    bool     m_bPortrait;
+    bool      m_bInitialized;
+    QPixmap   m_planeIcon;
+    QPixmap   m_headIcon;
+    QPixmap   m_windIcon;
+    int       m_iHeadBugAngle;
+    int       m_iWindBugAngle;
+    int       m_iWindBugSpeed;
+    QPixmap  *m_pRollIndicator;
+    QPixmap  *m_pHeadIndicator;
+    QPixmap  *m_pAltTape;
+    QPixmap  *m_pSpeedTape;
+    QPixmap  *m_pVertSpeedTape;
+    QPixmap  *m_pZoomInPixmap;
+    QPixmap  *m_pZoomOutPixmap;
+    double    m_dDPIMult;
+    bool      m_iDispTimer;
+    bool      m_bUpdated;
+    bool      m_bShowGPSDetails;
+    double    m_dZoomNM;
+    bool      m_bShowAllTraffic;
+    bool      m_bPortrait;
+    bool      m_bLongPress;
+    QDateTime m_longPressStart;
+    bool      m_bShowCrosswind;
 };
 
 #endif // __AHRSCANVAS_H__

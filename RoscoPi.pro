@@ -51,7 +51,8 @@ HEADERS += StratuxStreams.h \
            TrafficMath.h \
            Canvas.h \
            MenuDialog.h \
-           Builder.h
+           Builder.h \
+		   RoscoPiDefs.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \

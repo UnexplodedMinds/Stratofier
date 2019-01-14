@@ -20,6 +20,7 @@ Stratux AHRS Display
 #include "AHRSMainWin.h"
 #include "StreamReader.h"
 #include "Builder.h"
+#include "RoscoPiDefs.h"
 
 
 extern QFont wee;
@@ -51,7 +52,10 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_pZoomInPixmap( 0 ),
       m_pZoomOutPixmap( 0 ),
       m_iWindBugSpeed( 0 ),
-      m_bPortrait( true )
+      m_bPortrait( true ),
+      m_bLongPress( false ),
+      m_longPressStart( QDateTime::currentDateTime() ),
+      m_bShowCrosswind( false )
 {
     g_pSet = new QSettings( "/home/pi/RoscoPi/config.ini", QSettings::IniFormat );
 
@@ -349,12 +353,13 @@ void AHRSCanvas::cullTrafficMap()
 
 
 // Handle various screen presses (pressing the screen is handled the same as a mouse click here)
-void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
+void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
 {
     if( pEvent == 0 )
         return;
 
     AHRSMainWin *pMainWin = static_cast<AHRSMainWin *>( parentWidget()->parentWidget() );
+    QDateTime    qdtNow = QDateTime::currentDateTime();
 
     if( pMainWin->menuActive() )
     {
@@ -369,10 +374,20 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
         return;
     }
 
-    handleScreenPress( pEvent->pos() );
+    if( m_bLongPress && (m_longPressStart.msecsTo( qdtNow ) > 1000) )
+    {
+        m_bShowCrosswind = (!m_bShowCrosswind);
+        m_bLongPress = false;
+        update();
+    }
+    else
+    {
+        m_bLongPress = false;
+        handleScreenPress( pEvent->pos() );
 
-    m_bUpdated = true;
-    update();
+        m_bUpdated = true;
+        update();
+    }
 }
 
 
@@ -413,12 +428,15 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         int         iButton = -1;
         BugSelector bugSel( this );
 
-        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - 100.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 85.0, 200.0, 150.0 );
+        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - 100.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 100.0, 200.0, 200.0 );
 
         iButton = bugSel.exec();
 
-        // Back was pressed
-        if (iButton == QDialog::Rejected)
+        // Cancelled (do nothing)
+        if( iButton == QDialog::Rejected )
+            return;
+        // Bugs cleared - reset both to invalid and get out
+        else if( iButton == static_cast<int>( BugSelector::ClearBugs ) )
         {
             m_iHeadBugAngle = -1;
             m_iWindBugAngle = -1;
@@ -459,6 +477,19 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             else if( iButton == QDialog::Rejected )
                 m_iWindBugAngle = -1;
         }
+    }
+}
+
+
+void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
+{
+    CanvasConstants c = m_pCanvas->contants();
+    QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
+
+    if( headRect.contains( pEvent->pos() ) )
+    {
+        m_longPressStart = QDateTime::currentDateTime();
+        m_bLongPress = true;
     }
 }
 
@@ -637,6 +668,16 @@ void AHRSCanvas::paintPortrait()
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
         ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_headIcon );
+
+        // If long press triggered crosswind component display and the wind bug is set
+        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
+        {
+            linePen.setWidth( 2 );
+            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) );
+        }
+
         ahrs.resetTransform();
     }
 
@@ -657,6 +698,40 @@ void AHRSCanvas::paintPortrait()
         ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() - 3, qsWind );
         ahrs.setPen( Qt::white );
         ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - m_pHeadIndicator->height() - 4, qsWind );
+
+        // If long press triggered crosswind component display and the heading bug is set
+        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
+        {
+            linePen.setWidth( 2 );
+            linePen.setColor( Qt::cyan );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) ); 
+
+            // Draw the crosswind component calculated from heading vs wind
+            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
+            while( dAng > 180.0 )
+                dAng -= 360.0;
+            dAng = fabs( dAng );
+            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
+            double dCrossPos = c.dH - (static_cast<double>( m_pHeadIndicator->height() ) / 1.3) - 10.0;
+            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
+
+            ahrs.resetTransform();
+            ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
+            ahrs.setFont( large );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.drawText( c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setFont( med );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
+            ahrs.setPen( Qt::cyan );
+            ahrs.drawText( c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
+        }
+
         ahrs.resetTransform();
     }
 
@@ -956,6 +1031,16 @@ void AHRSCanvas::paintLandscape()
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -(c.dW + c.dW2), -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
         ahrs.drawPixmap( c.dW + c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_headIcon );
+
+        // If long press triggered crosswind component display and the wind bug is set
+        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
+        {
+            linePen.setWidth( 2 );
+            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW + c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) );
+        }
+
         ahrs.resetTransform();
     }
 
@@ -976,6 +1061,40 @@ void AHRSCanvas::paintLandscape()
         ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() - 3, qsWind );
         ahrs.setPen( Qt::white );
         ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2) - 1, c.dH - m_pHeadIndicator->height() - 4, qsWind );
+
+        // If long press triggered crosswind component display and the heading bug is set
+        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
+        {
+            linePen.setWidth( 2 );
+            linePen.setColor( Qt::cyan );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW + c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) ); 
+
+            // Draw the crosswind component calculated from heading vs wind
+            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
+            while( dAng > 180.0 )
+                dAng -= 360.0;
+            dAng = fabs( dAng );
+            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
+            double dCrossPos = c.dH - (static_cast<double>( m_pHeadIndicator->height() ) / 1.4) - 10.0;
+            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
+
+            ahrs.resetTransform();
+            ahrs.translate( c.dW + c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            ahrs.translate( -(c.dW + c.dW2), -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
+            ahrs.setFont( large );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setFont( med );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
+            ahrs.setPen( Qt::cyan );
+            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
+        }
+
         ahrs.resetTransform();
     }
 

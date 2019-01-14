@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>150</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>200</width>
-    <height>150</height>
+    <height>200</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>200</width>
-    <height>150</height>
+    <height>200</height>
    </size>
   </property>
   <property name="palette">
@@ -234,6 +234,40 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="m_pCancelButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Piboto</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>CANCEL  </string>
+     </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/Cancel.png</normaloff>:/icons/resources/Cancel.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
@@ -241,18 +275,18 @@
  </resources>
  <connections>
   <connection>
-   <sender>m_pClearButton</sender>
+   <sender>m_pCancelButton</sender>
    <signal>clicked()</signal>
    <receiver>BugSelector</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>128</y>
+     <x>139</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>255</x>
-     <y>18</y>
+     <x>61</x>
+     <y>-13</y>
     </hint>
    </hints>
   </connection>

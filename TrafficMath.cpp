@@ -5,13 +5,8 @@ Stratux AHRS Display
 
 #include <math.h>
 
+#include "RoscoPiDefs.h"
 #include "TrafficMath.h"
-
-#define ToRad      0.017453292519943296
-#define TwoPi      6.283185307179586477
-#define ToDeg      57.29577951308232088
-#define MetersToNM 0.000539957
-
 
 // Find the distance and bearing from one lat/long to another
 TrafficMath::BearingDist TrafficMath::haversine( double dLat1, double dLong1, double dLat2, double dLong2 )

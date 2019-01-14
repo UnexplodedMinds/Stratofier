@@ -19,7 +19,8 @@ public:
 	enum BugType
 	{
 		HeadingBug = 10,
-		WindBug    = 20
+		WindBug    = 20,
+        ClearBugs  = 30
 	};
 
     explicit BugSelector( QWidget *pParent );
@@ -28,6 +29,7 @@ public:
 private slots:
 	void headingSel();
 	void windSel();
+    void clearBugs();
 };
 
 #endif // __BUGSELECTOR_H__
