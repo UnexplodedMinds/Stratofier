@@ -1,7 +1,4 @@
 #!/bin/bash
 
 # Update the sources and build
-cd /home/pi/RoscoPi
-git pull
-make
-bin/RoscoPi
+lxterminal -t "UPGRADING ROSCOPI" -e /home/pi/RoscoPi/upgrade2.sh
