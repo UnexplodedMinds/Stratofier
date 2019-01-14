@@ -16,11 +16,12 @@ class Keypad : public QDialog, public Ui::Keypad
     Q_OBJECT
 
 public:
-    explicit Keypad( QWidget *pParent );
+    explicit Keypad( QWidget *pParent, const QString &qsTitle );
     ~Keypad();
 
     int  value();
     void clear();
+    void setTitle( const QString &qsTitle );
 
 private slots:
     void keypadClick();

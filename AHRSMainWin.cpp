@@ -24,14 +24,37 @@ QFont large( "Piboto", 24, QFont::Bold   );
 
 
 // Setup minimal UI elements and make the connections
-AHRSMainWin::AHRSMainWin( const QString &qsIP )
+AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     : QMainWindow( 0, Qt::Window | Qt::FramelessWindowHint ),
       m_pStratuxStream( new StreamReader( this, qsIP ) ),
       m_bStartup( true ),
       m_pMenuDialog( 0 ),
-      m_qsIP( qsIP )
+      m_qsIP( qsIP ),
+      m_bPortrait( bPortrait )
 {
     setupUi( this );
+
+    m_pAHRSDisp->setPortrait( bPortrait );
+    if( !bPortrait )
+    {
+        m_pMenuButton->setMinimumHeight( 20 );
+        m_pMenuButton->setMaximumHeight( 20 );
+        m_pMenuButton->setIconSize( QSize( 12, 12 ) );
+        m_pStatusIndicator->setMaximumHeight( 20 );
+        m_pAHRSIndicator->setMaximumHeight( 20 );
+        m_pTrafficIndicator->setMaximumHeight( 20 );
+        m_pGPSIndicator->setMaximumHeight( 20 );
+    }
+    else
+    {
+        m_pMenuButton->setMinimumHeight( 30 );
+        m_pMenuButton->setMaximumHeight( 30 );
+        m_pMenuButton->setIconSize( QSize( 16, 16 ) );
+        m_pStatusIndicator->setMaximumHeight( 30 );
+        m_pAHRSIndicator->setMaximumHeight( 30 );
+        m_pTrafficIndicator->setMaximumHeight( 30 );
+        m_pGPSIndicator->setMaximumHeight( 30 );
+    }
 
     connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 
@@ -43,8 +66,25 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP )
 
     m_pStratuxStream->connectStreams();
 
+    QTimer::singleShot( 500, this, SLOT( init() ) );
+
     // We don't care what the ID is since it's the one and only timer for this class and never gets killed
     startTimer( 5000 );
+}
+
+
+void AHRSMainWin::init()
+{
+    if( !m_bPortrait )
+    {
+        m_pMenuButton->setMinimumWidth( width() / 2 );
+        m_pMenuButton->setMaximumWidth( width() / 2 );
+    }
+    else
+    {
+        m_pMenuButton->setMinimumWidth( 150 );
+        m_pMenuButton->setMaximumWidth( 150 );
+    }
 }
 
 
@@ -62,8 +102,8 @@ AHRSMainWin::~AHRSMainWin()
 // Status stream is received here instead of the canvas since here is where the indicators are
 void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic )
 {
-    QString qsOn( "QLabel { border: 5px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 green ); }" );
-    QString qsOff( "QLabel { border: 5px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 red ); }" );
+    QString qsOn( "QLabel { border: 2px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 green ); }" );
+    QString qsOff( "QLabel { border: 2px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 red ); }" );
 
     m_pStatusIndicator->setStyleSheet( bStratux ? qsOn : qsOff );
     m_pAHRSIndicator->setStyleSheet( bAHRS ? qsOn : qsOff );

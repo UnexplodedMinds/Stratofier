@@ -409,9 +409,9 @@ void StreamReader::initSituation( StratuxSituation &situation )
     situation.dAHRSMagHeading = 0.0;
     situation.dAHRSSlipSkid = 0.0;
     situation.dAHRSTurnRate = 0.0;
-    situation.dAHRSGLoad = 0.0;
-    situation.dAHRSGLoadMin = 0.0;
-    situation.dAHRSGLoadMax = 0.0;
+    situation.dAHRSGLoad = 1.0;
+    situation.dAHRSGLoadMin = 1.0;
+    situation.dAHRSGLoadMax = 1.0;
     situation.lastAHRSAttTime = nullDateTime;
     situation.iAHRSStatus = 0;
 }

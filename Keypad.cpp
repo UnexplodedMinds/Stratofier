@@ -10,7 +10,7 @@ Stratux AHRS Display
 #include "ui_Keypad.h"
 
 
-Keypad::Keypad( QWidget *pParent )
+Keypad::Keypad( QWidget *pParent, const QString &qsTitle )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
 {
     setupUi( this );
@@ -25,6 +25,8 @@ Keypad::Keypad( QWidget *pParent )
         if( pButton != 0 )
             connect( pButton, SIGNAL( clicked() ), this, SLOT( keypadClick() ) );
     }
+
+    m_pTitleLabel->setText( qsTitle );
 }
 
 
@@ -90,4 +92,9 @@ void Keypad::clear()
     m_pValueLabel->clear();
 }
 
+
+void Keypad::setTitle( const QString &qsTitle )
+{
+    m_pTitleLabel->setText( qsTitle );
+}
 

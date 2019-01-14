@@ -26,6 +26,7 @@ public:
     ~AHRSCanvas();
 
     void showAllTraffic( bool bAll );
+    void setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
 
 public slots:
     void init();
@@ -43,6 +44,8 @@ private:
     void zoomIn();
     void zoomOut();
     void handleScreenPress( const QPoint &pressPt );
+    void paintPortrait();
+    void paintLandscape();
 
     Canvas *m_pCanvas;
 
@@ -66,6 +69,7 @@ private:
     bool     m_bShowGPSDetails;
     double   m_dZoomNM;
     bool     m_bShowAllTraffic;
+    bool     m_bPortrait;
 };
 
 #endif // __AHRSCANVAS_H__

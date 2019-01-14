@@ -46,7 +46,7 @@ struct CanvasConstants
 class Canvas
 {
 public:
-    Canvas( double dWidth, double dHeight );
+    Canvas( double dWidth, double dHeight, bool bPortrait );
 
     CanvasConstants contants();
     int             largeWidth( const QString &qsText );
@@ -54,6 +54,7 @@ public:
 
 private:
     CanvasConstants m_preCalc;
+    bool            m_bPortrait;
 };
 
 

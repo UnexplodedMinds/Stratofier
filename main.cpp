@@ -19,6 +19,7 @@ int main( int argc, char *argv[] )
     QString      qsToken, qsVal;
 	bool         bMax = true;
     QString      qsIP = "192.168.10.1";
+    bool         bPortrait = true;
     
 	foreach( qsArg, qslArgs )
     {
@@ -33,6 +34,8 @@ int main( int argc, char *argv[] )
                 bMax = (qsVal == "max");
             else if( qsToken == "ip" )
                 qsIP = qsVal;
+            else if( qsToken == "orient" )
+                bPortrait = (qsVal == "portrait");
         }
     }
 
@@ -42,13 +45,16 @@ int main( int argc, char *argv[] )
     QGuiApplication::setApplicationDisplayName( "RoscoPi" );
 
     qInfo() << "Starting RoscoPi";
-    AHRSMainWin mainWin( qsIP );
+    AHRSMainWin mainWin( qsIP, bPortrait );
     if( bMax )
 		mainWin.showMaximized();
 	else
 	{
 		mainWin.show();
-		mainWin.resize( 480, 800 );
+        if( bPortrait )
+    		mainWin.resize( 480, 800 );
+        else
+            mainWin.resize( 800, 480 );
 	}
 
     return guiApp.exec();

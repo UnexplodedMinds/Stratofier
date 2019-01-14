@@ -48,18 +48,23 @@ void Builder::buildAltTape( QPixmap *pAltTape, Canvas *pCanvas )
 
 
 // Build the vertical speed tape pixmap
-void Builder::buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas )
+void Builder::buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait )
 {
     QPainter        ahrs( pVertTape );
     int             iVert, iV = 1, iY;
     CanvasConstants c = pCanvas->contants();
-    int             iLineHeight = c.dH2 / 40.0;
+    double          dLineHeight;
     QString         qsVSpeed;
+
+    if( bPortrait )
+        dLineHeight = (c.dH2 - 30.0) / 40.0;
+    else
+        dLineHeight = (c.dH - 30.0) / 40.0;
 
     ahrs.setFont( tiny );
 	for( iVert = 10; iVert >= -10; iVert-- )
     {
-        iY = iV * iLineHeight * 2;
+        iY = static_cast<int>( static_cast<double>( iV ) * dLineHeight * 2.0 );
         if( (iVert % 2) == 0 )
         {
             qsVSpeed = QString::number( abs( iVert * 2 ) );
@@ -111,7 +116,7 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
 
 
 // Build the roll indicator (the arc scale at the top)
-void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
+void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPortrait )
 {
     Q_UNUSED( pCanvas )
 
@@ -121,11 +126,11 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas )
     double       dW2 = dW / 2.0;
     double       dH2 = dH / 2.0;
     QPen         linePen( Qt::white, 3 );
-    QFontMetrics rollMetrics( tiny );
+    QFontMetrics rollMetrics( bPortrait ? tiny : wee );
     QString      qsRoll;
     QRect        rollRect;
     QLineF       clipLine( dW / 2.0, dH / 2.0, dW / 2.0, 20.0 );
-    QFont        tinyBold( tiny );
+    QFont        tinyBold( bPortrait ? tiny : wee );
 
     tinyBold.setBold( true );
 

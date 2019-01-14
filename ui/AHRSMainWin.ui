@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
+    <width>472</width>
     <height>700</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>460</width>
-    <height>700</height>
+    <width>200</width>
+    <height>200</height>
    </size>
   </property>
   <property name="font">
@@ -139,7 +139,7 @@
       <item>
        <widget class="QPushButton" name="m_pMenuButton">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -152,7 +152,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
+          <width>4096</width>
           <height>30</height>
          </size>
         </property>
@@ -169,7 +169,7 @@
 QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue ); border: 2px solid black; }</string>
         </property>
         <property name="text">
-         <string>  MENU</string>
+         <string> MENU</string>
         </property>
         <property name="icon">
          <iconset resource="../AHRSResources.qrc">
@@ -194,6 +194,12 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         <property name="minimumSize">
          <size>
           <width>75</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>4096</width>
           <height>30</height>
          </size>
         </property>
@@ -420,6 +426,12 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         <property name="minimumSize">
          <size>
           <width>75</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>4096</width>
           <height>30</height>
          </size>
         </property>
@@ -646,6 +658,12 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         <property name="minimumSize">
          <size>
           <width>75</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>4096</width>
           <height>30</height>
          </size>
         </property>
@@ -872,6 +890,12 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         <property name="minimumSize">
          <size>
           <width>75</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>4096</width>
           <height>30</height>
          </size>
         </property>

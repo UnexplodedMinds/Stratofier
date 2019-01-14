@@ -15,11 +15,11 @@ class Builder
 public:
     explicit Builder();
 
-    static void buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas );
+    static void buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPortrait );
     static void buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas );
     static void buildAltTape( QPixmap *pAltTape, Canvas *pCanvas );
     static void buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas );
-    static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas );
+    static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait );
 };
 
 #endif // __BUILDER_H__

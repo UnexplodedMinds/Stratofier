@@ -23,7 +23,7 @@ class AHRSMainWin : public QMainWindow, public Ui::AHRSMainWin
     Q_OBJECT
 
 public:
-    explicit AHRSMainWin( const QString &qsIP );
+    explicit AHRSMainWin( const QString &qsIP, bool bPortrait );
     ~AHRSMainWin();
 
     bool menuActive() { return (m_pMenuDialog != 0); }
@@ -41,6 +41,7 @@ private:
     QDateTime     m_lastStatusUpdate;
     MenuDialog   *m_pMenuDialog;
     QString       m_qsIP;
+    bool          m_bPortrait;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -50,6 +51,7 @@ private slots:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool bAll );
+    void init();
 };
 
 #endif // __AHRSMAINWIN_H__

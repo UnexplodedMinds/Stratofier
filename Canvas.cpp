@@ -17,7 +17,8 @@ extern QFont med;
 extern QFont large;
 
 
-Canvas::Canvas( double dWidth, double dHeight )
+Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
+    : m_bPortrait( bPortrait )
 {
 	QFontMetrics weeMetrics( wee );
 	QRect        weeRect( weeMetrics.boundingRect( "0" ) );
@@ -29,6 +30,10 @@ Canvas::Canvas( double dWidth, double dHeight )
     QRect        medRect( medMetrics.boundingRect( "0" ) );
     QFontMetrics largeMetrics( large );
     QRect        largeRect( largeMetrics.boundingRect( "0" ) );
+
+    // All calculations for either the heading indicator or the attitude indicator will only occupy half the physical width in landscape mode so just halve it now.
+    if( !bPortrait )
+        dWidth /= 2.0;
 
     m_preCalc.dH = dHeight;
     m_preCalc.dH2 = dHeight / 2.0;
