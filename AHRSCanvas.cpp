@@ -33,7 +33,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "0.0.3" );
+QString g_qsRoscoPiVersion( "0.0.5" );
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
