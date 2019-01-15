@@ -35,14 +35,39 @@ and out from 5 NM to 100 NM of airspace surrounding you, which is in the center
 of the heading indicator.  The current airspace size is displayed in the bottom
 left corner just above the G-Force indicator.
 
-The Menu button has three options:
+The Menu button has six options:
 
 Reset Level:  Allows you to re-specify what is considered level in the Stratux
               software.
+
+Reset G-Mtr:  Allows you to reset the G-force indicator the same as in the
+	      stratux settings.
+
+All Traffic/Cls Traffic:  Filter traffic showing all (unfiltered) or only traffic
+			  that is within 5000 feet above or below you.
 			  
 Exit RoscoPi: Exit the RoscoPi display app back to the X-Windows desktop.
 
 Shutdown:     Shuts down your Raspberry Pi.
+
+Upgrade:      Upgrades the RoscoPi software.  You will see an LXTerminal
+              window open showing compile progress.  Once it finishes it will
+	      reboot and you should have the most recent version.  This pulls
+	      the source code from github and compiles it.  You need an active
+	      connection to the internet in order to do this.  The easiest way
+	      to accomplish this is plug your ethernet port from your Pi
+	      into your router or any available ethernet plug on your network.
+	      Note also that this only upgrades the RoscoPi software, not the
+	      Stratux software.  That must be done according to the instructions
+	      from the stratux.me website.
+
+Tapping the center of the heading indicator shows a short selection dialog for
+Heading bug, Wind Bug, Clear or Cancel.  Selecting a wind bug will query for
+both wind direction and speed.
+
+Long pressing on the center of the heading indicator will display the crosswind
+component if you have a heading and wind bug set.  It won't do anything if you
+don't already have those set.
 
 The rest of the display should be self-explanatory.  It's mostly similar to
 many other glass panel style all-in-one displays.  Obviously the speed displayed
