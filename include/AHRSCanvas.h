@@ -47,6 +47,7 @@ private:
     void handleScreenPress( const QPoint &pressPt );
     void paintPortrait();
     void paintLandscape();
+    void paintInfo( QPainter *pAhrs, CanvasConstants *c );
 
     Canvas *m_pCanvas;
 

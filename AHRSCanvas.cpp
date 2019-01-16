@@ -33,7 +33,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "0.0.5" );
+QString g_qsRoscoPiVersion( "0.0.7" );
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
@@ -340,8 +340,8 @@ void AHRSCanvas::cullTrafficMap()
         while( it.hasNext() )
         {
             it.next();
-            // Anything older than 30 seconds discard
-            if( abs( it.value().lastActualReport.secsTo( now ) ) > 30.0 )
+            // Anything older than 15 seconds discard
+            if( abs( it.value().lastActualReport.secsTo( now ) ) > 15.0 )
             {
                 g_trafficMap.remove( it.key() );
                 bTrafficRemoved = true;
@@ -843,28 +843,63 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - 120, *m_pZoomOutPixmap );
 
     if( m_bShowGPSDetails )
-    {
-        QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, c.dH - 50.0 );
-
-        cloudyGradient.setColorAt( 0, QColor( 255, 255, 255, 225 ) );
-        cloudyGradient.setColorAt( 1, QColor( 175, 175, 255, 225 ) );
-
-        linePen.setColor( Qt::black );
-        linePen.setWidth( 3 );
-        ahrs.setPen( linePen );
-        ahrs.setBrush( cloudyGradient );
-        ahrs.drawRect( 50, 50, c.dW - 100, c.dH - 100 );
-        ahrs.setFont( med );
-        ahrs.drawText( 100, 100, "GPS Status" );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 3),  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 5),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 7),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 9),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
-        ahrs.setPen( Qt::blue );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 12), QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
-    }
+        paintInfo( &ahrs, &c );
 }
 
+
+void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
+{
+    QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, c->dH - 50.0 );
+    QFont           med_bu( med );
+    QPen            linePen( Qt::black );
+
+    med_bu.setUnderline( true );
+    med_bu.setBold( true );
+
+    cloudyGradient.setColorAt( 0, QColor( 255, 255, 255, 225 ) );
+    cloudyGradient.setColorAt( 1, QColor( 175, 175, 255, 225 ) );
+
+    linePen.setWidth( 3 );
+    pAhrs->setPen( linePen );
+    pAhrs->setBrush( cloudyGradient );
+    pAhrs->drawRect( 50, 50, (m_bPortrait ? c->dW : width()) - 100, c->dH - 100 );
+    pAhrs->setFont( med_bu );
+    pAhrs->drawText( 75, 95, "GPS Status" );
+    pAhrs->setFont( small );
+    pAhrs->drawText( 75, 95 + c->iMedFontHeight,  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
+    pAhrs->drawText( 75, 95 + c->iMedFontHeight + c->iSmallFontHeight,  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
+    pAhrs->drawText( 75, 95 + c->iMedFontHeight + (c->iSmallFontHeight * 2),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
+    pAhrs->drawText( 75, 95 + c->iMedFontHeight + (c->iSmallFontHeight * 3),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
+
+    QList<StratuxTraffic> trafficList = g_trafficMap.values();
+    StratuxTraffic        traffic;
+    int                   iY = 0;
+    int                   iLine;
+
+    // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
+    pAhrs->setFont( med_bu );
+    pAhrs->drawText( m_bPortrait ? 75 : 400, m_bPortrait ? 290 : 95, "Non-ADS-B Traffic" );
+    pAhrs->setFont( small );
+    foreach( traffic, trafficList )
+    {
+        // If bearing and distance were able to be calculated then show relative position
+        if( !traffic.bHasADSB && (!traffic.qsTail.isEmpty()) )
+        {
+            iLine = (m_bPortrait ? 290 : 95) + c->iMedFontHeight + (iY * c->iSmallFontHeight);
+            pAhrs->drawText( m_bPortrait ? 75 : 400, iLine, traffic.qsTail );
+            pAhrs->drawText( m_bPortrait ? 200 : 500, iLine, QString( "%1 ft" ).arg( static_cast<int>( traffic.dAlt ) ) );
+            if( traffic.iSquawk > 0 )
+                pAhrs->drawText( m_bPortrait ? 325 : 600, iLine, QString::number( traffic.iSquawk ) );
+            iY++;
+        }
+        if( iY > 10 )
+            break;
+    }
+
+    pAhrs->setFont( med );
+    pAhrs->setPen( Qt::blue );
+    pAhrs->drawText( 75, m_bPortrait ? 700 : 400, QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
+}
 
 void AHRSCanvas::paintLandscape()
 {
@@ -1203,24 +1238,5 @@ void AHRSCanvas::paintLandscape()
     updateTraffic( &ahrs, &c );
 
     if( m_bShowGPSDetails )
-    {
-        QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, c.dH - 50.0 );
-
-        cloudyGradient.setColorAt( 0, QColor( 255, 255, 255, 225 ) );
-        cloudyGradient.setColorAt( 1, QColor( 175, 175, 255, 225 ) );
-
-        linePen.setColor( Qt::black );
-        linePen.setWidth( 3 );
-        ahrs.setPen( linePen );
-        ahrs.setBrush( cloudyGradient );
-        ahrs.drawRect( 50, 50, width() - 100, c.dH - 100 );
-        ahrs.setFont( med );
-        ahrs.drawText( 100, 100, "GPS Status" );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 2),  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 4),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 6),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
-        ahrs.drawText( 100, 100 + (c.iMedFontHeight * 8),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
-        ahrs.setPen( Qt::blue );
-        ahrs.drawText( c.dW + 100, 100, QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
-    }
+        paintInfo( &ahrs, &c );
 }
