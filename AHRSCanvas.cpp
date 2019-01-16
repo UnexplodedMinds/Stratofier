@@ -240,8 +240,8 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
             if( m_bShowAllTraffic || (fabs( dAltDist ) < 5000) )
             {
-			    ball.setP1( QPointF( c->dW + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 ) );
-			    ball.setP2( QPointF( c->dW + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dTrafficDist ) );
+			    ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 ) );
+			    ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dTrafficDist ) );
 
 			    // Traffic angle in reference to you (which clock position they're at)
 			    ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
