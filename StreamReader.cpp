@@ -270,6 +270,10 @@ void StreamReader::trafficUpdate( const QString &qsMessage )
             traffic.dAge = dVal;
     }
 
+    // Don't bother with traffic so distant we can't display it or invalid impossible distances
+    if( (traffic.dDist > 300.0) || ((traffic.dDist <= 0.0) && (traffic.dBearing <= 0.0)) )
+        return;
+
     // If we know where we are, figure out where they are
     if( (traffic.bPosValid) && m_bHaveMyPos )
     {

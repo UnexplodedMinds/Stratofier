@@ -341,7 +341,7 @@ void AHRSCanvas::cullTrafficMap()
         {
             it.next();
             // Anything older than 30 seconds discard
-            if( abs( it.value().lastActualReport.secsTo( now ) ) > 60.0 )
+            if( abs( it.value().lastActualReport.secsTo( now ) ) > 30.0 )
             {
                 g_trafficMap.remove( it.key() );
                 bTrafficRemoved = true;

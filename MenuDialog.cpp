@@ -3,15 +3,22 @@ Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
+#include <QSettings>
+
 #include "MenuDialog.h"
 
 #include "ui_MenuDialog.h"
+
+
+extern QSettings *g_pSet;
 
 
 MenuDialog::MenuDialog( QWidget *pParent )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
 {
     setupUi( this );
+
+    traffic( g_pSet->value( "ShowAllTraffic", true ).toBool() );
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratux() ) );
     connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownRoscoPi() ) );
