@@ -14,6 +14,7 @@ Stratux AHRS Display
 #include "StreamReader.h"
 #include "MenuDialog.h"
 #include "Canvas.h"
+#include "Keypad.h"
 
 
 QFont wee(   "Piboto", 8, QFont::Normal  );
@@ -30,7 +31,11 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_bStartup( true ),
       m_pMenuDialog( 0 ),
       m_qsIP( qsIP ),
-      m_bPortrait( bPortrait )
+      m_bPortrait( bPortrait ),
+      m_bTimerActive( false ),
+      m_iReconnectTimer( -1 ),
+      m_iTimerTimer( -1 ),
+      m_iTimerSeconds( 0 )
 {
     setupUi( this );
 
@@ -68,8 +73,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
 
     QTimer::singleShot( 500, this, SLOT( init() ) );
 
-    // We don't care what the ID is since it's the one and only timer for this class and never gets killed
-    startTimer( 5000 );
+    m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
 }
 
 
@@ -121,7 +125,7 @@ void AHRSMainWin::menu()
     {
         m_pMenuDialog = new MenuDialog( this );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - 430, 220, 400 );
+        m_pMenuDialog->setGeometry( x(), y() + height() - 530, 220, 500 );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -129,6 +133,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
+        connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( timer() ) );
     }
     else
     {
@@ -197,10 +202,22 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
         return;
 
     // If we haven't gotten a status update for over ten seconds, force a reconnect
-    if( m_lastStatusUpdate.secsTo( QDateTime::currentDateTime() ) > 10 )
+    if( pEvent->timerId() == m_iReconnectTimer )
     {
-        m_pStratuxStream->disconnectStreams();
-        m_pStratuxStream->connectStreams();
+        if( m_lastStatusUpdate.secsTo( QDateTime::currentDateTime() ) > 10 )
+        {
+            m_pStratuxStream->disconnectStreams();
+            m_pStratuxStream->connectStreams();
+        }
+    }
+    else if( pEvent->timerId() == m_iTimerTimer )
+    {
+        QDateTime now = QDateTime::currentDateTime();
+        int       iTimer = m_iTimerSeconds - m_timerStart.secsTo( now );
+        int       iMinutes = iTimer / 60;
+        int       iSeconds = iTimer - (iMinutes * 60);
+
+        m_pAHRSDisp->timerReminder( iMinutes, iSeconds );
     }
 }
 
@@ -210,4 +227,24 @@ void AHRSMainWin::trafficToggled( bool bAll )
     m_pAHRSDisp->showAllTraffic( bAll );
 }
 
+
+void AHRSMainWin::timer()
+{
+    Keypad keypad( this, "TIMER MINUTES", true );
+
+    delete m_pMenuDialog;
+    m_pMenuDialog = 0;
+
+    if( keypad.exec() == QDialog::Accepted )
+    {
+        QString qsTime = keypad.textValue();
+    
+        m_timerStart = QDateTime::currentDateTime();
+        m_iTimerSeconds = (qsTime.left( 2 ).toInt() * 60) + qsTime.right( 2 ).toInt();
+        m_iTimerTimer = startTimer( 500 );
+        m_bTimerActive = true;
+    }
+    else
+        m_bTimerActive = false;
+}
 

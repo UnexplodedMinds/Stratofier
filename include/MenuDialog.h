@@ -30,6 +30,7 @@ signals:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool );
+    void timer();
 };
 
 #endif // __MENUDIALOG_H__

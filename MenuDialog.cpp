@@ -27,6 +27,7 @@ MenuDialog::MenuDialog( QWidget *pParent )
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
+    connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
 }
 
 

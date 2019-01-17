@@ -21,6 +21,7 @@ Stratux AHRS Display
 #include "StreamReader.h"
 #include "Builder.h"
 #include "RoscoPiDefs.h"
+#include "TimerDialog.h"
 
 
 extern QFont wee;
@@ -33,7 +34,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "0.0.7" );
+QString g_qsRoscoPiVersion( "0.0.8" );
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
@@ -55,7 +56,9 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bPortrait( true ),
       m_bLongPress( false ),
       m_longPressStart( QDateTime::currentDateTime() ),
-      m_bShowCrosswind( false )
+      m_bShowCrosswind( false ),
+      m_iTimerMin( -1 ),
+      m_iTimerSec( -1 )
 {
     g_pSet = new QSettings( "/home/pi/RoscoPi/config.ini", QSettings::IniFormat );
 
@@ -841,9 +844,26 @@ void AHRSCanvas::paintPortrait()
     // Draw the zoom in/out buttons
     ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
     ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - 120, *m_pZoomOutPixmap );
-
+    
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
+
+    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
+    {
+        QString      qsTimer = QString( "%1:%2" ).arg( m_iTimerMin, 2, 10, QChar( '0' ) ).arg( m_iTimerSec, 2, 10, QChar( '0' ) );
+        QFontMetrics largeMetrics( large );
+        QRect        timerRect = largeMetrics.boundingRect( qsTimer );
+
+        linePen.setColor( Qt::white );
+        linePen.setWidth( 2 );
+
+        ahrs.setPen( linePen );
+        ahrs.setBrush( Qt::black );
+        ahrs.drawRect( c.dW2 - 50, c.dH - 70, 100, 35 );
+        ahrs.setPen( Qt::cyan );
+        ahrs.setFont( large );
+        ahrs.drawText( c.dW2 - (timerRect.width() / 2), c.dH - 41, qsTimer );
+    }
 }
 
 
@@ -1240,3 +1260,19 @@ void AHRSCanvas::paintLandscape()
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
 }
+
+
+void AHRSCanvas::timerReminder( int iMinutes, int iSeconds )
+{
+    m_iTimerMin = iMinutes;
+    m_iTimerSec = iSeconds;
+
+    if( (iMinutes == 0) && (iSeconds == 0) )
+    {
+        TimerDialog dlg( this );
+
+        dlg.exec();
+    }
+
+}
+

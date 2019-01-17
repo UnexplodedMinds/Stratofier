@@ -27,6 +27,7 @@ public:
 
     void showAllTraffic( bool bAll );
     void setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
+    void timerReminder( int iMinutes, int iSeconds );
 
 public slots:
     void init();
@@ -75,6 +76,8 @@ private:
     bool      m_bLongPress;
     QDateTime m_longPressStart;
     bool      m_bShowCrosswind;
+    int       m_iTimerMin;
+    int       m_iTimerSec;
 };
 
 #endif // __AHRSCANVAS_H__

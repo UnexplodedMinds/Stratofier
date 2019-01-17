@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MenuDialog</class>
- <widget class="QDialog" name="MenuDialog">
+ <class>TimerDialog</class>
+ <widget class="QDialog" name="TimerDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>500</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>220</width>
-    <height>500</height>
+    <height>200</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>220</width>
-    <height>500</height>
+    <height>200</height>
    </size>
   </property>
   <property name="palette">
@@ -101,7 +101,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MENU</string>
+   <string>TIMER</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QPushButton
@@ -136,7 +136,7 @@ QPushButton::pressed
     <number>2</number>
    </property>
    <item>
-    <widget class="QPushButton" name="m_pUpgradeButton">
+    <widget class="QPushButton" name="m_pRestartButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -155,11 +155,11 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>UPGRADE        </string>
+      <string>RESTART  </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Upgrade.png</normaloff>:/icons/resources/Upgrade.png</iconset>
+       <normaloff>:/icons/resources/Reset.png</normaloff>:/icons/resources/Reset.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -173,7 +173,7 @@ QPushButton::pressed
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="m_pTimerButton">
+    <widget class="QPushButton" name="m_pChangeButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -192,7 +192,7 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>TIMER              </string>
+      <string>CHANGE   </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -210,7 +210,7 @@ QPushButton::pressed
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="m_pExitButton">
+    <widget class="QPushButton" name="m_pDoneButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -229,172 +229,11 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string> SHUTDOWN    </string>
+      <string>DONE       </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/StratuxLogo.png</normaloff>:/icons/resources/StratuxLogo.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="m_pExitRoscoButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>EXIT ROSCOPI</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Rosco.png</normaloff>:/icons/resources/Rosco.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="m_pTrafficFilterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-     border: none;
-     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 #641200, stop:1 white );
-     margin: 2px;
-}
-
-QPushButton::checked
-{
-     border: none;
-     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 green, stop:1 white );
-     margin: 2px;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>ALL TRAFFIC  </string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Traffic.png</normaloff>:/icons/resources/Traffic.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="m_pResetGMeterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>RESET G-MTR </string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/GForce.png</normaloff>:/icons/resources/GForce.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="m_pResetLevelButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string> RESET LEVEL  </string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Level.png</normaloff>:/icons/resources/Level.png</iconset>
+       <normaloff>:/icons/resources/OK.png</normaloff>:/icons/resources/OK.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -412,5 +251,22 @@ QPushButton::checked
  <resources>
   <include location="../AHRSResources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>m_pDoneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>TimerDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>110</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>118</x>
+     <y>206</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -40,7 +40,8 @@ SOURCES += main.cpp \
            TrafficMath.cpp \
            Canvas.cpp \
            MenuDialog.cpp \
-           Builder.cpp
+           Builder.cpp \
+		   TimerDialog.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -52,11 +53,13 @@ HEADERS += StratuxStreams.h \
            Canvas.h \
            MenuDialog.h \
            Builder.h \
-		   RoscoPiDefs.h
+		   RoscoPiDefs.h \
+		   TimerDialog.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
          Keypad.ui \
-         MenuDialog.ui
+         MenuDialog.ui \
+		 TimerDialog.ui
 
 RESOURCES += AHRSResources.qrc

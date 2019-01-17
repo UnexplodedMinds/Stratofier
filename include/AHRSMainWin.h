@@ -42,6 +42,11 @@ private:
     MenuDialog   *m_pMenuDialog;
     QString       m_qsIP;
     bool          m_bPortrait;
+    QDateTime     m_timerStart;
+    int           m_iTimerSeconds;
+    bool          m_bTimerActive;
+    int           m_iReconnectTimer;
+    int           m_iTimerTimer;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -52,6 +57,7 @@ private slots:
     void shutdownRoscoPi();
     void trafficToggled( bool bAll );
     void init();
+    void timer();
 };
 
 #endif // __AHRSMAINWIN_H__

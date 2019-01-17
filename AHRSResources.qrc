@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>resources/Reset.png</file>
+    <file>resources/Timer.png</file>
     <file>resources/Traffic.png</file>
     <file>resources/GForce.png</file>
     <file>resources/add.png</file>
