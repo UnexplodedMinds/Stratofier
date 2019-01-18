@@ -230,7 +230,7 @@ void AHRSMainWin::trafficToggled( bool bAll )
 
 void AHRSMainWin::changeTimer()
 {
-    Keypad keypad( this, "TIMER MINUTES", true );
+    Keypad keypad( this, "TIMER", true );
 
     delete m_pMenuDialog;
     m_pMenuDialog = 0;
