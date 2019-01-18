@@ -27,9 +27,12 @@ public:
     ~AHRSMainWin();
 
     bool menuActive() { return (m_pMenuDialog != 0); }
+    void restartTimer();
+    void stopTimer();
 
 public slots:
     void menu();
+    void changeTimer();
 
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
@@ -57,7 +60,6 @@ private slots:
     void shutdownRoscoPi();
     void trafficToggled( bool bAll );
     void init();
-    void timer();
 };
 
 #endif // __AHRSMAINWIN_H__

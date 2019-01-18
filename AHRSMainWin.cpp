@@ -133,7 +133,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
-        connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( timer() ) );
+        connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
     }
     else
     {
@@ -228,7 +228,7 @@ void AHRSMainWin::trafficToggled( bool bAll )
 }
 
 
-void AHRSMainWin::timer()
+void AHRSMainWin::changeTimer()
 {
     Keypad keypad( this, "TIMER MINUTES", true );
 
@@ -245,6 +245,21 @@ void AHRSMainWin::timer()
         m_bTimerActive = true;
     }
     else
-        m_bTimerActive = false;
+        stopTimer();
 }
 
+
+void AHRSMainWin::restartTimer()
+{
+    m_timerStart = QDateTime::currentDateTime();
+    m_bTimerActive = true;
+}
+
+
+void AHRSMainWin::stopTimer()
+{
+    if( m_iTimerTimer == -1 )
+        killTimer( m_iTimerTimer );
+    m_iTimerTimer = -1;
+    m_bTimerActive = false;
+}

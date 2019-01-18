@@ -1269,10 +1269,19 @@ void AHRSCanvas::timerReminder( int iMinutes, int iSeconds )
 
     if( (iMinutes == 0) && (iSeconds == 0) )
     {
-        TimerDialog dlg( this );
+        TimerDialog  dlg( this );
+        int          iSel = dlg.exec();
+        AHRSMainWin *pMainWin = static_cast<AHRSMainWin *>( parentWidget()->parentWidget() );
 
-        dlg.exec();
+        if( iSel == QDialog::Rejected )
+        {
+            m_iTimerMin = m_iTimerSec = -1;
+            return;
+        }
+        else if( iSel == TimerDialog::Restart )
+            pMainWin->restartTimer();
+        else if( iSel == TimerDialog::Change )
+            pMainWin->changeTimer();
     }
-
 }
 
