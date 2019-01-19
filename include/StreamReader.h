@@ -1,5 +1,5 @@
 /*
-Stratux AHRS Display
+RoscoPi Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
