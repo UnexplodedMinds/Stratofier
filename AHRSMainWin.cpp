@@ -260,6 +260,7 @@ void AHRSMainWin::stopTimer()
 {
     if( m_iTimerTimer == -1 )
         killTimer( m_iTimerTimer );
+    m_pAHRSDisp->timerReminder( -1, -1 );
     m_iTimerTimer = -1;
     m_bTimerActive = false;
 }
