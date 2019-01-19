@@ -49,6 +49,7 @@ private:
     void paintPortrait();
     void paintLandscape();
     void paintInfo( QPainter *pAhrs, CanvasConstants *c );
+    void paintTimer( QPainter *pAhrs, CanvasConstants *c );
 
     Canvas *m_pCanvas;
 

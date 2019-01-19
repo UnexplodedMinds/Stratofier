@@ -849,22 +849,27 @@ void AHRSCanvas::paintPortrait()
         paintInfo( &ahrs, &c );
 
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
-    {
-        QString      qsTimer = QString( "%1:%2" ).arg( m_iTimerMin, 2, 10, QChar( '0' ) ).arg( m_iTimerSec, 2, 10, QChar( '0' ) );
-        QFontMetrics largeMetrics( large );
-        QRect        timerRect = largeMetrics.boundingRect( qsTimer );
-
-        linePen.setColor( Qt::white );
-        linePen.setWidth( 2 );
-
-        ahrs.setPen( linePen );
-        ahrs.setBrush( Qt::black );
-        ahrs.drawRect( c.dW2 - 50, c.dH - 70, 100, 35 );
-        ahrs.setPen( Qt::cyan );
-        ahrs.setFont( large );
-        ahrs.drawText( c.dW2 - (timerRect.width() / 2), c.dH - 41, qsTimer );
-    }
+        paintTimer( &ahrs, &c );
 }
+
+
+void AHRSCanvas::paintTimer( QPainter *pAhrs, CanvasConstants *c )
+{
+    QString      qsTimer = QString( "%1:%2" ).arg( m_iTimerMin, 2, 10, QChar( '0' ) ).arg( m_iTimerSec, 2, 10, QChar( '0' ) );
+    QFontMetrics largeMetrics( large );
+    QRect        timerRect = largeMetrics.boundingRect( qsTimer );
+    QPen         linePen( Qt::white );
+
+    linePen.setWidth( 2 );
+
+    pAhrs->setPen( linePen );
+    pAhrs->setBrush( Qt::black );
+    pAhrs->drawRect( c->dW2 - (m_bPortrait ? 50 : 70), c->dH - (m_bPortrait ? 70 : 100), 100, 35 );
+    pAhrs->setPen( Qt::cyan );
+    pAhrs->setFont( large );
+    pAhrs->drawText( c->dW2 - (m_bPortrait ? 0 : 20) - (timerRect.width() / 2), c->dH - (m_bPortrait ? 41 : 71), qsTimer );
+}
+
 
 
 void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
@@ -1259,6 +1264,9 @@ void AHRSCanvas::paintLandscape()
 
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
+
+    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
+        paintTimer( &ahrs, &c );
 }
 
 
