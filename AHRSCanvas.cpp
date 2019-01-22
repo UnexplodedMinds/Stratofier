@@ -34,7 +34,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "0.0.8" );
+QString g_qsRoscoPiVersion( "0.0.9" );
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
@@ -78,7 +78,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
-    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
+    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 1500, this, SLOT( init() ) );

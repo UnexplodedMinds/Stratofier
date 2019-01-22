@@ -19,7 +19,7 @@ MenuDialog::MenuDialog( QWidget *pParent )
     setupUi( this );
 
     traffic( g_pSet->value( "ShowAllTraffic", true ).toBool() );
-    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
+    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
     // Set the enum so the inital cycling handler works out to the correct value
     if( m_eShowAirports == Canvas::ShowNoAirports )
         m_eShowAirports = Canvas::ShowAllAirports;
