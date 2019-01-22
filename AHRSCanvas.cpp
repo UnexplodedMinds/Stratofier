@@ -78,6 +78,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
+    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 1500, this, SLOT( init() ) );
@@ -140,25 +141,6 @@ AHRSCanvas::~AHRSCanvas()
 // and start the update timer.
 void AHRSCanvas::init()
 {
-//  Testing traffic for when there isn't anything nearby
-/*
-    StratuxTraffic t;
-
-	t.bHasADSB = true;
-	t.dAge = 0.0;
-	t.dBearing = 40.0;
-	t.dDist = 19.5;
-	t.dTrack = 45.0;
-	t.dAlt = 4500.0;
-	t.qsTail = "N5432L";
-	g_trafficMap.insert( 12345, t );
-	t.dBearing = 120.0;
-	t.dDist = 13.0;
-	t.dTrack = 250.0;
-	t.dAlt = 15000.0;
-	t.qsTail = "N1234K";
-	g_trafficMap.insert( 54321, t );
-*/
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->contants();
@@ -186,7 +168,7 @@ void AHRSCanvas::init()
     Builder::buildAltTape( m_pAltTape, m_pCanvas );
     Builder::buildSpeedTape( m_pSpeedTape, m_pCanvas );
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
-    m_iDispTimer = startTimer( 1000 );																			// Just drives updating the canvas if we're not currently receiving anything new.
+    m_iDispTimer = startTimer( 5000 );  // Drives updating the canvas if we're receiving anything as well as updating the subset of airports within range of the display.
     m_bInitialized = true;
 }
 
@@ -202,6 +184,8 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         update();
 
     cullTrafficMap();
+    if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
+        TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
 
     m_bUpdated = false;
 }
@@ -421,10 +405,16 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         m_bShowGPSDetails = (!m_bShowGPSDetails);
     // User pressed the zoom in button
     else if( zoomInRect.contains( pressPt ) )
+    {
         zoomIn();
+        update();
+    }
     // User pressed the zoom out button
     else if( zoomOutRect.contains( pressPt ) )
+    {
         zoomOut();
+        update();
+    }
     // User pressed on the heading indicator
     else if( headRect.contains( pressPt ) )
     {
@@ -504,6 +494,7 @@ void AHRSCanvas::zoomIn()
         m_dZoomNM = 5.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
+    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
 }
 
 
@@ -514,6 +505,7 @@ void AHRSCanvas::zoomOut()
         m_dZoomNM = 100.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
+    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
 }
 
 
@@ -521,6 +513,16 @@ void AHRSCanvas::showAllTraffic( bool bAll )
 {
     m_bShowAllTraffic = bAll;
     g_pSet->setValue( "ShowAllTraffic", bAll );
+    g_pSet->sync();
+    update();
+}
+
+
+void AHRSCanvas::showAirports( Canvas::ShowAirports eShow )
+{
+    m_eShowAirports = eShow;
+    g_pSet->setValue( "ShowAirports", static_cast<int>( eShow ) );
+    g_pSet->sync();
     update();
 }
 
@@ -840,6 +842,8 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawText( c.dW - c.dW5 + 9.0, c.dH - 16, qsLong );
 
     updateTraffic( &ahrs, &c );
+    if( m_eShowAirports != Canvas::ShowNoAirports )
+        updateAirports( &ahrs, &c );
 
     // Draw the zoom in/out buttons
     ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
@@ -1260,7 +1264,10 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - c.iTinyFontHeight - 11, qsLat );
     ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - 11, qsLong );
 
+    // Update the traffic and airport positions
     updateTraffic( &ahrs, &c );
+    if( m_eShowAirports != Canvas::ShowNoAirports )
+        updateAirports( &ahrs, &c );
 
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1293,3 +1300,42 @@ void AHRSCanvas::timerReminder( int iMinutes, int iSeconds )
     }
 }
 
+
+void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
+{
+    Airport ap;
+    QLineF  ball;
+    double	dPxPerNM = static_cast<double>( m_pHeadIndicator->height() ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    double  dAPDist;
+    QPen    apPen( Qt::magenta );
+
+    apPen.setWidth( 2 );
+    pAhrs->setBrush( Qt::NoBrush );
+    pAhrs->setFont( tiny );
+    foreach( ap, m_airports )
+    {
+        if( (!ap.bPublic) && (m_eShowAirports == Canvas::ShowPublicAirports) )
+            continue;
+
+        dAPDist = ap.bd.dDistance * dPxPerNM;
+
+        ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 ) );
+        ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - (m_pHeadIndicator->height() / 2) - 10.0 - dAPDist ) );
+
+        // Traffic angle in reference to you (which clock position they're at)
+        ball.setAngle( -(ap.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+
+        apPen.setColor( Qt::black );
+        pAhrs->setPen( apPen );
+        pAhrs->drawEllipse( ball.p2().x() - 4, ball.p2().y() - 4, 10, 10 );
+        apPen.setColor( Qt::magenta );
+        pAhrs->setPen( apPen );
+        pAhrs->drawEllipse( ball.p2().x() - 5, ball.p2().y() - 5, 10, 10 );
+        apPen.setColor( Qt::black );
+        pAhrs->setPen( apPen );
+        pAhrs->drawText( ball.p2().x() - 14, ball.p2().y() - 6, ap.qsID );
+        apPen.setColor( Qt::yellow );
+        pAhrs->setPen( apPen );
+        pAhrs->drawText( ball.p2().x() - 15, ball.p2().y() - 7, ap.qsID );
+    }
+}

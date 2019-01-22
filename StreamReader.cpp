@@ -274,7 +274,7 @@ void StreamReader::trafficUpdate( const QString &qsMessage )
     if( traffic.bPosValid && m_bHaveMyPos )
     {
         // Modified haversine algorithm for calculating distance and bearing
-        TrafficMath::BearingDist bd = TrafficMath::haversine( m_dMyLat, m_dMyLong, traffic.dLat, traffic.dLong );
+        BearingDist bd = TrafficMath::haversine( m_dMyLat, m_dMyLong, traffic.dLat, traffic.dLong );
 
         traffic.dBearing = bd.dBearing;
         traffic.dDist = bd.dDistance;

@@ -10,6 +10,7 @@ RoscoPi Stratux AHRS Display
 #include <QDateTime>
 
 #include "ui_AHRSMainWin.h"
+#include "Canvas.h"
 
 
 class StreamReader;
@@ -59,6 +60,7 @@ private slots:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool bAll );
+    void showAirports( Canvas::ShowAirports eShow );
     void init();
 };
 

@@ -43,9 +43,35 @@ struct CanvasConstants
 };
 
 
+struct BearingDist
+{
+    double dBearing;
+    double dDistance;
+};
+
+
+struct Airport
+{
+    QString     qsID;
+    QString     qsName;
+    double      dLat;
+    double      dLong;
+    bool        bMilitary;
+    bool        bPublic;
+    BearingDist bd;
+};
+
+
 class Canvas
 {
 public:
+    enum ShowAirports
+    {
+        ShowNoAirports,
+        ShowPublicAirports,
+        ShowAllAirports
+    };
+
     Canvas( double dWidth, double dHeight, bool bPortrait );
 
     CanvasConstants contants();

@@ -6,19 +6,19 @@ RoscoPi Stratux AHRS Display
 #ifndef TRAFFICMATH_H
 #define TRAFFICMATH_H
 
+#include <QList>
+
+#include "Canvas.h"
+
 
 class TrafficMath
 {
 public:
-    struct BearingDist
-    {
-        double dBearing;
-        double dDistance;
-    };
-
     static BearingDist haversine( double dLat1, double dLong1, double dLat2, double dLong2 );
     static double      radiansRel( double dAng );
     static double      degHeading( double dAng );
+
+    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist );
 };
 
 #endif // TRAFFICMATH_H

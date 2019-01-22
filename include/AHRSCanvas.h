@@ -9,9 +9,11 @@ RoscoPi Stratux AHRS Display
 #include <QWidget>
 #include <QPixmap>
 #include <QMap>
+#include <QList>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
+#include "TrafficMath.h"
 
 
 class QDial;
@@ -26,6 +28,7 @@ public:
     ~AHRSCanvas();
 
     void showAllTraffic( bool bAll );
+    void showAirports( Canvas::ShowAirports eShow );
     void setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void timerReminder( int iMinutes, int iSeconds );
 
@@ -42,6 +45,7 @@ protected:
 
 private:
     void updateTraffic( QPainter *pAhrs, CanvasConstants *c );
+    void updateAirports( QPainter *pAhrs, CanvasConstants *c );
     void cullTrafficMap();
     void zoomIn();
     void zoomOut();
@@ -79,6 +83,10 @@ private:
     bool      m_bShowCrosswind;
     int       m_iTimerMin;
     int       m_iTimerSec;
+
+    Canvas::ShowAirports m_eShowAirports;
+
+    QList<Airport> m_airports;
 };
 
 #endif // __AHRSCANVAS_H__

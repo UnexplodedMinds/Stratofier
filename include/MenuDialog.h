@@ -9,10 +9,10 @@ RoscoPi Stratux AHRS Display
 #include <QDialog>
 
 #include "ui_MenuDialog.h"
+#include "Canvas.h"
 
 
 class MenuDialog : public QDialog, public Ui::MenuDialog
-
 {
     Q_OBJECT
 
@@ -20,8 +20,12 @@ public:
     explicit MenuDialog( QWidget *pParent );
     ~MenuDialog();
 
+private:
+    Canvas::ShowAirports m_eShowAirports;
+
 private slots:
     void traffic( bool bAll );
+    void airports();
 
 signals:
     void resetLevel();
@@ -30,6 +34,7 @@ signals:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool );
+    void showAirports( Canvas::ShowAirports );
     void timer();
 };
 
