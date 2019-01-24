@@ -114,7 +114,7 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         else if( qsTag == "GPSNACp" )
             situation.iGPSNACp = iVal;
         else if( qsTag == "GPSAltitudeMSL" )
-            situation.dGPSAltMSL = iVal;
+            situation.dGPSAltMSL = fabs( iVal );
         else if( qsTag == "GPSVerticalAccuracy" )
             situation.dGPSVertAccuracy = dVal;
         else if( qsTag == "GPSVerticalSpeed" )
@@ -142,7 +142,7 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         else if( qsTag == "BaroTemperature" )
             situation.dBaroTemp = dVal;
         else if( qsTag == "BaroPressureAltitude" )
-            situation.dBaroPressAlt = dVal;
+            situation.dBaroPressAlt = fabs( dVal );
         else if( qsTag == "BaroVerticalSpeed" )
             situation.dBaroVertSpeed = dVal;
         else if( qsTag == "BaroLastMeasurementTime" )

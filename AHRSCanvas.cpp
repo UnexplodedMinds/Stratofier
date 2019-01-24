@@ -927,7 +927,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setFont( med );
     pAhrs->setPen( Qt::blue );
-    pAhrs->drawText( 75, m_bPortrait ? 700 : 400, QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
+    pAhrs->drawText( 75, m_bPortrait ? 700 : 390, QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
 }
 
 void AHRSCanvas::paintLandscape()
