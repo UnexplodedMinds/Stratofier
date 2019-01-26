@@ -44,16 +44,16 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bInitialized( false ),
       m_iHeadBugAngle( -1 ),
       m_iWindBugAngle( -1 ),
+      m_iWindBugSpeed( 0 ),
       m_pRollIndicator( 0 ),
       m_pHeadIndicator( 0 ),
       m_pAltTape( 0 ),
       m_pSpeedTape( 0 ),
       m_pVertSpeedTape( 0 ),
-      m_bUpdated( false ),
-      m_bShowGPSDetails( false ),
       m_pZoomInPixmap( 0 ),
       m_pZoomOutPixmap( 0 ),
-      m_iWindBugSpeed( 0 ),
+      m_bUpdated( false ),
+      m_bShowGPSDetails( false ),
       m_bPortrait( true ),
       m_bLongPress( false ),
       m_longPressStart( QDateTime::currentDateTime() ),
@@ -185,6 +185,8 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         update();
 
     cullTrafficMap();
+
+    // If we have a valid GPS position, run the list of airports within range by threading it so it doesn't interfere with the display update
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
         QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
 
