@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui websockets widgets network
+QT += core gui websockets widgets network concurrent
 
 TARGET = RoscoPi
 TEMPLATE = app

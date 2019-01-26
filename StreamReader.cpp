@@ -11,6 +11,8 @@ RoscoPi Stratux AHRS Display
 #include <QPalette>
 #include <QNetworkInterface>
 
+#include <math.h>
+
 #include "StreamReader.h"
 #include "TrafficMath.h"
 

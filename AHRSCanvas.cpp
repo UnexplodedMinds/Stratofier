@@ -11,6 +11,7 @@ RoscoPi Stratux AHRS Display
 #include <QLinearGradient>
 #include <QLineF>
 #include <QSettings>
+#include <QtConcurrent>
 
 #include <math.h>
 
@@ -168,7 +169,7 @@ void AHRSCanvas::init()
     Builder::buildAltTape( m_pAltTape, m_pCanvas );
     Builder::buildSpeedTape( m_pSpeedTape, m_pCanvas );
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
-    m_iDispTimer = startTimer( 5000 );  // Drives updating the canvas if we're receiving anything as well as updating the subset of airports within range of the display.
+    m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
 }
 
@@ -185,7 +186,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
 
     cullTrafficMap();
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
-        TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
+        QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
 
     m_bUpdated = false;
 }
