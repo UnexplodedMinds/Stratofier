@@ -364,7 +364,7 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
         return;
     }
 
-    if( m_bLongPress && (m_longPressStart.msecsTo( qdtNow ) > 1000) )
+    if( m_bLongPress && (m_longPressStart.msecsTo( qdtNow ) > 500) )
     {
         m_bShowCrosswind = (!m_bShowCrosswind);
         m_bLongPress = false;
