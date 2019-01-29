@@ -60,6 +60,7 @@ private slots:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool bAll );
+    void inOutToggled( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );
     void init();
 };

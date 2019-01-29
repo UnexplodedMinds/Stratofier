@@ -16,10 +16,22 @@ extern QSettings *g_pSet;
 MenuDialog::MenuDialog( QWidget *pParent )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
 {
+    bool bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
+    bool bShowOutsideHead = g_pSet->value( "ShowOutsideHeading", true ).toBool();
+
     setupUi( this );
 
-    traffic( g_pSet->value( "ShowAllTraffic", true ).toBool() );
+    m_pTrafficFilterButton->blockSignals( true );
+    m_pTrafficFilterButton->setChecked( bShowAllTraffic );
+    m_pTrafficFilterButton->blockSignals( false );
+    traffic( bShowAllTraffic );
+    m_pTrafficInOutButton->blockSignals( true );
+    m_pTrafficInOutButton->setChecked( bShowOutsideHead );
+    m_pTrafficInOutButton->blockSignals( false );
+    inOut( bShowOutsideHead );
+
     m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
+
     // Set the enum so the inital cycling handler works out to the correct value
     if( m_eShowAirports == Canvas::ShowNoAirports )
         m_eShowAirports = Canvas::ShowAllAirports;
@@ -37,6 +49,8 @@ MenuDialog::MenuDialog( QWidget *pParent )
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
+    connect( m_pTrafficInOutButton, SIGNAL( toggled( bool ) ), this, SIGNAL( inOutToggled( bool ) ) );
+    connect( m_pTrafficInOutButton, SIGNAL( toggled( bool ) ), this, SLOT( inOut( bool ) ) );
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
 }
@@ -50,9 +64,18 @@ MenuDialog::~MenuDialog()
 void MenuDialog::traffic( bool bAll )
 {
     if( bAll )
-        m_pTrafficFilterButton->setText( "ALL TRAFFIC  " );
+        m_pTrafficFilterButton->setText( "ALL" );
     else
-        m_pTrafficFilterButton->setText( "CLS TRAFFIC  " );
+        m_pTrafficFilterButton->setText( "CLS" );
+}
+
+
+void MenuDialog::inOut( bool bOut )
+{
+    if( bOut )
+        m_pTrafficInOutButton->setText( "OUT" );
+    else
+        m_pTrafficInOutButton->setText( "IN" );
 }
 
 

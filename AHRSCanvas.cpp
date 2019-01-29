@@ -79,6 +79,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
+    m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
     m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
@@ -222,6 +223,16 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 	QString               qsSign;
     QFontMetrics          tinyMetrics( tiny );
 
+    if( !m_bShowOutsideHeading )
+    {
+        QPainterPath maskPath;
+
+        maskPath.addEllipse( (m_bPortrait ? 0 : c->dW) + c->dW2 - (m_pHeadIndicator->width() / 2),
+                             c->dH - m_pHeadIndicator->height() - 10.0,
+                             m_pHeadIndicator->width(), m_pHeadIndicator->height() );
+        pAhrs->setClipPath( maskPath );
+    }
+
     // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
 	foreach( traffic, trafficList )
     {
@@ -287,6 +298,8 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
             }
 		}
     }
+
+    pAhrs->setClipping( false );
 
     QString qsZoom = QString( "%1 NM" ).arg( static_cast<int>( m_dZoomNM ) );
     QRect   zoomRect = tinyMetrics.boundingRect( qsZoom );
@@ -519,6 +532,15 @@ void AHRSCanvas::showAllTraffic( bool bAll )
 {
     m_bShowAllTraffic = bAll;
     g_pSet->setValue( "ShowAllTraffic", bAll );
+    g_pSet->sync();
+    update();
+}
+
+
+void AHRSCanvas::showOutside( bool bOut )
+{
+    m_bShowOutsideHeading = bOut;
+    g_pSet->setValue( "ShowOutsideHeading", bOut );
     g_pSet->sync();
     update();
 }

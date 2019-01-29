@@ -25,6 +25,7 @@ private:
 
 private slots:
     void traffic( bool bAll );
+    void inOut( bool bAll );
     void airports();
 
 signals:
@@ -34,6 +35,7 @@ signals:
     void shutdownStratux();
     void shutdownRoscoPi();
     void trafficToggled( bool );
+    void inOutToggled( bool );
     void showAirports( Canvas::ShowAirports );
     void timer();
 };

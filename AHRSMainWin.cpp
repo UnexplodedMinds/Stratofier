@@ -125,7 +125,7 @@ void AHRSMainWin::menu()
     {
         m_pMenuDialog = new MenuDialog( this );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - 330, 440, 300 );
+        m_pMenuDialog->setGeometry( x(), y() + height() - (m_bPortrait ? 330 : 320), 440, 300 );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -133,6 +133,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
+        connect( m_pMenuDialog, SIGNAL( inOutToggled( bool ) ), this, SLOT( inOutToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
     }
@@ -226,6 +227,12 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
 void AHRSMainWin::trafficToggled( bool bAll )
 {
     m_pAHRSDisp->showAllTraffic( bAll );
+}
+
+
+void AHRSMainWin::inOutToggled( bool bOut )
+{
+    m_pAHRSDisp->showOutside( bOut );
 }
 
 

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>resources/HeadingIndicator.png</file>
     <file>resources/Airport.png</file>
     <file>resources/Reset.png</file>
     <file>resources/Timer.png</file>

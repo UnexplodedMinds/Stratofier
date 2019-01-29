@@ -28,6 +28,7 @@ public:
     ~AHRSCanvas();
 
     void showAllTraffic( bool bAll );
+    void showOutside( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );
     void setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void timerReminder( int iMinutes, int iSeconds );
@@ -77,6 +78,8 @@ private:
     bool      m_bShowGPSDetails;
     double    m_dZoomNM;
     bool      m_bShowAllTraffic;
+    bool      m_bShowOutside;
+    bool      m_bShowOutsideHeading;
     bool      m_bPortrait;
     bool      m_bLongPress;
     QDateTime m_longPressStart;
