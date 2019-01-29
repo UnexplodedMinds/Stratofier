@@ -59,6 +59,7 @@ struct Airport
     bool        bMilitary;
     bool        bPublic;
     BearingDist bd;
+    QList<int>  runways;
 };
 
 

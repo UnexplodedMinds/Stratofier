@@ -171,6 +171,9 @@ void AHRSCanvas::init()
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
+
+    g_situation.dGPSlat = 38.7053726;
+    g_situation.dGPSlong = -77.7745111;
 }
 
 
@@ -1311,6 +1314,8 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     double	dPxPerNM = static_cast<double>( m_pHeadIndicator->height() ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
     double  dAPDist;
     QPen    apPen( Qt::magenta );
+    QLineF  runwayLine;
+    int     iRunway;
 
     apPen.setWidth( 2 );
     pAhrs->setBrush( Qt::NoBrush );
@@ -1328,6 +1333,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         // Traffic angle in reference to you (which clock position they're at)
         ball.setAngle( -(ap.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
+        apPen.setWidth( 2 );
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
         pAhrs->drawEllipse( ball.p2().x() - 4, ball.p2().y() - 4, 10, 10 );
@@ -1337,6 +1343,16 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
         pAhrs->drawText( ball.p2().x() - 14, ball.p2().y() - 6, ap.qsID );
+        for( iRunway = 0; iRunway < ap.runways.count(); iRunway++ )
+        {
+            runwayLine.setP1( QPointF( ball.p2().x(), ball.p2().y() ) );
+            runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + 20.0 ) );
+            runwayLine.setAngle( -(ap.runways.at( iRunway ) - g_situation.dAHRSGyroHeading) + 90.0 );
+            apPen.setColor( Qt::magenta );
+            apPen.setWidth( 3 );
+            pAhrs->setPen( apPen );
+            pAhrs->drawLine( runwayLine );
+        }
         apPen.setColor( Qt::yellow );
         pAhrs->setPen( apPen );
         pAhrs->drawText( ball.p2().x() - 15, ball.p2().y() - 7, ap.qsID );

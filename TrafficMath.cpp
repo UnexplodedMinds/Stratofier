@@ -83,6 +83,7 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist 
         qsl = qsLine.split( ',' );
         iCount = qsl.count();
         iFound = 0;
+        ap.runways.clear();
         if( iCount > 0 )
         {
             ap.qsID = qsl.first();
@@ -121,6 +122,13 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist 
             ap.dLong = qsLong.toDouble() / 3600.0 * dPosNeg;
             iFound++;
         }
+        // Add all the available runways
+        if( iCount > 9 )
+        {
+            for( int i = 9; i < iCount; i++ )
+                ap.runways.append( qsl.at( i ).toInt() );
+        }
+
         if( iFound == 6 )
         {
             bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
