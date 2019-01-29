@@ -17,6 +17,7 @@ RoscoPi Stratux AHRS Display
 #include "Keypad.h"
 
 
+QFont itsy(  "Piboto", 6, QFont::Normal  );
 QFont wee(   "Piboto", 8, QFont::Normal  );
 QFont tiny(  "Piboto", 12, QFont::Normal );
 QFont small( "Piboto", 16, QFont::Normal );

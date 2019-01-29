@@ -25,6 +25,7 @@ RoscoPi Stratux AHRS Display
 #include "TimerDialog.h"
 
 
+extern QFont itsy;
 extern QFont wee;
 extern QFont tiny;
 extern QFont small;
@@ -565,9 +566,6 @@ void AHRSCanvas::paintPortrait()
     QPen            linePen( Qt::black );
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
     double          dPxPerVSpeed = c.dH2 / 40.0;
-    QFont           itsy( wee );
-
-    itsy.setPointSize( 6 );
 
     if( dSlipSkid < (c.dW4 + 25.0) )
         dSlipSkid = c.dW4 + 25.0;
@@ -968,10 +966,7 @@ void AHRSCanvas::paintLandscape()
     QPen            linePen( Qt::black );
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
     double          dPxPerVSpeed = (c.dH - 30.0) / 40.0;
-    QFont           itsy( wee );
     QFontMetrics    tinyMetrics( tiny );
-
-    itsy.setPointSize( 6 );
 
     if( dSlipSkid < (c.dW4 + 25.0) )
         dSlipSkid = c.dW4 + 25.0;
@@ -1331,17 +1326,19 @@ void AHRSCanvas::timerReminder( int iMinutes, int iSeconds )
 
 void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 {
-    Airport ap;
-    QLineF  ball;
-    double	dPxPerNM = static_cast<double>( m_pHeadIndicator->height() ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
-    double  dAPDist;
-    QPen    apPen( Qt::magenta );
-    QLineF  runwayLine;
-    int     iRunway;
+    Airport      ap;
+    QLineF       ball;
+    double	     dPxPerNM = static_cast<double>( m_pHeadIndicator->height() ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    double       dAPDist;
+    QPen         apPen( Qt::magenta );
+    QLineF       runwayLine;
+    int          iRunway, iAPRunway;
+    QFontMetrics itsyMetrics( itsy );
+    QRect        itsyRect = itsyMetrics.boundingRect( "00" );
+    QString      qsRunway;
 
     apPen.setWidth( 2 );
     pAhrs->setBrush( Qt::NoBrush );
-    pAhrs->setFont( tiny );
     foreach( ap, m_airports )
     {
         if( (!ap.bPublic) && (m_eShowAirports == Canvas::ShowPublicAirports) )
@@ -1364,19 +1361,33 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         pAhrs->drawEllipse( ball.p2().x() - 5, ball.p2().y() - 5, 10, 10 );
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
-        pAhrs->drawText( ball.p2().x() - 14, ball.p2().y() - 6, ap.qsID );
-        for( iRunway = 0; iRunway < ap.runways.count(); iRunway++ )
+        pAhrs->setFont( wee );
+        pAhrs->drawText( ball.p2().x() - 9, ball.p2().y() - 6, ap.qsID );
+        // Draw the runways and tiny headings after the black ID shadow but before the yellow ID text
+        if( m_dZoomNM <= 30 )
         {
-            runwayLine.setP1( QPointF( ball.p2().x(), ball.p2().y() ) );
-            runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + 20.0 ) );
-            runwayLine.setAngle( -(ap.runways.at( iRunway ) - g_situation.dAHRSGyroHeading) + 90.0 );
-            apPen.setColor( Qt::magenta );
-            apPen.setWidth( 3 );
-            pAhrs->setPen( apPen );
-            pAhrs->drawLine( runwayLine );
+            for( iRunway = 0; iRunway < ap.runways.count(); iRunway++ )
+            {
+                iAPRunway = ap.runways.at( iRunway );
+                runwayLine.setP1( QPointF( ball.p2().x(), ball.p2().y() ) );
+                runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + 20.0 ) );
+                runwayLine.setAngle( -(iAPRunway - g_situation.dAHRSGyroHeading) + 90.0 );
+                apPen.setColor( Qt::magenta );
+                apPen.setWidth( 3 );
+                pAhrs->setPen( apPen );
+                pAhrs->drawLine( runwayLine );
+                pAhrs->setFont( itsy );
+                runwayLine.setLength( runwayLine.length() + 5 );
+                if( ((iAPRunway - g_situation.dAHRSGyroHeading) > 90) && ((iAPRunway - g_situation.dAHRSGyroHeading) < 270) )
+                    runwayLine.setLength( runwayLine.length() + itsyRect.height() - 5 );
+                qsRunway = QString::number( iAPRunway );
+                qsRunway.chop( 1 );
+                pAhrs->drawText( runwayLine.p2().x() - (itsyRect.width() / 2), runwayLine.p2().y(), qsRunway );
+            }
         }
+        pAhrs->setFont( wee );
         apPen.setColor( Qt::yellow );
         pAhrs->setPen( apPen );
-        pAhrs->drawText( ball.p2().x() - 15, ball.p2().y() - 7, ap.qsID );
+        pAhrs->drawText( ball.p2().x() - 10, ball.p2().y() - 7, ap.qsID );
     }
 }
