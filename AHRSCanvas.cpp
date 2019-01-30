@@ -1343,6 +1343,12 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     QFontMetrics itsyMetrics( itsy );
     QRect        itsyRect = itsyMetrics.boundingRect( "00" );
     QString      qsRunway;
+    QPainterPath maskPath;
+
+    maskPath.addEllipse( (m_bPortrait ? 0 : c->dW) + c->dW2 - (m_pHeadIndicator->width() / 2),
+                         c->dH - m_pHeadIndicator->height() - 10.0,
+                         m_pHeadIndicator->width(), m_pHeadIndicator->height() );
+    pAhrs->setClipPath( maskPath );
 
     apPen.setWidth( 2 );
     pAhrs->setBrush( Qt::NoBrush );
@@ -1397,4 +1403,6 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         pAhrs->setPen( apPen );
         pAhrs->drawText( ball.p2().x() - 10, ball.p2().y() - 7, ap.qsID );
     }
+
+    pAhrs->setClipping( false );
 }

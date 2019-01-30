@@ -71,11 +71,16 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist,
 
     if( bUseCache && (g_airportCache.count() > 0) )
     {
-        Airport ap;
+        Airport     ap;
+        BearingDist bd;
 
         pAirports->clear();
         foreach( ap, g_airportCache )
+        {
+            bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
+            ap.bd = bd;
             pAirports->append( ap );
+        }
     }
     else
     {
@@ -147,7 +152,8 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist,
             if( iFound == 6 )
             {
                 bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
-                if( bd.dDistance <= dDist )
+                // Double the radius of allowed airports so the cache has a healthy buffer between the routine updates and full relookups
+                if( bd.dDistance <= (dDist * 2) )
                 {
                     ap.bd = bd;
                     pAirports->append( ap );
