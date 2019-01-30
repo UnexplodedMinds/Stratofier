@@ -18,7 +18,7 @@ public:
     static double      radiansRel( double dAng );
     static double      degHeading( double dAng );
 
-    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist );
+    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist, bool bUseCache );
 };
 
 #endif // TRAFFICMATH_H

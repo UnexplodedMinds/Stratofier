@@ -72,8 +72,8 @@ private:
     QPixmap  *m_pVertSpeedTape;
     QPixmap  *m_pZoomInPixmap;
     QPixmap  *m_pZoomOutPixmap;
-    double    m_dDPIMult;
-    bool      m_iDispTimer;
+    int       m_iDispTimer;
+    int       m_iUpdateCount;
     bool      m_bUpdated;
     bool      m_bShowGPSDetails;
     double    m_dZoomNM;

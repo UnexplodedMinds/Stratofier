@@ -36,7 +36,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "0.0.9" );
+QString g_qsRoscoPiVersion( "0.0.11" );
 
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
@@ -53,6 +53,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_pVertSpeedTape( 0 ),
       m_pZoomInPixmap( 0 ),
       m_pZoomOutPixmap( 0 ),
+      m_iUpdateCount( 0 ),
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
       m_bPortrait( true ),
@@ -190,7 +191,16 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
 
     // If we have a valid GPS position, run the list of airports within range by threading it so it doesn't interfere with the display update
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
-        QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
+    {
+        if( m_iUpdateCount < 6 )
+            QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM, true );
+        else
+        {
+            QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM, false );
+            m_iUpdateCount = 0;
+        }
+        m_iUpdateCount++;
+    }
 
     m_bUpdated = false;
 }
@@ -511,7 +521,7 @@ void AHRSCanvas::zoomIn()
         m_dZoomNM = 5.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
-    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
+    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM, false );
 }
 
 
@@ -522,7 +532,7 @@ void AHRSCanvas::zoomOut()
         m_dZoomNM = 100.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
-    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
+    TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM, false );
 }
 
 
