@@ -173,9 +173,6 @@ void AHRSCanvas::init()
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
-
-    g_situation.dGPSlat = 38.7053726;
-    g_situation.dGPSlong = -77.7745111;
 }
 
 
