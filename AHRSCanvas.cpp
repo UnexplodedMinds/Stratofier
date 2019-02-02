@@ -39,6 +39,15 @@ QSettings                *g_pSet;
 QString g_qsRoscoPiVersion( "0.0.11" );
 
 
+/*
+IMPORTANT NOTE:
+
+Wherever the dH constant is used for scaling, even for width or x offset, was deliberate, since
+that constant is always the same regardless of whether we're in landscape or portrait mode.  The
+dW constant is used differently which is why the more convenient dH is used instead.
+*/
+
+
 AHRSCanvas::AHRSCanvas( QWidget *parent )
     : QWidget( parent ),
       m_pCanvas( 0 ),
@@ -75,9 +84,6 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_windIcon.load( ":/icons/resources/WindIcon.png" );
     m_headIcon = m_headIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
     m_windIcon = m_windIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
-
-    m_pZoomInPixmap = new QPixmap( ":/icons/resources/add.png" );
-    m_pZoomOutPixmap = new QPixmap( ":/icons/resources/sub.png" );
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
@@ -148,20 +154,23 @@ void AHRSCanvas::init()
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
+    double          dW = static_cast<double>( width() );
+    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
 
     if( m_bPortrait )
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW - c.dW5 ), static_cast<int>( c.dW - c.dW5 ) );
-        m_pVertSpeedTape = new QPixmap( 40, c.dH2 );
+        m_pVertSpeedTape = new QPixmap( dW * 0.08333, c.dH2 );
     }
     else
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW2 + c.dW5 ), static_cast<int>( c.dW2 + c.dW5 ) );
-        m_pVertSpeedTape = new QPixmap( 40, c.dH );
+        m_pVertSpeedTape = new QPixmap( dW * 0.05, c.dH );
     }
+
     m_pHeadIndicator = new QPixmap( static_cast<int>( c.dW - c.dW20 ), static_cast<int>( c.dW - c.dW20 ) );
-    m_pAltTape = new QPixmap( static_cast<int>( c.dW5 + 50.0 ) - 50, c.iTinyFontHeight * 300 );						// 20000 ft / 100 x 1.5x font height
-    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) - 25, c.iTinyFontHeight * 60 );						    // 300 Knots x 2x font height
+    m_pAltTape = new QPixmap( static_cast<int>( c.dW5 ), c.iTinyFontHeight * 300 );                     // 20000 ft / 100 x 1.5x font height
+    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) + (dW * 0.0521), c.iTinyFontHeight * 60 );    // 300 Knots x 2x font height
     m_pRollIndicator->fill( Qt::transparent );
     m_pHeadIndicator->fill( Qt::transparent );
     m_pAltTape->fill( Qt::transparent );
@@ -172,6 +181,13 @@ void AHRSCanvas::init()
     Builder::buildAltTape( m_pAltTape, m_pCanvas );
     Builder::buildSpeedTape( m_pSpeedTape, m_pCanvas );
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
+
+    QPixmap zIn( ":/icons/resources/add.png" );
+    QPixmap zOut( ":/icons/resources/sub.png" );
+
+    m_pZoomInPixmap = new QPixmap( zIn.scaled( iZoomBtnSize, iZoomBtnSize ) );
+    m_pZoomOutPixmap = new QPixmap( zOut.scaled( iZoomBtnSize, iZoomBtnSize ) );
+
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
 }
@@ -230,6 +246,9 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 	double                dAlt;
 	QString               qsSign;
     QFontMetrics          tinyMetrics( tiny );
+    int                   iBallPenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.01875 : 0.03125) );
+    int                   iCourseLinePenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) );
+    int                   iCourseLineLength = static_cast<int>( c->dH * (m_bPortrait ? 0.0375 : 0.0625) );
 
     if( !m_bShowOutsideHeading )
     {
@@ -259,16 +278,16 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 			    ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
 			    // Draw the black part of the track line
-			    planePen.setWidth( 5 );
+                planePen.setWidth( static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) ) );
                 planePen.setColor( Qt::black );
 			    track.setP1( ball.p2() );
-			    track.setP2( QPointF( ball.p2().x(), ball.p2().y() + 30.0 ) );
+                track.setP2( QPointF( ball.p2().x(), ball.p2().y() + iCourseLineLength ) );
                 track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
                 pAhrs->setPen( planePen );
 			    pAhrs->drawLine( track );
 
                 // Draw the dot
-                planePen.setWidth( 15 );
+                planePen.setWidth( iBallPenWidth );
                 planePen.setColor( Qt::black );
                 pAhrs->setPen( planePen );
                 pAhrs->drawPoint( ball.p2() );
@@ -277,10 +296,10 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 pAhrs->drawPoint( ball.p2().x() - 2, ball.p2().y() - 2 );
 
                 // Draw the green part of the track line
-                planePen.setWidth( 5 );
+                planePen.setWidth( iCourseLinePenWidth );
                 planePen.setColor( Qt::green );
                 track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
-                track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + 28.0 ) );
+                track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + iCourseLineLength - 2 ) );
                 track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
                 pAhrs->setPen( planePen );
                 pAhrs->drawLine( track );
@@ -312,12 +331,16 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     QString qsZoom = QString( "%1 NM" ).arg( static_cast<int>( m_dZoomNM ) );
     QRect   zoomRect = tinyMetrics.boundingRect( qsZoom );
 
+#ifdef ANDROID
+    zoomRect.setWidth( zoomRect.width() * 4 );
+#endif
+
     // Draw the zoom level
     pAhrs->setFont( tiny );
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0), c->dH - 62.0 + (m_bPortrait ? 0 : 5), qsZoom );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0), c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5), qsZoom );
     pAhrs->setPen( QColor( 80, 255, 80 ) );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0), c->dH - 64.0 + (m_bPortrait ? 0 : 5), qsZoom );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0), c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5), qsZoom );
 }
 
 
@@ -886,8 +909,8 @@ void AHRSCanvas::paintPortrait()
         updateAirports( &ahrs, &c );
 
     // Draw the zoom in/out buttons
-    ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
-    ahrs.drawPixmap( 10, static_cast<int>( c.dH ) - 120, *m_pZoomOutPixmap );
+    ahrs.drawPixmap( c.dH * (m_bPortrait ? 0.0125 : 0.02083), static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
+    ahrs.drawPixmap( c.dH * (m_bPortrait ? 0.0125 : 0.02083), static_cast<int>( c.dH ) - 120, *m_pZoomOutPixmap );
     
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );

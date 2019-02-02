@@ -61,6 +61,16 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.iLargeFontHeight = largeRect.height();
     m_preCalc.iTinyFontWidth = tinyRect.width();
 
+// This just works out for Android font scaling (I don't know why)
+#ifdef ANDROID
+    m_preCalc.iWeeFontHeight *= 4;
+    m_preCalc.iTinyFontHeight *= 4;
+    m_preCalc.iSmallFontHeight *= 4;
+    m_preCalc.iMedFontHeight *= 4;
+    m_preCalc.iLargeFontHeight *= 4;
+    m_preCalc.iTinyFontWidth *= 4;
+#endif
+
     m_preCalc.dAspectL = m_preCalc.dW / m_preCalc.dH;
     m_preCalc.dAspectP = m_preCalc.dH / m_preCalc.dW;
 }
