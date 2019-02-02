@@ -6,27 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
+    <width>400</width>
     <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>440</width>
-    <height>300</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>440</width>
-    <height>300</height>
-   </size>
   </property>
   <property name="palette">
    <palette>
@@ -152,7 +140,7 @@ QPushButton::pressed
       </font>
      </property>
      <property name="text">
-      <string>RESET G-MTR   </string>
+      <string> RESET G-MTR   </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -186,7 +174,7 @@ QPushButton::pressed
       </font>
      </property>
      <property name="text">
-      <string>ALL AIRPORTS</string>
+      <string> ALL AIRPORTS</string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -300,7 +288,7 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>EXIT ROSCOPI</string>
+      <string> EXIT                 </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -337,7 +325,7 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>UPGRADE        </string>
+      <string> UPGRADE        </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -374,7 +362,7 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>TIMER               </string>
+      <string> TIMER               </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -426,7 +414,7 @@ QPushButton::checked
 </string>
        </property>
        <property name="text">
-        <string>ALL</string>
+        <string> ALL</string>
        </property>
        <property name="icon">
         <iconset resource="../AHRSResources.qrc">
@@ -482,7 +470,7 @@ QPushButton::checked
 </string>
        </property>
        <property name="text">
-        <string>OUT</string>
+        <string> OUT</string>
        </property>
        <property name="icon">
         <iconset resource="../AHRSResources.qrc">

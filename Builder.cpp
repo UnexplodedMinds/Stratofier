@@ -29,7 +29,7 @@ void Builder::buildAltTape( QPixmap *pAltTape, Canvas *pCanvas )
 {
     QPainter        ahrs( pAltTape );
     int             iAlt, iV = 1, iY;
-    CanvasConstants c = pCanvas->contants();
+    CanvasConstants c = pCanvas->constants();
     QString         qsAlt;
 
     ahrs.setFont( tiny );
@@ -52,7 +52,7 @@ void Builder::buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPor
 {
     QPainter        ahrs( pVertTape );
     int             iVert, iV = 1, iY;
-    CanvasConstants c = pCanvas->contants();
+    CanvasConstants c = pCanvas->constants();
     double          dLineHeight;
     QString         qsVSpeed;
 
@@ -85,7 +85,7 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
 {
     QPainter        ahrs( pSpeedTape );
     int             iSpeed, iV = 1, iY;
-    CanvasConstants c = pCanvas->contants();
+    CanvasConstants c = pCanvas->constants();
     QString         qsSpeed;
 
 	for( iSpeed = 300; iSpeed >= 0; iSpeed -= 10 )

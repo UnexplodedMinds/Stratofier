@@ -27,9 +27,10 @@ public:
     explicit AHRSMainWin( const QString &qsIP, bool bPortrait );
     ~AHRSMainWin();
 
-    bool menuActive() { return (m_pMenuDialog != 0); }
-    void restartTimer();
-    void stopTimer();
+    bool        menuActive() { return (m_pMenuDialog != 0); }
+    void        restartTimer();
+    void        stopTimer();
+    AHRSCanvas *disp() { return m_pAHRSDisp; }
 
 public slots:
     void menu();

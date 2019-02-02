@@ -27,11 +27,12 @@ public:
     explicit AHRSCanvas( QWidget *parent = 0 );
     ~AHRSCanvas();
 
-    void showAllTraffic( bool bAll );
-    void showOutside( bool bOut );
-    void showAirports( Canvas::ShowAirports eShow );
-    void setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
-    void timerReminder( int iMinutes, int iSeconds );
+    void    showAllTraffic( bool bAll );
+    void    showOutside( bool bOut );
+    void    showAirports( Canvas::ShowAirports eShow );
+    void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
+    void    timerReminder( int iMinutes, int iSeconds );
+    Canvas *canvas() { return m_pCanvas; }
 
 public slots:
     void init();

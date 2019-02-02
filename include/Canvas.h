@@ -75,7 +75,7 @@ public:
 
     Canvas( double dWidth, double dHeight, bool bPortrait );
 
-    CanvasConstants contants();
+    CanvasConstants constants();
     int             largeWidth( const QString &qsText );
 	int             medWidth( const QString &qsText );
 

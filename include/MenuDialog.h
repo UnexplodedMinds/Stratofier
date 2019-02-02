@@ -17,7 +17,7 @@ class MenuDialog : public QDialog, public Ui::MenuDialog
     Q_OBJECT
 
 public:
-    explicit MenuDialog( QWidget *pParent );
+    explicit MenuDialog( QWidget *pParent, bool bPortrait );
     ~MenuDialog();
 
 private:

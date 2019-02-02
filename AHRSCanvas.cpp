@@ -92,51 +92,51 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 // Delete everything that needs deleting
 AHRSCanvas::~AHRSCanvas()
 {
-    if( g_pSet != 0 )
+    if( g_pSet != Q_NULLPTR )
     {
         g_pSet->sync();
         delete g_pSet;
-        g_pSet = 0;
+        g_pSet = Q_NULLPTR;
     }
-    if( m_pRollIndicator != 0 )
+    if( m_pRollIndicator != Q_NULLPTR )
     {
         delete m_pRollIndicator;
-        m_pRollIndicator = 0;
+        m_pRollIndicator = Q_NULLPTR;
     }
-    if( m_pHeadIndicator != 0 )
+    if( m_pHeadIndicator != Q_NULLPTR )
     {
         delete m_pHeadIndicator;
-        m_pHeadIndicator = 0;
+        m_pHeadIndicator = Q_NULLPTR;
     }
-    if( m_pAltTape != 0 )
+    if( m_pAltTape != Q_NULLPTR )
     {
         delete m_pAltTape;
-        m_pAltTape = 0;
+        m_pAltTape = Q_NULLPTR;
     }
-    if( m_pSpeedTape != 0 )
+    if( m_pSpeedTape != Q_NULLPTR )
     {
         delete m_pSpeedTape;
-        m_pSpeedTape = 0;
+        m_pSpeedTape = Q_NULLPTR;
     }
-    if( m_pVertSpeedTape != 0 )
+    if( m_pVertSpeedTape != Q_NULLPTR )
     {
         delete m_pVertSpeedTape;
-        m_pVertSpeedTape = 0;
+        m_pVertSpeedTape = Q_NULLPTR;
     }
-    if( m_pCanvas != 0 )
+    if( m_pCanvas != Q_NULLPTR )
     {
         delete m_pCanvas;
-        m_pCanvas = 0;
+        m_pCanvas = Q_NULLPTR;
     }
-    if( m_pZoomInPixmap != 0 )
+    if( m_pZoomInPixmap != Q_NULLPTR )
     {
         delete m_pZoomInPixmap;
-        m_pZoomInPixmap = 0;
+        m_pZoomInPixmap = Q_NULLPTR;
     }
-    if( m_pZoomOutPixmap != 0 )
+    if( m_pZoomOutPixmap != Q_NULLPTR )
     {
         delete m_pZoomOutPixmap;
-        m_pZoomOutPixmap = 0;
+        m_pZoomOutPixmap = Q_NULLPTR;
     }
 }
 
@@ -147,7 +147,7 @@ void AHRSCanvas::init()
 {
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
-    CanvasConstants c = m_pCanvas->contants();
+    CanvasConstants c = m_pCanvas->constants();
 
     if( m_bPortrait )
     {
@@ -408,13 +408,14 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
 void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 {
     // Otherwise we're looking for specific spots
-    CanvasConstants c = m_pCanvas->contants();
+    CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
     QRect           gpsRect( (m_bPortrait ? c.dW : width()) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
     QRect           zoomInRect;
     QRect           zoomOutRect;
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
+    double          dW = static_cast<double>( width() );                    // We want the actual width here for scaling purposes instead of the constants one
 
     if( m_bPortrait )
     {
@@ -448,7 +449,10 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         int         iButton = -1;
         BugSelector bugSel( this );
 
-        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - 100.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 100.0, 200.0, 200.0 );
+        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - static_cast<int>( dW * (m_bPortrait ? 0.2083 : 0.125) ),
+                            iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( c.dH * (m_bPortrait ? 0.125 : 0.2083) ),
+                            static_cast<int>( dW * 0.4167 ),
+                            static_cast<int>( c.dH * 0.25 ) );
 
         iButton = bugSel.exec();
 
@@ -465,7 +469,10 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 
         Keypad keypad( this, "HEADING" );
 
-        keypad.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - 200.0, iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 170.0, 400.0, 320.0 );
+        keypad.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_bPortrait ? dW * 0.4167 : dW * 0.25),
+                            iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( m_bPortrait ? c.dH * 0.2 : c.dH * 0.3333 ),
+                            m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
+
         if( iButton == static_cast<int>( BugSelector::WindBug ) )
             keypad.setTitle( "WIND FROM HEADING" );
 
@@ -503,7 +510,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 
 void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
 {
-    CanvasConstants c = m_pCanvas->contants();
+    CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
 
     if( headRect.contains( pEvent->pos() ) )
@@ -566,7 +573,7 @@ void AHRSCanvas::showAirports( Canvas::ShowAirports eShow )
 void AHRSCanvas::paintPortrait()
 {
     QPainter        ahrs( this );
-    CanvasConstants c = m_pCanvas->contants();
+    CanvasConstants c = m_pCanvas->constants();
     double          dPitchH = c.dH4 + (g_situation.dAHRSpitch / 22.5 * c.dH4);     // The visible portion is only 1/4 of the 90 deg range
     QString         qsHead( QString( "%1" ).arg( static_cast<int>( g_situation.dAHRSGyroHeading ), 3, 10, QChar( '0' ) ) );
     QPolygon        shape;
@@ -966,7 +973,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
 void AHRSCanvas::paintLandscape()
 {
     QPainter        ahrs( this );
-    CanvasConstants c = m_pCanvas->contants();
+    CanvasConstants c = m_pCanvas->constants();
     double          dPitchH = c.dH2 + (g_situation.dAHRSpitch / 22.5 * c.dH2);     // The visible portion is only 1/4 of the 90 deg range
     QString         qsHead( QString( "%1" ).arg( static_cast<int>( g_situation.dAHRSGyroHeading ), 3, 10, QChar( '0' ) ) );
     QPolygon        shape;

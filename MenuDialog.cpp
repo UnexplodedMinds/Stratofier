@@ -4,8 +4,12 @@ RoscoPi Stratux AHRS Display
 */
 
 #include <QSettings>
+#include <QPushButton>
 
 #include "MenuDialog.h"
+#include "AHRSMainWin.h"
+#include "AHRSCanvas.h"
+#include "Canvas.h"
 
 #include "ui_MenuDialog.h"
 
@@ -13,13 +17,21 @@ RoscoPi Stratux AHRS Display
 extern QSettings *g_pSet;
 
 
-MenuDialog::MenuDialog( QWidget *pParent )
+MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
 {
-    bool bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
-    bool bShowOutsideHead = g_pSet->value( "ShowOutsideHeading", true ).toBool();
+    bool                bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
+    bool                bShowOutsideHead = g_pSet->value( "ShowOutsideHeading", true ).toBool();
+    CanvasConstants     c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
+    int                 iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
 
     setupUi( this );
+
+    QList<QPushButton*> kids = findChildren<QPushButton *>();
+    QPushButton        *pKid;
+
+    foreach( pKid, kids )
+        pKid->setIconSize( QSize( iIconSize, iIconSize ) );
 
     m_pTrafficFilterButton->blockSignals( true );
     m_pTrafficFilterButton->setChecked( bShowAllTraffic );
@@ -64,18 +76,18 @@ MenuDialog::~MenuDialog()
 void MenuDialog::traffic( bool bAll )
 {
     if( bAll )
-        m_pTrafficFilterButton->setText( "ALL" );
+        m_pTrafficFilterButton->setText( " ALL" );
     else
-        m_pTrafficFilterButton->setText( "CLS" );
+        m_pTrafficFilterButton->setText( " CLS" );
 }
 
 
 void MenuDialog::inOut( bool bOut )
 {
     if( bOut )
-        m_pTrafficInOutButton->setText( "OUT" );
+        m_pTrafficInOutButton->setText( " OUT" );
     else
-        m_pTrafficInOutButton->setText( "IN" );
+        m_pTrafficInOutButton->setText( " IN" );
 }
 
 
@@ -85,19 +97,19 @@ void MenuDialog::airports()
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 goldenrod, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowPublicAirports;
-        m_pAirportButton->setText( "PUB AIRPORTS" );
+        m_pAirportButton->setText( " PUB AIRPORTS" );
     }
     else if( m_eShowAirports == Canvas::ShowPublicAirports )
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 green, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowAllAirports;
-        m_pAirportButton->setText( "ALL AIRPORTS" );
+        m_pAirportButton->setText( " ALL AIRPORTS" );
     }
     else
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 #641200, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowNoAirports;
-        m_pAirportButton->setText( "NO AIRPORTS  " );
+        m_pAirportButton->setText( " NO AIRPORTS  " );
     }
 
     emit showAirports( m_eShowAirports );

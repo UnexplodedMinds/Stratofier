@@ -66,7 +66,7 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
 }
 
 
-CanvasConstants Canvas::contants()
+CanvasConstants Canvas::constants()
 {
     return m_preCalc;
 }

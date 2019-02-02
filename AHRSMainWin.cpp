@@ -18,16 +18,16 @@ RoscoPi Stratux AHRS Display
 #include "Keypad.h"
 
 
-// Android default font
 #if defined( Q_OS_ANDROID )
+// Android default font
 QFont itsy(  "Roboto", 6, QFont::Normal  );
 QFont wee(   "Roboto", 8, QFont::Normal  );
 QFont tiny(  "Roboto", 12, QFont::Normal );
 QFont small( "Roboto", 16, QFont::Normal );
 QFont med(   "Roboto", 18, QFont::Bold   );
 QFont large( "Roboto", 24, QFont::Bold   );
-// Raspbian default font
 #else
+// Raspbian default font
 QFont itsy(  "Piboto", 6, QFont::Normal  );
 QFont wee(   "Piboto", 8, QFont::Normal  );
 QFont tiny(  "Piboto", 12, QFont::Normal );
@@ -53,26 +53,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     setupUi( this );
 
     m_pAHRSDisp->setPortrait( bPortrait );
-    if( !bPortrait )
-    {
-        m_pMenuButton->setMinimumHeight( 20 );
-        m_pMenuButton->setMaximumHeight( 20 );
-        m_pMenuButton->setIconSize( QSize( 12, 12 ) );
-        m_pStatusIndicator->setMaximumHeight( 20 );
-        m_pAHRSIndicator->setMaximumHeight( 20 );
-        m_pTrafficIndicator->setMaximumHeight( 20 );
-        m_pGPSIndicator->setMaximumHeight( 20 );
-    }
-    else
-    {
-        m_pMenuButton->setMinimumHeight( 30 );
-        m_pMenuButton->setMaximumHeight( 30 );
-        m_pMenuButton->setIconSize( QSize( 16, 16 ) );
-        m_pStatusIndicator->setMaximumHeight( 30 );
-        m_pAHRSIndicator->setMaximumHeight( 30 );
-        m_pTrafficIndicator->setMaximumHeight( 30 );
-        m_pGPSIndicator->setMaximumHeight( 30 );
-    }
 
     connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 
@@ -94,13 +74,36 @@ void AHRSMainWin::init()
 {
     if( !m_bPortrait )
     {
+        int iBtnHeight = static_cast<int>( static_cast<double>( height() ) * 0.04187 );
+        int iIconSize = static_cast<int>( static_cast<double>( height() ) * 0.025 );
+
+        m_pMenuButton->setMinimumHeight( iBtnHeight );
+        m_pMenuButton->setMaximumHeight( iBtnHeight );
+        m_pMenuButton->setIconSize( QSize( iIconSize, iIconSize ) );
+        m_pStatusIndicator->setMaximumHeight( iBtnHeight );
+        m_pAHRSIndicator->setMaximumHeight( iBtnHeight );
+        m_pTrafficIndicator->setMaximumHeight( iBtnHeight );
+        m_pGPSIndicator->setMaximumHeight( iBtnHeight );
+
         m_pMenuButton->setMinimumWidth( width() / 2 );
         m_pMenuButton->setMaximumWidth( width() / 2 );
     }
     else
     {
-        m_pMenuButton->setMinimumWidth( 150 );
-        m_pMenuButton->setMaximumWidth( 150 );
+        int iBtnHeight = static_cast<int>( static_cast<double>( height() ) * 0.0375 );
+        int iIconSize = static_cast<int>( static_cast<double>( height() ) * 0.02 );
+        int iMenuBtnWidth = static_cast<int>( static_cast<double>( width() ) * 0.3125 );
+
+        m_pMenuButton->setMinimumHeight( iBtnHeight );
+        m_pMenuButton->setMaximumHeight( iBtnHeight );
+        m_pMenuButton->setIconSize( QSize( iIconSize, iIconSize ) );
+        m_pStatusIndicator->setMaximumHeight( iBtnHeight );
+        m_pAHRSIndicator->setMaximumHeight( iBtnHeight );
+        m_pTrafficIndicator->setMaximumHeight( iBtnHeight );
+        m_pGPSIndicator->setMaximumHeight( iBtnHeight );
+
+        m_pMenuButton->setMinimumWidth( iMenuBtnWidth );
+        m_pMenuButton->setMaximumWidth( iMenuBtnWidth );
     }
 }
 
@@ -136,9 +139,17 @@ void AHRSMainWin::menu()
 {
     if( m_pMenuDialog == Q_NULLPTR )
     {
-        m_pMenuDialog = new MenuDialog( this );
+        CanvasConstants c = m_pAHRSDisp->canvas()->constants();
+        double          dW = static_cast<double>( width() );
+        int             iW = static_cast<int>( dW * (m_bPortrait ? 0.8333 : 0.5) );
+        int             iH = static_cast<int>( c.dH * (m_bPortrait ? 0.375 : 0.625) );
 
-        m_pMenuDialog->setGeometry( x(), y() + height() - (m_bPortrait ? 330 : 320), 440, 300 );
+        m_pMenuDialog = new MenuDialog( this, m_bPortrait );
+
+        // Scale the menu dialog according to screen resolution
+        m_pMenuDialog->setMinimumWidth( iW );
+        m_pMenuDialog->setMinimumHeight( iH );
+        m_pMenuDialog->setGeometry( x(), y() + c.dH - iH, iW, iH );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
