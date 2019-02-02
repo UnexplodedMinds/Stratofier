@@ -17,9 +17,6 @@ RoscoPi Stratux AHRS Display
 #include "TrafficMath.h"
 
 
-extern bool g_bEmulated;
-
-
 StreamReader::StreamReader( QObject *parent, const QString &qsIP )
     : QObject( parent ),
       m_bHaveMyPos( false ),

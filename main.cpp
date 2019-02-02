@@ -8,8 +8,6 @@ RoscoPi Stratux AHRS Display
 
 #include "AHRSMainWin.h"
 
-bool g_bEmulated = false;
-
 
 int main( int argc, char *argv[] )
 {

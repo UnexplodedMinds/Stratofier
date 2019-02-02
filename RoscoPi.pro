@@ -7,6 +7,14 @@
 
 QT += core gui websockets widgets network concurrent
 
+android {
+    QT += androidextras
+    DEFINES += QT_AUTO_SCREEN_SCALE_FACTOR
+    CONFIG += mobility
+    MOBILITY =
+    DISTFILES += AndroidManifest.xml
+}
+
 TARGET = RoscoPi
 TEMPLATE = app
 
@@ -41,7 +49,7 @@ SOURCES += main.cpp \
            Canvas.cpp \
            MenuDialog.cpp \
            Builder.cpp \
-		   TimerDialog.cpp
+           TimerDialog.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -53,13 +61,13 @@ HEADERS += StratuxStreams.h \
            Canvas.h \
            MenuDialog.h \
            Builder.h \
-		   RoscoPiDefs.h \
-		   TimerDialog.h
+           RoscoPiDefs.h \
+           TimerDialog.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
          Keypad.ui \
          MenuDialog.ui \
-		 TimerDialog.ui
+         TimerDialog.ui
 
 RESOURCES += AHRSResources.qrc

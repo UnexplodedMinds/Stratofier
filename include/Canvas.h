@@ -81,7 +81,6 @@ public:
 
 private:
     CanvasConstants m_preCalc;
-    bool            m_bPortrait;
 };
 
 

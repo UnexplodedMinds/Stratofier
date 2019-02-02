@@ -18,7 +18,6 @@ extern QFont large;
 
 
 Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
-    : m_bPortrait( bPortrait )
 {
 	QFontMetrics weeMetrics( wee );
 	QRect        weeRect( weeMetrics.boundingRect( "0" ) );
