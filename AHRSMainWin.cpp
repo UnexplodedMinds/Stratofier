@@ -8,6 +8,7 @@ RoscoPi Stratux AHRS Display
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QFont>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -17,26 +18,37 @@ RoscoPi Stratux AHRS Display
 #include "Keypad.h"
 
 
+// Android default font
+#if defined( Q_OS_ANDROID )
+QFont itsy(  "Roboto", 6, QFont::Normal  );
+QFont wee(   "Roboto", 8, QFont::Normal  );
+QFont tiny(  "Roboto", 12, QFont::Normal );
+QFont small( "Roboto", 16, QFont::Normal );
+QFont med(   "Roboto", 18, QFont::Bold   );
+QFont large( "Roboto", 24, QFont::Bold   );
+// Raspbian default font
+#else
 QFont itsy(  "Piboto", 6, QFont::Normal  );
 QFont wee(   "Piboto", 8, QFont::Normal  );
 QFont tiny(  "Piboto", 12, QFont::Normal );
 QFont small( "Piboto", 16, QFont::Normal );
 QFont med(   "Piboto", 18, QFont::Bold   );
 QFont large( "Piboto", 24, QFont::Bold   );
+#endif
 
 
 // Setup minimal UI elements and make the connections
 AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
-    : QMainWindow( 0, Qt::Window | Qt::FramelessWindowHint ),
+    : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
       m_pStratuxStream( new StreamReader( this, qsIP ) ),
       m_bStartup( true ),
-      m_pMenuDialog( 0 ),
+      m_pMenuDialog( Q_NULLPTR ),
       m_qsIP( qsIP ),
       m_bPortrait( bPortrait ),
+      m_iTimerSeconds( 0 ),
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
-      m_iTimerTimer( -1 ),
-      m_iTimerSeconds( 0 )
+      m_iTimerTimer( -1 )
 {
     setupUi( this );
 
@@ -97,10 +109,10 @@ void AHRSMainWin::init()
 AHRSMainWin::~AHRSMainWin()
 {
     delete m_pStratuxStream;
-    m_pStratuxStream = 0;
+    m_pStratuxStream = Q_NULLPTR;
 
     delete m_pAHRSDisp;
-    m_pAHRSDisp = 0;
+    m_pAHRSDisp = Q_NULLPTR;
 }
 
 
@@ -122,7 +134,7 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 // Display the menu dialog and handle specific returns
 void AHRSMainWin::menu()
 {
-    if( m_pMenuDialog == 0 )
+    if( m_pMenuDialog == Q_NULLPTR )
     {
         m_pMenuDialog = new MenuDialog( this );
 
@@ -141,7 +153,7 @@ void AHRSMainWin::menu()
     else
     {
         delete m_pMenuDialog;
-        m_pMenuDialog = 0;
+        m_pMenuDialog = Q_NULLPTR;
     }
 }
 
@@ -150,7 +162,7 @@ void AHRSMainWin::resetLevel()
 {
     system( QString( "wget -q --post-data=\"\" http://%1/cageAHRS >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
-    m_pMenuDialog = 0;
+    m_pMenuDialog = Q_NULLPTR;
 }
 
 
@@ -158,14 +170,14 @@ void AHRSMainWin::resetGMeter()
 {
     system( QString( "wget -q --post-data=\"\" http://%1/resetGMeter >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
-    m_pMenuDialog = 0;
+    m_pMenuDialog = Q_NULLPTR;
 }
 
 
 void AHRSMainWin::upgradeRosco()
 {
     delete m_pMenuDialog;
-    m_pMenuDialog = 0;
+    m_pMenuDialog = Q_NULLPTR;
     if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active internet connection.\n\n"
                                                 "Select 'Yes' to download and install the latest RoscoPi version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
@@ -201,7 +213,7 @@ void AHRSMainWin::keyReleaseEvent( QKeyEvent *pEvent )
 
 void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
 {
-    if( pEvent == 0 )
+    if( pEvent == Q_NULLPTR )
         return;
 
     // If we haven't gotten a status update for over ten seconds, force a reconnect
@@ -216,7 +228,7 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
     else if( pEvent->timerId() == m_iTimerTimer )
     {
         QDateTime now = QDateTime::currentDateTime();
-        int       iTimer = m_iTimerSeconds - m_timerStart.secsTo( now );
+        int       iTimer = m_iTimerSeconds - static_cast<int>( m_timerStart.secsTo( now ) );
         int       iMinutes = iTimer / 60;
         int       iSeconds = iTimer - (iMinutes * 60);
 
@@ -248,7 +260,7 @@ void AHRSMainWin::changeTimer()
     Keypad keypad( this, "TIMER", true );
 
     delete m_pMenuDialog;
-    m_pMenuDialog = 0;
+    m_pMenuDialog = Q_NULLPTR;
 
     if( keypad.exec() == QDialog::Accepted )
     {
