@@ -302,3 +302,14 @@ void AHRSMainWin::stopTimer()
     m_iTimerTimer = -1;
     m_bTimerActive = false;
 }
+
+
+#ifdef ANDROID
+void AHRSMainWin::resizeEvent( QResizeEvent *pEvent )
+{
+    QSize newSize = pEvent->size();
+
+    m_bPortrait = (newSize.width() < newSize.height());
+    init();
+}
+#endif

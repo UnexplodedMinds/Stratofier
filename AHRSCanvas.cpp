@@ -50,18 +50,18 @@ dW constant is used differently which is why the more convenient dH is used inst
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
     : QWidget( parent ),
-      m_pCanvas( 0 ),
+      m_pCanvas( Q_NULLPTR ),
       m_bInitialized( false ),
       m_iHeadBugAngle( -1 ),
       m_iWindBugAngle( -1 ),
       m_iWindBugSpeed( 0 ),
-      m_pRollIndicator( 0 ),
-      m_pHeadIndicator( 0 ),
-      m_pAltTape( 0 ),
-      m_pSpeedTape( 0 ),
-      m_pVertSpeedTape( 0 ),
-      m_pZoomInPixmap( 0 ),
-      m_pZoomOutPixmap( 0 ),
+      m_pRollIndicator( Q_NULLPTR ),
+      m_pHeadIndicator( Q_NULLPTR ),
+      m_pAltTape( Q_NULLPTR ),
+      m_pSpeedTape( Q_NULLPTR ),
+      m_pVertSpeedTape( Q_NULLPTR ),
+      m_pZoomInPixmap( Q_NULLPTR ),
+      m_pZoomOutPixmap( Q_NULLPTR ),
       m_iUpdateCount( 0 ),
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
@@ -151,11 +151,28 @@ AHRSCanvas::~AHRSCanvas()
 // and start the update timer.
 void AHRSCanvas::init()
 {
+    if( m_pCanvas != Q_NULLPTR )
+        delete m_pCanvas;
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
     double          dW = static_cast<double>( width() );
     int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
+
+    if( m_pRollIndicator != Q_NULLPTR )
+        delete m_pRollIndicator;
+    if( m_pVertSpeedTape != Q_NULLPTR )
+        delete m_pVertSpeedTape;
+    if( m_pHeadIndicator != Q_NULLPTR )
+        delete m_pHeadIndicator;
+    if( m_pAltTape != Q_NULLPTR )
+        delete m_pAltTape;
+    if( m_pSpeedTape != Q_NULLPTR )
+        delete m_pSpeedTape;
+    if( m_pZoomInPixmap != Q_NULLPTR )
+        delete m_pZoomInPixmap;
+    if( m_pZoomOutPixmap != Q_NULLPTR )
+        delete m_pZoomOutPixmap;
 
     if( m_bPortrait )
     {
@@ -439,11 +456,12 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
     double          dW = static_cast<double>( width() );                    // We want the actual width here for scaling purposes instead of the constants one
+    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
 
     if( m_bPortrait )
     {
-        zoomInRect.setRect( 0.0, c.dH - m_pHeadIndicator->height() + 5, 75, 75 );
-        zoomOutRect.setRect( 0.0, c.dH - 130.0, 75, 75 );
+        zoomInRect.setRect( c.dH * 0.0125, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, iZoomBtnSize, iZoomBtnSize );
+        zoomOutRect.setRect( c.dH * 0.0125, static_cast<int>( c.dH ) - (c.dH * 0.15), iZoomBtnSize, iZoomBtnSize );
     }
     else
     {
@@ -909,8 +927,8 @@ void AHRSCanvas::paintPortrait()
         updateAirports( &ahrs, &c );
 
     // Draw the zoom in/out buttons
-    ahrs.drawPixmap( c.dH * (m_bPortrait ? 0.0125 : 0.02083), static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
-    ahrs.drawPixmap( c.dH * (m_bPortrait ? 0.0125 : 0.02083), static_cast<int>( c.dH ) - 120, *m_pZoomOutPixmap );
+    ahrs.drawPixmap( c.dH * 0.0125, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
+    ahrs.drawPixmap( c.dH * 0.0125, static_cast<int>( c.dH ) - (c.dH * 0.15), *m_pZoomOutPixmap );
     
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1083,7 +1101,7 @@ void AHRSCanvas::paintLandscape()
     // Draw the top roll indicator
     ahrs.translate( c.dW2 - c.dW20, (static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 );
     ahrs.rotate( -g_situation.dAHRSroll );
-    ahrs.translate( -(c.dW2 - c.dW20), -((static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 )  );
+    ahrs.translate( -(c.dW2 - c.dW20), -((static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 ) );
     ahrs.drawPixmap( c.dW4 - c.dW10 - c.dW20, c.dH40, *m_pRollIndicator );
     ahrs.resetTransform();
 
@@ -1224,7 +1242,7 @@ void AHRSCanvas::paintLandscape()
 
     // Draw zoom in/out buttons
     ahrs.drawPixmap( c.dW + 10, 10, *m_pZoomInPixmap );
-    ahrs.drawPixmap( (c.dW * 2.0) - 50, 10, *m_pZoomOutPixmap );
+    ahrs.drawPixmap( (c.dW * 2.0) - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
 
     // Draw the Altitude tape
     ahrs.fillRect( QRectF( c.dW - c.dW5 - 10.0, 0.0, c.dW5 - 30.0, c.dH ), QColor( 0, 0, 0, 100 ) );
@@ -1436,3 +1454,21 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setClipping( false );
 }
+
+
+#ifdef ANDROID
+void AHRSCanvas::resizeEvent( QResizeEvent *pEvent )
+{
+    if( !m_bInitialized )
+        return;
+
+    QSize newSize = pEvent->size();
+
+    m_bInitialized = false;
+    m_bPortrait = (newSize.width() < newSize.height());
+
+    killTimer( m_iDispTimer );
+    init();
+}
+#endif
+

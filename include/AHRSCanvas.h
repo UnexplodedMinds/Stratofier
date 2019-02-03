@@ -44,6 +44,9 @@ protected:
     void mouseReleaseEvent( QMouseEvent *pEvent );
     void mousePressEvent( QMouseEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
+#ifdef ANDROID
+    void resizeEvent( QResizeEvent *pEvent );
+#endif
 
 private:
     void updateTraffic( QPainter *pAhrs, CanvasConstants *c );

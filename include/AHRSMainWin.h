@@ -39,6 +39,9 @@ public slots:
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
+#ifdef ANDROID
+    void resizeEvent( QResizeEvent *pEvent );
+#endif
 
 private:
     StreamReader *m_pStratuxStream;
