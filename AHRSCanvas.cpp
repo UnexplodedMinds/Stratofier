@@ -44,7 +44,7 @@ IMPORTANT NOTE:
 
 Wherever the dH constant is used for scaling, even for width or x offset, was deliberate, since
 that constant is always the same regardless of whether we're in landscape or portrait mode.  The
-dW constant is used differently which is why the more convenient dH is used instead.
+dWa constant is used differently which is why the more convenient dH is used instead.
 */
 
 
@@ -82,8 +82,6 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_planeIcon.load( ":/graphics/resources/Plane.png" );
     m_headIcon.load( ":/icons/resources/HeadingIcon.png" );
     m_windIcon.load( ":/icons/resources/WindIcon.png" );
-    m_headIcon = m_headIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
-    m_windIcon = m_windIcon.scaled( 64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
@@ -156,8 +154,11 @@ void AHRSCanvas::init()
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
-    double          dW = static_cast<double>( width() );
     int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
+    int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) );
+
+    m_headIcon = m_headIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    m_windIcon = m_windIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 
     if( m_pRollIndicator != Q_NULLPTR )
         delete m_pRollIndicator;
@@ -177,17 +178,17 @@ void AHRSCanvas::init()
     if( m_bPortrait )
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW - c.dW5 ), static_cast<int>( c.dW - c.dW5 ) );
-        m_pVertSpeedTape = new QPixmap( dW * 0.08333, c.dH2 );
+        m_pVertSpeedTape = new QPixmap( c.dWa * 0.08333, c.dH2 );
     }
     else
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW2 + c.dW5 ), static_cast<int>( c.dW2 + c.dW5 ) );
-        m_pVertSpeedTape = new QPixmap( dW * 0.05, c.dH );
+        m_pVertSpeedTape = new QPixmap( c.dWa * 0.05, c.dH );
     }
 
     m_pHeadIndicator = new QPixmap( static_cast<int>( c.dW - c.dW20 ), static_cast<int>( c.dW - c.dW20 ) );
     m_pAltTape = new QPixmap( static_cast<int>( c.dW5 ), c.iTinyFontHeight * 300 );                     // 20000 ft / 100 x 1.5x font height
-    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) + (dW * 0.0521), c.iTinyFontHeight * 60 );    // 300 Knots x 2x font height
+    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) + (c.dWa * 0.0521), c.iTinyFontHeight * 60 );    // 300 Knots x 2x font height
     m_pRollIndicator->fill( Qt::transparent );
     m_pHeadIndicator->fill( Qt::transparent );
     m_pAltTape->fill( Qt::transparent );
@@ -450,12 +451,11 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     // Otherwise we're looking for specific spots
     CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
-    QRect           gpsRect( (m_bPortrait ? c.dW : width()) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
+    QRect           gpsRect( (m_bPortrait ? c.dW : c.dWa) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
     QRect           zoomInRect;
     QRect           zoomOutRect;
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
-    double          dW = static_cast<double>( width() );                    // We want the actual width here for scaling purposes instead of the constants one
     int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
 
     if( m_bPortrait )
@@ -490,10 +490,12 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         int         iButton = -1;
         BugSelector bugSel( this );
 
-        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - static_cast<int>( dW * (m_bPortrait ? 0.2083 : 0.125) ),
+        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - static_cast<int>( c.dWa * (m_bPortrait ? 0.2083 : 0.125) ),
                             iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( c.dH * (m_bPortrait ? 0.125 : 0.2083) ),
-                            static_cast<int>( dW * 0.4167 ),
+                            static_cast<int>( c.dWa * 0.4167 ),
                             static_cast<int>( c.dH * 0.25 ) );
+        bugSel.setMinimumSize( static_cast<int>( c.dWa * (m_bPortrait? 0.4167 : 0.25) ),
+                               static_cast<int>( c.dH * (m_bPortrait ? 0.25 : 0.4167) ) );
 
         iButton = bugSel.exec();
 
@@ -510,9 +512,10 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 
         Keypad keypad( this, "HEADING" );
 
-        keypad.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_bPortrait ? dW * 0.4167 : dW * 0.25),
+        keypad.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_bPortrait ? c.dWa * 0.4167 : c.dWa * 0.25),
                             iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( m_bPortrait ? c.dH * 0.2 : c.dH * 0.3333 ),
                             m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
+        keypad.setMinimumSize( m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
 
         if( iButton == static_cast<int>( BugSelector::WindBug ) )
             keypad.setTitle( "WIND FROM HEADING" );
@@ -753,7 +756,7 @@ void AHRSCanvas::paintPortrait()
         ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_headIcon );
+        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - m_pHeadIndicator->height() - (m_headIcon.height() / 2) - 5.0, m_headIcon );
 
         // If long press triggered crosswind component display and the wind bug is set
         if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
@@ -773,7 +776,7 @@ void AHRSCanvas::paintPortrait()
         ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_windIcon );
+        ahrs.drawPixmap( c.dW2 - (m_windIcon.width() / 2), c.dH - m_pHeadIndicator->height() - (m_windIcon.height() / 2) - 5, m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
         QFontMetrics windMetrics( med );

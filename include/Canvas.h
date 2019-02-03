@@ -10,6 +10,7 @@ RoscoPi Stratux AHRS Display
 struct CanvasConstants
 {
     double dW;
+    double dWa;
     double dW2;
     double dW4;
     double dW5;

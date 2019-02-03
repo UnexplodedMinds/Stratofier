@@ -140,8 +140,7 @@ void AHRSMainWin::menu()
     if( m_pMenuDialog == Q_NULLPTR )
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
-        double          dW = static_cast<double>( width() );
-        int             iW = static_cast<int>( dW * (m_bPortrait ? 0.8333 : 0.5) );
+        int             iW = static_cast<int>( c.dWa * (m_bPortrait ? 0.8333 : 0.5) );
         int             iH = static_cast<int>( c.dH * (m_bPortrait ? 0.375 : 0.625) );
 
         m_pMenuDialog = new MenuDialog( this, m_bPortrait );
