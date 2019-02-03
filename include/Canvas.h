@@ -39,8 +39,15 @@ struct CanvasConstants
     int iSmallFontHeight;
     int iMedFontHeight;
     int iLargeFontHeight;
+    int iHugeFontHeight;
 
     int iTinyFontWidth;
+
+    int iThinPen;
+    int iThickPen;
+    int iFatPen;
+
+    bool bPortrait;
 };
 
 
@@ -77,6 +84,7 @@ public:
     Canvas( double dWidth, double dHeight, bool bPortrait );
 
     CanvasConstants constants();
+    int             hugeWidth( const QString &qsText );
     int             largeWidth( const QString &qsText );
 	int             medWidth( const QString &qsText );
 

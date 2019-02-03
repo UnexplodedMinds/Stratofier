@@ -31,6 +31,7 @@ extern QFont tiny;
 extern QFont small;
 extern QFont med;
 extern QFont large;
+extern QFont huge;
 
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
@@ -682,9 +683,9 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( Qt::NoPen );
     ahrs.setBrush( Qt::white );
     ahrs.drawEllipse( dSlipSkid - 10.0,
-        1.0,
-        20.0,
-        c.dH40 );
+                      1.0,
+                      20.0,
+                      c.dH40 );
 
     // Draw the top roll indicator
     ahrs.translate( c.dW2, (static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 );
@@ -695,9 +696,9 @@ void AHRSCanvas::paintPortrait()
 
     QPolygonF arrow;
 
-    arrow.append( QPointF( c.dW2, c.dH40 + 50.0 ) );
-    arrow.append( QPointF( c.dW2 + 15.0, c.dH40 + 65.0 ) );
-    arrow.append( QPointF( c.dW2 - 15, c.dH40 + 65.0 ) );
+    arrow.append( QPointF( c.dW2, c.dH40 + (c.dH * (m_bPortrait ? 0.0625 : 0.104167)) ) );
+    arrow.append( QPointF( c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
+    arrow.append( QPointF( c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
@@ -724,18 +725,23 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPolygon( shape );
 
     // Draw the heading value over the indicator
-    ahrs.setPen( QPen( Qt::white, 2 ) );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 45.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
+    ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
     ahrs.setPen( Qt::white );
+#ifdef ANDROID
+    ahrs.setFont( large );
+    ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) + 20, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.075 : 0.125)), qsHead );
+#else
     ahrs.setFont( med );
     ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 53.0, qsHead );
+#endif
 
     // Arrow for heading position above heading dial
     arrow.clear();
-    arrow.append( QPointF( c.dW2, c.dH - m_pHeadIndicator->height() - 15.0 ) );
-    arrow.append( QPointF( c.dW2 + 15.0, c.dH - m_pHeadIndicator->height() - 35.0 ) );
-    arrow.append( QPointF( c.dW2 - 15.0, c.dH - m_pHeadIndicator->height() - 35.0 ) );
+    arrow.append( QPointF( c.dW2, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.01875 : 0.03125)) ) );
+    arrow.append( QPointF( c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.04375 : 0.04375)) ) );
+    arrow.append( QPointF( c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.04375 : 0.04375)) ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );

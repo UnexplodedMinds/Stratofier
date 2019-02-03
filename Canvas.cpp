@@ -15,6 +15,7 @@ extern QFont tiny;
 extern QFont small;
 extern QFont med;
 extern QFont large;
+extern QFont huge;
 
 
 Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
@@ -29,6 +30,8 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     QRect        medRect( medMetrics.boundingRect( "0" ) );
     QFontMetrics largeMetrics( large );
     QRect        largeRect( largeMetrics.boundingRect( "0" ) );
+
+    m_preCalc.bPortrait = (dWidth < dHeight);
 
     // Actual width regardless
     m_preCalc.dWa = dWidth;
@@ -72,6 +75,14 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.iMedFontHeight *= 4;
     m_preCalc.iLargeFontHeight *= 4;
     m_preCalc.iTinyFontWidth *= 4;
+
+    m_preCalc.iThinPen = 4;
+    m_preCalc.iThickPen = 6;
+    m_preCalc.iFatPen = 10;
+#else
+    m_preCalc.iThinPen = 2;
+    m_preCalc.iThickPen = 3;
+    m_preCalc.iFatPen = 5;
 #endif
 
     m_preCalc.dAspectL = m_preCalc.dW / m_preCalc.dH;
@@ -90,7 +101,11 @@ int Canvas::largeWidth( const QString &qsText )
     QFontMetrics largeMetrics( large );
     QRect        largeRect( largeMetrics.boundingRect( qsText ) );
 
+#ifdef ANDROID
+    return largeRect.width() * 4;
+#else
     return largeRect.width();
+#endif
 }
 
 
@@ -99,6 +114,22 @@ int Canvas::medWidth(const QString &qsText)
 	QFontMetrics medMetrics( med );
 	QRect        medRect( medMetrics.boundingRect( qsText ) );
 
-	return medRect.width();
+#ifdef ANDROID
+    return medRect.width() * 4;
+#else
+    return largeRect.width();
+#endif
 }
 
+
+int Canvas::hugeWidth( const QString &qsText )
+{
+    QFontMetrics hugeMetrics( huge );
+    QRect        hugeRect( hugeMetrics.boundingRect( qsText ) );
+
+#ifdef ANDROID
+    return static_cast<int>( static_cast<double>( hugeRect.width() ) * 2.5 );
+#else
+    return hugeRect.width();
+#endif
+}

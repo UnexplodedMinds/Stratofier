@@ -26,6 +26,7 @@ QFont tiny(  "Roboto", 12, QFont::Normal );
 QFont small( "Roboto", 16, QFont::Normal );
 QFont med(   "Roboto", 18, QFont::Bold   );
 QFont large( "Roboto", 24, QFont::Bold   );
+QFont huge(  "Roboto", 30, QFont::Bold   );
 #else
 // Raspbian default font
 QFont itsy(  "Piboto", 6, QFont::Normal  );
@@ -34,6 +35,7 @@ QFont tiny(  "Piboto", 12, QFont::Normal );
 QFont small( "Piboto", 16, QFont::Normal );
 QFont med(   "Piboto", 18, QFont::Bold   );
 QFont large( "Piboto", 24, QFont::Bold   );
+QFont huge(  "Piboto", 30, QFont::Bold   );
 #endif
 
 

@@ -118,19 +118,18 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
 // Build the roll indicator (the arc scale at the top)
 void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPortrait )
 {
-    Q_UNUSED( pCanvas )
-
-    QPainter     ahrs( pRollInd );
-    double       dW = pRollInd->width();
-    double       dH = pRollInd->height();
-    double       dW2 = dW / 2.0;
-    double       dH2 = dH / 2.0;
-    QPen         linePen( Qt::white, 3 );
-    QFontMetrics rollMetrics( bPortrait ? tiny : wee );
-    QString      qsRoll;
-    QRect        rollRect;
-    QLineF       clipLine( dW / 2.0, dH / 2.0, dW / 2.0, 20.0 );
-    QFont        tinyBold( bPortrait ? tiny : wee );
+    QPainter        ahrs( pRollInd );
+    double          dW = pRollInd->width();
+    double          dH = pRollInd->height();
+    double          dW2 = dW / 2.0;
+    double          dH2 = dH / 2.0;
+    QPen            linePen( Qt::white, 3 );
+    QFontMetrics    rollMetrics( bPortrait ? tiny : wee );
+    QString         qsRoll;
+    QRect           rollRect;
+    QLineF          clipLine( dW / 2.0, dH / 2.0, dW / 2.0, 20.0 );
+    QFont           tinyBold( bPortrait ? tiny : wee );
+    CanvasConstants c = pCanvas->constants();
 
     tinyBold.setBold( true );
 
@@ -139,11 +138,11 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
 
     // Draw the black base arc surround
     linePen.setColor( Qt::black );
-    linePen.setWidth( 5 );
+    linePen.setWidth( c.iFatPen );
     ahrs.setPen( linePen );
     ahrs.drawEllipse( 21.0, 21.0, dW - 42.0, dH - 42.0 );
     linePen.setColor( Qt::white );
-    linePen.setWidth( 3 );
+    linePen.setWidth( c.iThickPen );
     ahrs.setPen( linePen );
 
     ahrs.setFont( tinyBold );
@@ -160,11 +159,15 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
         else
             linePen.setColor( Qt::white );
         ahrs.setPen( linePen );
-        ahrs.drawLine( dW2, 10, dW2, 20 );
+        ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
         qsRoll = QString::number( abs( -30 + (i * 10) ) );
         qsRoll.chop( 1 );
         rollRect = rollMetrics.boundingRect( qsRoll );
+#ifdef ANDROID
+        ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
+#else
         ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
+#endif
         ahrs.resetTransform();
     }
     // Red lines on -60, -45, 45 and 60
@@ -175,16 +178,24 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.translate( dW2, dH2 );
     ahrs.rotate( -45 );
     ahrs.translate( -dW2, -dH2 );
-    ahrs.drawLine( dW2, 10, dW2, 20 );
+    ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
     rollRect = rollMetrics.boundingRect( qsRoll );
+#ifdef ANDROID
+    ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
+#else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
+#endif
     ahrs.resetTransform();
     // 45
     ahrs.translate( dW2, dH2 );
     ahrs.rotate( 45 );
     ahrs.translate( -dW2, -dH2 );
-    ahrs.drawLine( dW2, 10, dW2, 20 );
+    ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
+#ifdef ANDROID
+    ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
+#else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
+#endif
     ahrs.resetTransform();
 
     // We need to turn it off so the 60s won't get clipped
@@ -194,17 +205,25 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.translate( dW2, dH2 );
     ahrs.rotate( -60 );
     ahrs.translate( -dW2, -dH2 );
-    ahrs.drawLine( dW2, 10, dW2, 20 );
+    ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
     qsRoll = "60";
     rollRect = rollMetrics.boundingRect( qsRoll );
+#ifdef ANDROID
+    ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
+#else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
+#endif
     ahrs.resetTransform();
     // 60
     ahrs.translate( dW2, dH2 );
     ahrs.rotate( 60 );
     ahrs.translate( -dW2, -dH2 );
-    ahrs.drawLine( dW2, 10, dW2, 20 );
+    ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
+#ifdef ANDROID
+    ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
+#else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
+#endif
     ahrs.resetTransform();
 
     // Turn the clipping rect back on
