@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <manifest package="com.UnexplodedMinds.Rosco" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.1.0" android:versionCode="0" android:installLocation="auto">
-    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="Rosco" android:icon="@drawable/icon">
+    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="Rosco" android:icon="@mipmap/icon">
         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="Rosco" android:screenOrientation="portrait" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -12,8 +12,8 @@ android {
     DEFINES += QT_AUTO_SCREEN_SCALE_FACTOR
     CONFIG += mobility
     MOBILITY =
-    DISTFILES += AndroidManifest.xml
-    ANDROID_PACKAGE_SOURCE_DIR = ../RoscoPi/android
+    DISTFILES += android/manifests/AndroidManifest.xml
+    ANDROID_PACKAGE_SOURCE_DIR = android
 
     airports.path = /assets
     airports.files = Airports.csv
@@ -29,8 +29,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += ./include \
                ../include \
                ../RoscoPi/include \
-			   ../RoscoPi/uic \
-			   ../RoscoPi/rcc
+               ../RoscoPi/uic \
+               ../RoscoPi/rcc
 
 
 VPATH += ./include \
