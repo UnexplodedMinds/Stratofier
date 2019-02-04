@@ -73,7 +73,11 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 )
 {
-    g_pSet = new QSettings( "/home/pi/RoscoPi/config.ini", QSettings::IniFormat );
+#ifndef ANDROID
+    g_pSet = new QSettings( "../config.ini", QSettings::IniFormat );
+#else
+    g_pSet = new QSettings;
+#endif
 
     // Initialize AHRS settings
     // No need to init the traffic because it starts out as an empty QMap.
@@ -931,9 +935,12 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawText( c.dW - c.dW5 + 9.0, c.dH - c.iTinyFontHeight - 16, qsLat );
     ahrs.drawText( c.dW - c.dW5 + 9.0, c.dH - 16, qsLong );
 
-    updateTraffic( &ahrs, &c );
+    // Update the airport positions
     if( m_eShowAirports != Canvas::ShowNoAirports )
         updateAirports( &ahrs, &c );
+
+    // Update the traffic positions
+    updateTraffic( &ahrs, &c );
 
     // Draw the zoom in/out buttons
     ahrs.drawPixmap( c.dH * 0.0125, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
@@ -1351,10 +1358,12 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - c.iTinyFontHeight - 11, qsLat );
     ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - 11, qsLong );
 
-    // Update the traffic and airport positions
-    updateTraffic( &ahrs, &c );
+    // Update the airport positions
     if( m_eShowAirports != Canvas::ShowNoAirports )
         updateAirports( &ahrs, &c );
+
+    // Update the traffic positions
+    updateTraffic( &ahrs, &c );
 
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1397,7 +1406,12 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     QPen         apPen( Qt::magenta );
     QLineF       runwayLine;
     int          iRunway, iAPRunway;
+    double       dAirportDiam = c->dWa * (m_bPortrait ? 0.03125 : 0.01875);
+#ifdef ANDROID
+    QFontMetrics itsyMetrics( wee );
+#else
     QFontMetrics itsyMetrics( itsy );
+#endif
     QRect        itsyRect = itsyMetrics.boundingRect( "00" );
     QString      qsRunway;
     QPainterPath maskPath;
@@ -1407,7 +1421,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                          m_pHeadIndicator->width(), m_pHeadIndicator->height() );
     pAhrs->setClipPath( maskPath );
 
-    apPen.setWidth( 2 );
+    apPen.setWidth( c->iThinPen );
     pAhrs->setBrush( Qt::NoBrush );
     foreach( ap, m_airports )
     {
@@ -1422,17 +1436,21 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         // Traffic angle in reference to you (which clock position they're at)
         ball.setAngle( -(ap.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
-        apPen.setWidth( 2 );
+        apPen.setWidth( c->iThinPen );
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
-        pAhrs->drawEllipse( ball.p2().x() - 4, ball.p2().y() - 4, 10, 10 );
+        pAhrs->drawEllipse( ball.p2().x() - (dAirportDiam / 2.0) + 1, ball.p2().y() - (dAirportDiam / 2.0) + 1, dAirportDiam, dAirportDiam );
         apPen.setColor( Qt::magenta );
         pAhrs->setPen( apPen );
-        pAhrs->drawEllipse( ball.p2().x() - 5, ball.p2().y() - 5, 10, 10 );
+        pAhrs->drawEllipse( ball.p2().x() - (dAirportDiam / 2.0), ball.p2().y() - (dAirportDiam / 2.0), dAirportDiam, dAirportDiam );
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
+#ifdef ANDROID
+        pAhrs->setFont( tiny );
+#else
         pAhrs->setFont( wee );
-        pAhrs->drawText( ball.p2().x() - 9, ball.p2().y() - 6, ap.qsID );
+#endif
+        pAhrs->drawText( ball.p2().x() - (dAirportDiam / 2.0) + 2, ball.p2().y() - (dAirportDiam / 2.0) - 1, ap.qsID );
         // Draw the runways and tiny headings after the black ID shadow but before the yellow ID text
         if( m_dZoomNM <= 30 )
         {
@@ -1440,13 +1458,17 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
             {
                 iAPRunway = ap.runways.at( iRunway );
                 runwayLine.setP1( QPointF( ball.p2().x(), ball.p2().y() ) );
-                runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + 20.0 ) );
+                runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + (dAirportDiam * 2.0) ) );
                 runwayLine.setAngle( -(iAPRunway - g_situation.dAHRSGyroHeading) + 90.0 );
                 apPen.setColor( Qt::magenta );
-                apPen.setWidth( 3 );
+                apPen.setWidth( c->iThickPen );
                 pAhrs->setPen( apPen );
                 pAhrs->drawLine( runwayLine );
+#ifdef ANDROID
+                pAhrs->setFont( wee );
+#else
                 pAhrs->setFont( itsy );
+#endif
                 runwayLine.setLength( runwayLine.length() + 5 );
                 if( ((iAPRunway - g_situation.dAHRSGyroHeading) > 90) && ((iAPRunway - g_situation.dAHRSGyroHeading) < 270) )
                     runwayLine.setLength( runwayLine.length() + itsyRect.height() - 5 );
@@ -1455,10 +1477,14 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                 pAhrs->drawText( runwayLine.p2().x() - (itsyRect.width() / 2), runwayLine.p2().y(), qsRunway );
             }
         }
+#ifdef ANDROID
+        pAhrs->setFont( tiny );
+#else
         pAhrs->setFont( wee );
+#endif
         apPen.setColor( Qt::yellow );
         pAhrs->setPen( apPen );
-        pAhrs->drawText( ball.p2().x() - 10, ball.p2().y() - 7, ap.qsID );
+        pAhrs->drawText( ball.p2().x() - (dAirportDiam / 2.0) + 1, ball.p2().y() - (dAirportDiam / 2.0) - 2, ap.qsID );
     }
 
     pAhrs->setClipping( false );

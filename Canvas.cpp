@@ -117,7 +117,7 @@ int Canvas::medWidth(const QString &qsText)
 #ifdef ANDROID
     return medRect.width() * 4;
 #else
-    return largeRect.width();
+    return medRect.width();
 #endif
 }
 

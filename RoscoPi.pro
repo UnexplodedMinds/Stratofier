@@ -13,6 +13,12 @@ android {
     CONFIG += mobility
     MOBILITY =
     DISTFILES += AndroidManifest.xml
+    ANDROID_PACKAGE_SOURCE_DIR = ../RoscoPi/android
+
+    airports.path = /assets
+    airports.files = Airports.csv
+
+    INSTALLS += airports
 }
 
 TARGET = RoscoPi
