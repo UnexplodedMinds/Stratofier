@@ -8,17 +8,26 @@
 QT += core gui websockets widgets network concurrent
 
 android {
-    QT += androidextras
-    DEFINES += QT_AUTO_SCREEN_SCALE_FACTOR
-    CONFIG += mobility
-    MOBILITY =
-    DISTFILES += android/manifests/AndroidManifest.xml
-    ANDROID_PACKAGE_SOURCE_DIR = android
+QT += androidextras
+CONFIG += mobility
+VPATH += $$PWD/android
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-    airports.path = /assets
-    airports.files = Airports.csv
+airports.path = /assets
+airports.files = Airports.csv
 
-    INSTALLS += airports
+INSTALLS += airports
+
+DISTFILES += AndroidManifest.xml \
+             gradle/wrapper/gradle-wrapper.jar \
+             gradlew \
+             res/values/libs.xml \
+             res/drawable-ldpi/icon.png \
+             res/drawable-mdpi/icon.png \
+             res/drawable-hdpi/icon.png \
+             build.gradle \
+             gradle/wrapper/gradle-wrapper.properties \
+             gradlew.bat
 }
 
 TARGET = RoscoPi
@@ -31,7 +40,6 @@ INCLUDEPATH += ./include \
                ../RoscoPi/include \
                ../RoscoPi/uic \
                ../RoscoPi/rcc
-
 
 VPATH += ./include \
          ../include \

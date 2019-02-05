@@ -51,13 +51,13 @@ dWa constant is used differently which is why the more convenient dH is used ins
 
 AHRSCanvas::AHRSCanvas( QWidget *parent )
     : QWidget( parent ),
+      m_pHeadIndicator( Q_NULLPTR ),
       m_pCanvas( Q_NULLPTR ),
       m_bInitialized( false ),
       m_iHeadBugAngle( -1 ),
       m_iWindBugAngle( -1 ),
       m_iWindBugSpeed( 0 ),
       m_pRollIndicator( Q_NULLPTR ),
-      m_pHeadIndicator( Q_NULLPTR ),
       m_pAltTape( Q_NULLPTR ),
       m_pSpeedTape( Q_NULLPTR ),
       m_pVertSpeedTape( Q_NULLPTR ),
@@ -183,7 +183,11 @@ void AHRSCanvas::init()
     if( m_bPortrait )
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW - c.dW5 ), static_cast<int>( c.dW - c.dW5 ) );
+#ifdef ANDROID
+        m_pVertSpeedTape = new QPixmap( c.dWa * 0.08333, c.dH2 + m_pCanvas->scaledV( 20.0 ) );
+#else
         m_pVertSpeedTape = new QPixmap( c.dWa * 0.08333, c.dH2 );
+#endif
     }
     else
     {
@@ -635,7 +639,7 @@ void AHRSCanvas::paintPortrait()
     else if( dSlipSkid > (c.dW2 + c.dW4 - 25.0) )
         dSlipSkid = c.dW2 + c.dW4 - 25.0;
 
-    linePen.setWidth( 2 );
+    linePen.setWidth( c.iThinPen );
 
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
 
@@ -680,15 +684,15 @@ void AHRSCanvas::paintPortrait()
     ahrs.resetTransform();
 
     // Slip/Skid indicator
-    ahrs.setPen( QPen( Qt::white, 2 ) );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW2 - c.dW4, 1, c.dW2, c.dH40 );
-    ahrs.drawRect( c.dW2 - 15.0, 1.0, 30.0, c.dH40 );
+    ahrs.drawRect( c.dW2 - m_pCanvas->scaledH( 15.0 ), 1.0, m_pCanvas->scaledH( 30.0 ), c.dH40 );
     ahrs.setPen( Qt::NoPen );
     ahrs.setBrush( Qt::white );
-    ahrs.drawEllipse( dSlipSkid - 10.0,
+    ahrs.drawEllipse( dSlipSkid - m_pCanvas->scaledH( 10.0 ),
                       1.0,
-                      20.0,
+                      m_pCanvas->scaledV( 20.0 ),
                       c.dH40 );
 
     // Draw the top roll indicator
@@ -732,7 +736,6 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
-    ahrs.setPen( Qt::white );
 #ifdef ANDROID
     ahrs.setFont( large );
     ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) + 20, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.075 : 0.125)), qsHead );
@@ -771,7 +774,7 @@ void AHRSCanvas::paintPortrait()
         // If long press triggered crosswind component display and the wind bug is set
         if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
         {
-            linePen.setWidth( 2 );
+            linePen.setWidth( c.iThinPen );
             linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
             ahrs.setPen( linePen );
             ahrs.drawLine( c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) );
@@ -792,6 +795,10 @@ void AHRSCanvas::paintPortrait()
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
 
+#ifdef ANDROID
+        windRect.setWidth( windRect.width() * 4 );
+#endif
+
         ahrs.setFont( med );
         ahrs.setPen( Qt::black );
         ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() - 3, qsWind );
@@ -801,7 +808,7 @@ void AHRSCanvas::paintPortrait()
         // If long press triggered crosswind component display and the heading bug is set
         if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
         {
-            linePen.setWidth( 2 );
+            linePen.setWidth( c.iThinPen );
             linePen.setColor( Qt::cyan );
             ahrs.setPen( linePen );
             ahrs.drawLine( c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) ); 
@@ -841,16 +848,16 @@ void AHRSCanvas::paintPortrait()
     ahrs.setClipping( false );
 
     // Draw the vertical speed static pixmap
-    ahrs.drawPixmap( c.dW - 40.0, 0.0, *m_pVertSpeedTape );
+    ahrs.drawPixmap( c.dW - (c.dWa * (m_bPortrait ? 0.08333 : 0.05)), 0.0, *m_pVertSpeedTape );
 
     // Draw the vertical speed indicator
     ahrs.translate( 0.0, c.dH4 - (dPxPerVSpeed * g_situation.dGPSVertSpeed / 100.0) );
     arrow.clear();
-    arrow.append( QPoint( c.dW - 30.0, 0.0 ) );
-    arrow.append( QPoint( c.dW - 20.0, -7.0 ) );
-    arrow.append( QPoint( c.dW, -15.0 ) );
-    arrow.append( QPoint( c.dW, 15.0 ) );
-    arrow.append( QPoint( c.dW - 20.0, 7.0 ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 30.0 ), 0.0 ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( -7.0 ) ) );
+    arrow.append( QPoint( c.dW, m_pCanvas->scaledV( -15.0 ) ) );
+    arrow.append( QPoint( c.dW, m_pCanvas->scaledV( 15.0 ) ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 7.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
     ahrs.drawPolygon( arrow );
@@ -863,15 +870,18 @@ void AHRSCanvas::paintPortrait()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-    ahrs.drawText( c.dW - 20.0, 4.0, qsIntVspeed );
+#ifdef ANDROID
+    intRect.setWidth( intRect.width() * 4 );
+#endif
+    ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
     ahrs.setFont( itsy );
-    ahrs.drawText( c.dW - 20.0 + intRect.width() + 2, 4.0, qsFracVspeed );
+    ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ) + intRect.width() + 2, m_pCanvas->scaledV( 4.0 ), qsFracVspeed );
     ahrs.resetTransform();
 
     // Draw the current altitude
-    ahrs.setPen( Qt::white );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - 40.0, c.iSmallFontHeight + 1 );
+    ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
     ahrs.setPen( Qt::white );
     if( g_situation.dBaroPressAlt < 10000.0 )
         ahrs.setFont( small );
@@ -881,21 +891,20 @@ void AHRSCanvas::paintPortrait()
         tinyBold.setBold( true );
         ahrs.setFont( tinyBold );   // 5 digits won't quite fit
     }
-    ahrs.drawText( c.dW - c.dW5 + 4, c.dH4 + (c.iSmallFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+    ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH2, QColor( 0, 0, 0, 100 ) );
-    ahrs.setPen( Qt::white );
     ahrs.setClipRect( 2.0, 2.0, c.dW5 - 4.0, c.dH2 - 4.0 );
     ahrs.drawPixmap( 4, c.dH4 - c.iSmallFontHeight - (((300.0 - g_situation.dGPSGroundSpeed) / 300.0) * m_pSpeedTape->height()), *m_pSpeedTape );
     ahrs.setClipping( false );
 
     // Draw the current speed
-    ahrs.setPen( Qt::white );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - 40.0, c.iSmallFontHeight + 1 );
+    ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-    ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -910,12 +919,12 @@ void AHRSCanvas::paintPortrait()
 
     // Arrow for G-Force indicator
     arrow.clear();
-    arrow.append( QPoint( 1, c.dH - c.iTinyFontHeight - 10.0 ) );
-    arrow.append( QPoint( -14.0, c.dH - c.iTinyFontHeight - 25.0 ) );
-    arrow.append( QPoint( 16.0, c.dH - c.iTinyFontHeight - 25.0 ) );
+    arrow.append( QPoint( 1, c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 10.0 ) ) );
+    arrow.append( QPoint( m_pCanvas->scaledH( -14.0 ), c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 25.0 ) ) );
+    arrow.append( QPoint( m_pCanvas->scaledH( 16.0 ), c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 25.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
-    ahrs.translate( c.dW10 - 10.0 + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - 10.0)), 0.0 );
+    ahrs.translate( c.dW10 - m_pCanvas->scaledH( 10.0 ) + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - m_pCanvas->scaledH( 10.0 ))), 0.0 );
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
@@ -960,15 +969,23 @@ void AHRSCanvas::paintTimer( QPainter *pAhrs, CanvasConstants *c )
     QFontMetrics largeMetrics( large );
     QRect        timerRect = largeMetrics.boundingRect( qsTimer );
     QPen         linePen( Qt::white );
+    int          iFudge = 0;
 
-    linePen.setWidth( 2 );
+#ifdef ANDROID
+    timerRect.setWidth( timerRect.width() * 4 );
+    iFudge = 20;
+#endif
+
+    linePen.setWidth( c->iThinPen );
 
     pAhrs->setPen( linePen );
     pAhrs->setBrush( Qt::black );
-    pAhrs->drawRect( c->dW2 - (m_bPortrait ? 50 : 70), c->dH - (m_bPortrait ? 70 : 100), 100, 35 );
+    pAhrs->drawRect( c->dW2 - (m_bPortrait ? m_pCanvas->scaledH( 50.0 ) : m_pCanvas->scaledH( 70.0 )),
+                     c->dH - (m_bPortrait ? m_pCanvas->scaledV( 70.0 ) : m_pCanvas->scaledV( 100.0 )),
+                     m_pCanvas->scaledH( 100.0 ), m_pCanvas->scaledV( 35.0 ) );
     pAhrs->setPen( Qt::cyan );
     pAhrs->setFont( large );
-    pAhrs->drawText( c->dW2 - (m_bPortrait ? 0 : 20) - (timerRect.width() / 2), c->dH - (m_bPortrait ? 41 : 71), qsTimer );
+    pAhrs->drawText( c->dW2 - (m_bPortrait ? 0 : m_pCanvas->scaledH( 20.0 )) - (timerRect.width() / 2) + iFudge, c->dH - (m_bPortrait ? m_pCanvas->scaledV( 41.0 ) : m_pCanvas->scaledV( 71.0 )), qsTimer );
 }
 
 
@@ -985,7 +1002,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     cloudyGradient.setColorAt( 0, QColor( 255, 255, 255, 225 ) );
     cloudyGradient.setColorAt( 1, QColor( 175, 175, 255, 225 ) );
 
-    linePen.setWidth( 3 );
+    linePen.setWidth( c->iThickPen );
     pAhrs->setPen( linePen );
     pAhrs->setBrush( cloudyGradient );
     pAhrs->drawRect( 50, 50, (m_bPortrait ? c->dW : width()) - 100, c->dH - 100 );
@@ -1044,7 +1061,7 @@ void AHRSCanvas::paintLandscape()
     else if( dSlipSkid > (c.dW2 + c.dW4 - 25.0) )
         dSlipSkid = c.dW2 + c.dW4 - 25.0;
 
-    linePen.setWidth( 2 );
+    linePen.setWidth( c.iThinPen );
 
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
 
@@ -1193,7 +1210,7 @@ void AHRSCanvas::paintLandscape()
         // If long press triggered crosswind component display and the wind bug is set
         if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
         {
-            linePen.setWidth( 2 );
+            linePen.setWidth( c.iThinPen );
             linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
             ahrs.setPen( linePen );
             ahrs.drawLine( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW + c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) );
@@ -1223,7 +1240,7 @@ void AHRSCanvas::paintLandscape()
         // If long press triggered crosswind component display and the heading bug is set
         if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
         {
-            linePen.setWidth( 2 );
+            linePen.setWidth( c.iThinPen );
             linePen.setColor( Qt::cyan );
             ahrs.setPen( linePen );
             ahrs.drawLine( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() + 20, c.dW + c.dW2, c.dH - 10.0 - (m_pHeadIndicator->height() / 2) ); 
@@ -1295,10 +1312,9 @@ void AHRSCanvas::paintLandscape()
     ahrs.resetTransform();
 
     // Draw the current altitude
-    ahrs.setPen( Qt::white );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW - c.dW5 - 10.0, c.dH2 - (c.iTinyFontHeight / 2) - 2.0, c.dW5 - 28.0, c.iTinyFontHeight + 1 );
-    ahrs.setPen( Qt::white );
     if( g_situation.dBaroPressAlt < 10000.0 )
         ahrs.setFont( small );
     else
@@ -1307,18 +1323,18 @@ void AHRSCanvas::paintLandscape()
         tinyBold.setBold( true );
         ahrs.setFont( tinyBold );   // 5 digits won't quite fit
     }
-    ahrs.drawText( c.dW - c.dW5 - 8.0, c.dH2 + (c.iTinyFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+    ahrs.drawText( c.dW - c.dW5 - 8.0, c.dH2 + (c.iTinyFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 
     // Draw the Speed tape
     ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - 25.0, c.dH ), QColor( 0, 0, 0, 100 ) );
     ahrs.drawPixmap( 4, c.dH2 - c.iSmallFontHeight - (((300.0 - g_situation.dGPSGroundSpeed) / 300.0) * m_pSpeedTape->height()), *m_pSpeedTape );
 
     // Draw the current speed
-    ahrs.setPen( Qt::white );
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 25, c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-    ahrs.drawText( 5, c.dH2 + (c.iSmallFontHeight / 2) - 5.0, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1492,15 +1508,13 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 
 
 #ifdef ANDROID
-void AHRSCanvas::resizeEvent( QResizeEvent *pEvent )
+void AHRSCanvas::orient( bool bPortrait )
 {
     if( !m_bInitialized )
         return;
 
-    QSize newSize = pEvent->size();
-
     m_bInitialized = false;
-    m_bPortrait = (newSize.width() < newSize.height());
+    m_bPortrait = bPortrait;
 
     killTimer( m_iDispTimer );
     init();

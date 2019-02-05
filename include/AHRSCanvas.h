@@ -33,6 +33,10 @@ public:
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void    timerReminder( int iMinutes, int iSeconds );
     Canvas *canvas() { return m_pCanvas; }
+#ifdef ANDROID
+    void    orient( bool bPortrait );
+#endif
+    QPixmap *m_pHeadIndicator;
 
 public slots:
     void init();
@@ -44,9 +48,6 @@ protected:
     void mouseReleaseEvent( QMouseEvent *pEvent );
     void mousePressEvent( QMouseEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
-#ifdef ANDROID
-    void resizeEvent( QResizeEvent *pEvent );
-#endif
 
 private:
     void updateTraffic( QPainter *pAhrs, CanvasConstants *c );
@@ -70,7 +71,6 @@ private:
     int       m_iWindBugAngle;
     int       m_iWindBugSpeed;
     QPixmap  *m_pRollIndicator;
-    QPixmap  *m_pHeadIndicator;
     QPixmap  *m_pAltTape;
     QPixmap  *m_pSpeedTape;
     QPixmap  *m_pVertSpeedTape;

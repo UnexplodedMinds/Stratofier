@@ -84,6 +84,8 @@ public:
     Canvas( double dWidth, double dHeight, bool bPortrait );
 
     CanvasConstants constants();
+    double          scaledH( double d );    // Simplify scalars for constants used for known 480x800/800x480 screen size
+    double          scaledV( double d );    // Same for vertical
     int             hugeWidth( const QString &qsText );
     int             largeWidth( const QString &qsText );
 	int             medWidth( const QString &qsText );

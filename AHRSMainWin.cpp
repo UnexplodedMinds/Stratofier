@@ -9,6 +9,8 @@ RoscoPi Stratux AHRS Display
 #include <QPushButton>
 #include <QMessageBox>
 #include <QFont>
+#include <QGuiApplication>
+#include <QScreen>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -65,7 +67,9 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
 
     m_pStratuxStream->connectStreams();
-
+#ifdef ANDROID
+    connect( qApp->primaryScreen(), SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
+#endif
     QTimer::singleShot( 500, this, SLOT( init() ) );
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
@@ -107,6 +111,9 @@ void AHRSMainWin::init()
         m_pMenuButton->setMinimumWidth( iMenuBtnWidth );
         m_pMenuButton->setMaximumWidth( iMenuBtnWidth );
     }
+#ifdef ANDROID
+    m_pAHRSDisp->orient( m_bPortrait );
+#endif
 }
 
 
@@ -269,7 +276,13 @@ void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
 
 void AHRSMainWin::changeTimer()
 {
-    Keypad keypad( this, "TIMER", true );
+    Keypad          keypad( this, "TIMER", true );
+    CanvasConstants c = m_pAHRSDisp->canvas()->constants();
+
+    keypad.setGeometry( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_bPortrait ? c.dWa * 0.4167 : c.dWa * 0.25),
+                        c.dH - (m_pAHRSDisp->m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( m_bPortrait ? c.dH * 0.2 : c.dH * 0.3333 ),
+                        m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
+    keypad.setMinimumSize( m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
 
     delete m_pMenuDialog;
     m_pMenuDialog = Q_NULLPTR;
@@ -306,11 +319,13 @@ void AHRSMainWin::stopTimer()
 
 
 #ifdef ANDROID
-void AHRSMainWin::resizeEvent( QResizeEvent *pEvent )
+void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
-    QSize newSize = pEvent->size();
-
-    m_bPortrait = (newSize.width() < newSize.height());
+    qInfo() << "Orientation change to" << o;
+    m_bPortrait = ((o == Qt::PortraitOrientation) || (o == Qt::InvertedPortraitOrientation));
     init();
 }
 #endif
+
+
+

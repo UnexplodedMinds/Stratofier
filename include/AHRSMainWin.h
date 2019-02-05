@@ -39,9 +39,6 @@ public slots:
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
-#ifdef ANDROID
-    void resizeEvent( QResizeEvent *pEvent );
-#endif
 
 private:
     StreamReader *m_pStratuxStream;
@@ -67,6 +64,9 @@ private slots:
     void inOutToggled( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );
     void init();
+#ifdef ANDROID
+    void orient( Qt::ScreenOrientation o );
+#endif
 };
 
 #endif // __AHRSMAINWIN_H__

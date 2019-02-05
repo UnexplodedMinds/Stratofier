@@ -96,6 +96,24 @@ CanvasConstants Canvas::constants()
 }
 
 
+double Canvas::scaledH( double d )
+{
+    if( m_preCalc.bPortrait )
+        return m_preCalc.dWa * d / 480.0;
+    else
+        return m_preCalc.dWa * d / 800.0;
+}
+
+
+double Canvas::scaledV( double d )
+{
+    if( m_preCalc.bPortrait )
+        return m_preCalc.dH * d / 800.0;
+    else
+        return m_preCalc.dH * d / 480.0;
+}
+
+
 int Canvas::largeWidth( const QString &qsText )
 {
     QFontMetrics largeMetrics( large );
