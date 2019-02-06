@@ -159,7 +159,7 @@ void AHRSCanvas::init()
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
-    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
+    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.06 : 0.1 );
     int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) );
 
     m_headIcon = m_headIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
@@ -196,8 +196,8 @@ void AHRSCanvas::init()
     }
 
     m_pHeadIndicator = new QPixmap( static_cast<int>( c.dW - c.dW20 ), static_cast<int>( c.dW - c.dW20 ) );
-    m_pAltTape = new QPixmap( static_cast<int>( c.dW5 ), c.iTinyFontHeight * 300 );                     // 20000 ft / 100 x 1.5x font height
-    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) + (c.dWa * 0.0521), c.iTinyFontHeight * 60 );    // 300 Knots x 2x font height
+    m_pAltTape = new QPixmap( static_cast<int>( c.dW5 ), c.iTinyFontHeight * 300 );                         // 20000 ft / 100 x 1.5x font height
+    m_pSpeedTape = new QPixmap( static_cast<int>( c.dW5 ) + (c.dWa * 0.0521), c.iTinyFontHeight * 60 );     // 300 Knots x 2x font height
     m_pRollIndicator->fill( Qt::transparent );
     m_pHeadIndicator->fill( Qt::transparent );
     m_pAltTape->fill( Qt::transparent );
@@ -209,8 +209,8 @@ void AHRSCanvas::init()
     Builder::buildSpeedTape( m_pSpeedTape, m_pCanvas );
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
 
-    QPixmap zIn( ":/icons/resources/add.png" );
-    QPixmap zOut( ":/icons/resources/sub.png" );
+    QPixmap zIn( ":/graphics/resources/ZoomIn.png" );
+    QPixmap zOut( ":/graphics/resources/ZoomOut.png" );
 
     m_pZoomInPixmap = new QPixmap( zIn.scaled( iZoomBtnSize, iZoomBtnSize ) );
     m_pZoomOutPixmap = new QPixmap( zOut.scaled( iZoomBtnSize, iZoomBtnSize ) );
@@ -959,8 +959,8 @@ void AHRSCanvas::paintPortrait()
     updateTraffic( &ahrs, &c );
 
     // Draw the zoom in/out buttons
-    ahrs.drawPixmap( c.dH * 0.0125, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, *m_pZoomInPixmap );
-    ahrs.drawPixmap( c.dH * 0.0125, static_cast<int>( c.dH ) - (c.dH * 0.15), *m_pZoomOutPixmap );
+    ahrs.drawPixmap( 0, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + static_cast<int>( m_pCanvas->scaledH( 25.0 ) ), *m_pZoomInPixmap );
+    ahrs.drawPixmap( 0, static_cast<int>( c.dH ) - (c.dH * 0.15), *m_pZoomOutPixmap );
     
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1290,22 +1290,22 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPixmap( (c.dW * 2.0) - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
 
     // Draw the Altitude tape
-    ahrs.fillRect( QRectF( c.dW - c.dW5 - 10.0, 0.0, c.dW5 - 30.0, c.dH ), QColor( 0, 0, 0, 100 ) );
-    ahrs.setClipRect( c.dW - c.dW5 - 10.0, 2.0, c.dW5 + 10.0, c.dH - 5 );
-    ahrs.drawPixmap( c.dW - c.dW5 - 10.0, c.dH2 - (static_cast<double>( c.iTinyFontHeight ) * 1.5) - (((20000.0 - g_situation.dBaroPressAlt) / 20000.0) * m_pAltTape->height()) + 7, *m_pAltTape );
+    ahrs.fillRect( QRectF( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 0.0, c.dW5 - m_pCanvas->scaledH( 30.0 ), c.dH ), QColor( 0, 0, 0, 100 ) );
+    ahrs.setClipRect( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 2.0, c.dW5 + m_pCanvas->scaledH( 10.0 ), c.dH - 5 );
+    ahrs.drawPixmap( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), c.dH2 - (static_cast<double>( c.iTinyFontHeight ) * 1.5) - (((20000.0 - g_situation.dBaroPressAlt) / 20000.0) * m_pAltTape->height()) + m_pCanvas->scaledV( 7 ), *m_pAltTape );
     ahrs.setClipping( false );
 
     // Draw the vertical speed static pixmap
-    ahrs.drawPixmap( c.dW - 40.0, 0.0, *m_pVertSpeedTape );
+    ahrs.drawPixmap( c.dW - m_pVertSpeedTape->width(), 0.0, *m_pVertSpeedTape );
 
     // Draw the vertical speed indicator
     ahrs.translate( 0.0, c.dH2 - (dPxPerVSpeed * g_situation.dGPSVertSpeed / 100.0) );
     arrow.clear();
-    arrow.append( QPoint( c.dW - 30.0, 0.0 ) );
-    arrow.append( QPoint( c.dW - 20.0, -7.0 ) );
-    arrow.append( QPoint( c.dW, -15.0 ) );
-    arrow.append( QPoint( c.dW, 15.0 ) );
-    arrow.append( QPoint( c.dW - 20.0, 7.0 ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 30.0 ), 0.0 ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( -7.0 ) ) );
+    arrow.append( QPoint( c.dW, m_pCanvas->scaledV( -15.0 ) ) );
+    arrow.append( QPoint( c.dW, m_pCanvas->scaledV( 15.0 ) ) );
+    arrow.append( QPoint( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 7.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
     ahrs.drawPolygon( arrow );
@@ -1318,15 +1318,18 @@ void AHRSCanvas::paintLandscape()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-    ahrs.drawText( c.dW - 20.0, 4.0, qsIntVspeed );
+#ifdef ANDROID
+    intRect.setWidth( intRect.width() * 4 );
+#endif
+    ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
     ahrs.setFont( itsy );
-    ahrs.drawText( c.dW - 20.0 + intRect.width() + 2, 4.0, qsFracVspeed );
+    ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ) + intRect.width() + m_pCanvas->scaledH( 2.0 ), m_pCanvas->scaledV( 4.0 ), qsFracVspeed );
     ahrs.resetTransform();
 
     // Draw the current altitude
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW - c.dW5 - 10.0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 23.0, c.iSmallFontHeight + 1 );
+    ahrs.drawRect( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 23.0 ), c.iSmallFontHeight + 1 );
     if( g_situation.dBaroPressAlt < 10000.0 )
         ahrs.setFont( tiny );
     else
@@ -1335,8 +1338,11 @@ void AHRSCanvas::paintLandscape()
         weeBold.setBold( true );
         ahrs.setFont( weeBold );   // 5 digits won't quite fit
     }
-    ahrs.drawText( c.dW - c.dW5 - 8.0, c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
-
+#ifdef ANDROID
+    ahrs.drawText( c.dW - c.dW5 - m_pCanvas->scaledH( 8.0 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 11.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#else
+    ahrs.drawText( c.dW - c.dW5 - m_pCanvas->scaledH( 8.0 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#endif
     // Draw the Speed tape
     ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - 25.0, c.dH ), QColor( 0, 0, 0, 100 ) );
     ahrs.drawPixmap( 4, c.dH2 - c.iSmallFontHeight - (((300.0 - g_situation.dGPSGroundSpeed) / 300.0) * m_pSpeedTape->height()), *m_pSpeedTape );
@@ -1346,8 +1352,11 @@ void AHRSCanvas::paintLandscape()
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 25, c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
+#ifdef ANDROID
+    ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 9.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#else
     ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
-
+#endif
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
     ahrs.setPen( Qt::black );
