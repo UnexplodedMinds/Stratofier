@@ -4,6 +4,8 @@ RoscoPi Stratux AHRS Display
 */
 
 #include <QApplication>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QtDebug>
 
 #include "AHRSMainWin.h"
@@ -37,6 +39,13 @@ int main( int argc, char *argv[] )
         }
     }
 
+    // For Android, override any command line setting for portrait/landscape
+#ifdef ANDROID
+    QScreen *pScreen = QGuiApplication::primaryScreen();
+
+    bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
+#endif
+
     QCoreApplication::setOrganizationName( "Unexploded Minds" );
     QCoreApplication::setOrganizationDomain( "unexplodedminds.com" );
     QCoreApplication::setApplicationName( "RoscoPi" );
@@ -44,8 +53,10 @@ int main( int argc, char *argv[] )
 
     qInfo() << "Starting RoscoPi";
     AHRSMainWin mainWin( qsIP, bPortrait );
+    // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
 		mainWin.showMaximized();
+    // This is only intended for running directly on the host PC without an emulator
 	else
 	{
 		mainWin.show();

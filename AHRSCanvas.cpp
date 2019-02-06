@@ -741,7 +741,7 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) + 20, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.075 : 0.125)), qsHead );
 #else
     ahrs.setFont( med );
-    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 53.0, qsHead );
+    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 58.0, qsHead );
 #endif
 
     // Arrow for heading position above heading dial
@@ -884,15 +884,18 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
     ahrs.setPen( Qt::white );
     if( g_situation.dBaroPressAlt < 10000.0 )
-        ahrs.setFont( small );
+        ahrs.setFont( tiny );
     else
     {
-        QFont tinyBold( tiny );
-        tinyBold.setBold( true );
-        ahrs.setFont( tinyBold );   // 5 digits won't quite fit
+        QFont weeBold( wee );
+        weeBold.setBold( true );
+        ahrs.setFont( weeBold );   // 5 digits won't quite fit
     }
-    ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
-
+#ifdef ANDROID
+    ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 9.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#else
+    ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#endif
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH2, QColor( 0, 0, 0, 100 ) );
     ahrs.setClipRect( 2.0, 2.0, c.dW5 - 4.0, c.dH2 - 4.0 );
@@ -904,7 +907,11 @@ void AHRSCanvas::paintPortrait()
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-    ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#ifdef ANDROID
+    ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#else
+    ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#endif
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1055,6 +1062,11 @@ void AHRSCanvas::paintLandscape()
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
     double          dPxPerVSpeed = (c.dH - 30.0) / 40.0;
     QFontMetrics    tinyMetrics( tiny );
+    int             iGPSFudge = 0;
+
+#ifdef ANDROID
+    iGPSFudge = 10;
+#endif
 
     if( dSlipSkid < (c.dW4 + 25.0) )
         dSlipSkid = c.dW4 + 25.0;
@@ -1178,7 +1190,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
     ahrs.setPen( Qt::white );
     ahrs.setFont( med );
-    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 45.0, qsHead );
+    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
 
     // Arrow for heading position above heading dial
     arrow.clear();
@@ -1314,16 +1326,16 @@ void AHRSCanvas::paintLandscape()
     // Draw the current altitude
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW - c.dW5 - 10.0, c.dH2 - (c.iTinyFontHeight / 2) - 2.0, c.dW5 - 28.0, c.iTinyFontHeight + 1 );
+    ahrs.drawRect( c.dW - c.dW5 - 10.0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 23.0, c.iSmallFontHeight + 1 );
     if( g_situation.dBaroPressAlt < 10000.0 )
-        ahrs.setFont( small );
+        ahrs.setFont( tiny );
     else
     {
-        QFont tinyBold( tiny );
-        tinyBold.setBold( true );
-        ahrs.setFont( tinyBold );   // 5 digits won't quite fit
+        QFont weeBold( wee );
+        weeBold.setBold( true );
+        ahrs.setFont( weeBold );   // 5 digits won't quite fit
     }
-    ahrs.drawText( c.dW - c.dW5 - 8.0, c.dH2 + (c.iTinyFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+    ahrs.drawText( c.dW - c.dW5 - 8.0, c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 
     // Draw the Speed tape
     ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - 25.0, c.dH ), QColor( 0, 0, 0, 100 ) );
@@ -1334,7 +1346,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 25, c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-    ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 7.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1368,11 +1380,12 @@ void AHRSCanvas::paintLandscape()
 
     ahrs.setPen( Qt::black );
     ahrs.setFont( tiny );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + 10.0, c.dH - c.iTinyFontHeight - 10, qsLat );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + 10.0, c.dH - 10, qsLong );
+
+    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge, c.dH - c.iTinyFontHeight - 10, qsLat );
+    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge, c.dH - 10, qsLong );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - c.iTinyFontHeight - 11, qsLat );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + 9.0, c.dH - 11, qsLong );
+    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge - 1, c.dH - c.iTinyFontHeight - 11, qsLat );
+    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge - 1, c.dH - 11, qsLong );
 
     // Update the airport positions
     if( m_eShowAirports != Canvas::ShowNoAirports )

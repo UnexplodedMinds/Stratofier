@@ -9,8 +9,9 @@ RoscoPi Stratux AHRS Display
 #include <QPushButton>
 #include <QMessageBox>
 #include <QFont>
-#include <QGuiApplication>
+#include <QDesktopWidget>
 #include <QScreen>
+#include <QGuiApplication>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -67,10 +68,12 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
 
     m_pStratuxStream->connectStreams();
-#ifdef ANDROID
-    connect( qApp->primaryScreen(), SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
-#endif
+
     QTimer::singleShot( 500, this, SLOT( init() ) );
+
+    QScreen *pScreen = QGuiApplication::primaryScreen();
+    pScreen->setOrientationUpdateMask( Qt::PortraitOrientation | Qt::InvertedPortraitOrientation | Qt::LandscapeOrientation | Qt::InvertedLandscapeOrientation );
+    connect( pScreen, SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
 }
@@ -318,14 +321,12 @@ void AHRSMainWin::stopTimer()
 }
 
 
-#ifdef ANDROID
 void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
-    qInfo() << "Orientation change to" << o;
-    m_bPortrait = ((o == Qt::PortraitOrientation) || (o == Qt::InvertedPortraitOrientation));
+    // For now do nothing until auto-relayout and landscape mode is cleaned up for Android
+    return;
+
+    m_bPortrait = ((o == Qt::PortraitOrientation) | (o == Qt::InvertedPortraitOrientation));
+
     init();
 }
-#endif
-
-
-

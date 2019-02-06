@@ -87,23 +87,28 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
     int             iSpeed, iV = 1, iY;
     CanvasConstants c = pCanvas->constants();
     QString         qsSpeed;
+    double          dDoubleTinyFontHeight = static_cast<double>( c.iTinyFontHeight ) * 2.0;
 
 	for( iSpeed = 300; iSpeed >= 0; iSpeed -= 10 )
     {
 		ahrs.setFont( tiny );
-		iY = static_cast<int>( static_cast<double>( iV ) * static_cast<double>( c.iTinyFontHeight ) * 2.0 );
+        iY = static_cast<int>( static_cast<double>( iV ) * dDoubleTinyFontHeight );
         qsSpeed = QString::number( iSpeed );
         ahrs.setPen( Qt::black );
         ahrs.drawText( 11, iY + 1, qsSpeed );
         ahrs.setPen( Qt::white );
 		ahrs.drawText( 10, iY, qsSpeed );
+#ifdef ANDROID
+        iY = iY - (c.iTinyFontHeight / 4);
+#else
         iY = iY - (c.iTinyFontHeight / 2) + 5;
+#endif
         ahrs.setPen( QPen( Qt::white, 2 ) );
         ahrs.drawLine( 0, iY, 5, iY );
 		if( iSpeed >= 10 )
 		{
 			ahrs.setFont( wee );
-			iY = static_cast<int>( (static_cast<double>( iV ) * static_cast<double>( c.iTinyFontHeight ) * 2.0) + c.iTinyFontHeight );
+            iY = static_cast<int>( (static_cast<double>( iV ) * dDoubleTinyFontHeight) + c.iTinyFontHeight );
             qsSpeed = QString::number( iSpeed - 5 );
             ahrs.setPen( Qt::black );
             ahrs.drawText( 11, iY + 1, qsSpeed );
