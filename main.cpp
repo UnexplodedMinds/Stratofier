@@ -20,6 +20,7 @@ int main( int argc, char *argv[] )
 	bool         bMax = true;
     QString      qsIP = "192.168.10.1";
     bool         bPortrait = true;
+    AHRSMainWin *pMainWin = 0;
     
 	foreach( qsArg, qslArgs )
     {
@@ -52,19 +53,34 @@ int main( int argc, char *argv[] )
     QGuiApplication::setApplicationDisplayName( "RoscoPi" );
 
     qInfo() << "Starting RoscoPi";
-    AHRSMainWin mainWin( qsIP, bPortrait );
+    pMainWin = new AHRSMainWin( qsIP, bPortrait );
     // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
-		mainWin.showMaximized();
+        pMainWin->showMaximized();
     // This is only intended for running directly on the host PC without an emulator
 	else
 	{
-		mainWin.show();
+        pMainWin->show();
         if( bPortrait )
-    		mainWin.resize( 480, 800 );
+            pMainWin->resize( 480, 800 );
         else
-            mainWin.resize( 800, 480 );
+            pMainWin->resize( 800, 480 );
 	}
 
-    return guiApp.exec();
+    while( guiApp.exec() != 0 )
+    {
+        qInfo() << "Orientation changed";
+
+        // For Android, override any command line setting for portrait/landscape
+#ifdef ANDROID
+        QScreen *pScreen = QGuiApplication::primaryScreen();
+
+        bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
+#endif
+        delete pMainWin;
+        pMainWin = new AHRSMainWin( qsIP, bPortrait );
+        pMainWin->showMaximized();
+    }
+
+    return 0;
 }

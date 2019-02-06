@@ -213,13 +213,13 @@ void AHRSMainWin::upgradeRosco()
 
 void AHRSMainWin::shutdownRoscoPi()
 {
-    qApp->closeAllWindows();
+    qApp->exit( 0 );
 }
 
 
 void AHRSMainWin::shutdownStratux()
 {
-    qApp->closeAllWindows();
+    qApp->exit( 0 );
     system( "sudo shutdown -h now" );
 }
 
@@ -323,10 +323,7 @@ void AHRSMainWin::stopTimer()
 
 void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
-    // For now do nothing until auto-relayout and landscape mode is cleaned up for Android
-    return;
+    Q_UNUSED( o )
 
-    m_bPortrait = ((o == Qt::PortraitOrientation) | (o == Qt::InvertedPortraitOrientation));
-
-    init();
+    qApp->exit( 1 );
 }
