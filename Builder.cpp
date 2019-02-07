@@ -141,8 +141,12 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     clipLine.setAngle( 29.0 );
     ahrs.setClipRect( 0.0, 0.0, dW, clipLine.p2().y() );
 
-    // Draw the black base arc surround
+    // Draw the black base arc surround but make it white as well in Android; the higher resolution makes it look "funny"
+#ifdef ANDROID
+    linePen.setColor( Qt::white );
+#else
     linePen.setColor( Qt::black );
+#endif
     linePen.setWidth( c.iFatPen );
     ahrs.setPen( linePen );
     ahrs.drawEllipse( 21.0, 21.0, dW - 42.0, dH - 42.0 );
