@@ -9,7 +9,9 @@ RoscoPi Stratux AHRS Display
 #include <QtDebug>
 
 #include "AHRSMainWin.h"
-
+#ifdef ANDROID
+#include "ScreenLocker.h"
+#endif
 
 int main( int argc, char *argv[] )
 {
@@ -21,7 +23,10 @@ int main( int argc, char *argv[] )
     QString      qsIP = "192.168.10.1";
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
-    
+#ifdef ANDROID
+    ScreenLocker locker;    // Keeps screen on until app exit where it's destroyed.
+#endif
+
 	foreach( qsArg, qslArgs )
     {
         QStringList qsl = qsArg.split( '=' );

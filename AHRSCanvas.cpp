@@ -461,21 +461,22 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
     QRect           gpsRect( (m_bPortrait ? c.dW : c.dWa) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
-    QRect           zoomInRect;
-    QRect           zoomOutRect;
+    QRectF          zoomInRect;
+    QRectF          zoomOutRect;
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
-    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.04 : 0.06667);
+    double          dZoomBtnWidth = m_pCanvas->scaledH( 64.0 );
+    double          dZoomBtnHeight = m_pCanvas->scaledV( 64.0 );
 
     if( m_bPortrait )
     {
-        zoomInRect.setRect( c.dH * 0.0125, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + 25, iZoomBtnSize, iZoomBtnSize );
-        zoomOutRect.setRect( c.dH * 0.0125, static_cast<int>( c.dH ) - (c.dH * 0.15), iZoomBtnSize, iZoomBtnSize );
+        zoomInRect.setRect( 0.0, c.dH2 - m_pCanvas->scaledV( 50.0 ), dZoomBtnWidth, dZoomBtnHeight );
+        zoomOutRect.setRect( 0.0, c.dH - m_pCanvas->scaledV( 50.0 ) - dZoomBtnHeight, dZoomBtnWidth, dZoomBtnHeight );
     }
     else
     {
-        zoomInRect.setRect( c.dW + 10, 10, 75, 75 );
-        zoomOutRect.setRect( (c.dW * 2.0) - 50, 10, 75, 75 );
+        zoomInRect.setRect( c.dW, 10.0, dZoomBtnWidth, dZoomBtnHeight );
+        zoomOutRect.setRect( c.dWa - dZoomBtnWidth - 20.0, 10.0, dZoomBtnWidth, dZoomBtnHeight );
     }
 
     // User pressed the GPS Lat/long area. This needs to be before the test for the heading indicator since it's within that area's rectangle
@@ -959,8 +960,8 @@ void AHRSCanvas::paintPortrait()
     updateTraffic( &ahrs, &c );
 
     // Draw the zoom in/out buttons
-    ahrs.drawPixmap( 0, static_cast<int>( c.dH ) - m_pHeadIndicator->height() + static_cast<int>( m_pCanvas->scaledH( 25.0 ) ), *m_pZoomInPixmap );
-    ahrs.drawPixmap( 0, static_cast<int>( c.dH ) - (c.dH * 0.15), *m_pZoomOutPixmap );
+    ahrs.drawPixmap( 0, c.dH2 - m_pCanvas->scaledV( 50.0 ), *m_pZoomInPixmap );
+    ahrs.drawPixmap( 0, c.dH - m_pCanvas->scaledV( 50.0 ) - m_pZoomOutPixmap->height(), *m_pZoomOutPixmap );
     
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1217,7 +1218,7 @@ void AHRSCanvas::paintLandscape()
         ahrs.translate( c.dW + c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -(c.dW + c.dW2), -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW + c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_headIcon );
+        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - m_pHeadIndicator->height() - 10 - m_pCanvas->scaledV( 20.0 ), m_headIcon );
 
         // If long press triggered crosswind component display and the wind bug is set
         if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
@@ -1237,17 +1238,21 @@ void AHRSCanvas::paintLandscape()
         ahrs.translate( c.dW + c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -(c.dW + c.dW2), -(c.dH - (m_pHeadIndicator->height() / 2) - 10.0) );
-        ahrs.drawPixmap( c.dW + c.dW2 - 32.0, c.dH - m_pHeadIndicator->height() - 37.0, m_windIcon );
+        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - m_pHeadIndicator->height() - 10 - m_pCanvas->scaledV( 20.0 ), m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
 
+#ifdef ANDROID
+        windRect.setWidth( windRect.width() * 4 );
+#endif
+
         ahrs.setFont( med );
         ahrs.setPen( Qt::black );
-        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() - 3, qsWind );
+        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2), c.dH - m_pHeadIndicator->height() + m_pCanvas->scaledV( 9.0 ), qsWind );
         ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2) - 1, c.dH - m_pHeadIndicator->height() - 4, qsWind );
+        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2) - 1, c.dH - m_pHeadIndicator->height() + m_pCanvas->scaledV( 10.0 ), qsWind );
 
         // If long press triggered crosswind component display and the heading bug is set
         if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
@@ -1286,8 +1291,8 @@ void AHRSCanvas::paintLandscape()
     }
 
     // Draw zoom in/out buttons
-    ahrs.drawPixmap( c.dW + 10, 10, *m_pZoomInPixmap );
-    ahrs.drawPixmap( (c.dW * 2.0) - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
+    ahrs.drawPixmap( c.dW + 10.0, 10, *m_pZoomInPixmap );
+    ahrs.drawPixmap( c.dWa - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
 
     // Draw the Altitude tape
     ahrs.fillRect( QRectF( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 0.0, c.dW5 - m_pCanvas->scaledH( 30.0 ), c.dH ), QColor( 0, 0, 0, 100 ) );
@@ -1344,7 +1349,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawText( c.dW - c.dW5 - m_pCanvas->scaledH( 8.0 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 #endif
     // Draw the Speed tape
-    ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - 25.0, c.dH ), QColor( 0, 0, 0, 100 ) );
+    ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - m_pCanvas->scaledH( 25.0 ), c.dH ), QColor( 0, 0, 0, 100 ) );
     ahrs.drawPixmap( 4, c.dH2 - c.iSmallFontHeight - (((300.0 - g_situation.dGPSGroundSpeed) / 300.0) * m_pSpeedTape->height()), *m_pSpeedTape );
 
     // Draw the current speed

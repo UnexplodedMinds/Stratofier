@@ -7,6 +7,11 @@
 
 QT += core gui websockets widgets network concurrent
 
+VPATH += ./include \
+         ../include \
+         ../RoscoPi/ui \
+         ../RoscoPi/include
+
 android {
 QT += androidextras
 CONFIG += mobility
@@ -28,6 +33,9 @@ DISTFILES += AndroidManifest.xml \
              build.gradle \
              gradle/wrapper/gradle-wrapper.properties \
              gradlew.bat
+
+SOURCES += ScreenLocker.cpp
+HEADERS += ScreenLocker.h
 }
 
 TARGET = RoscoPi
@@ -40,11 +48,6 @@ INCLUDEPATH += ./include \
                ../RoscoPi/include \
                ../RoscoPi/uic \
                ../RoscoPi/rcc
-
-VPATH += ./include \
-         ../include \
-         ../RoscoPi/ui \
-         ../RoscoPi/include
 
 DESTDIR = ../RoscoPi/bin
 OBJECTS_DIR = ../RoscoPi/obj
@@ -76,7 +79,8 @@ HEADERS += StratuxStreams.h \
            MenuDialog.h \
            Builder.h \
            RoscoPiDefs.h \
-           TimerDialog.h
+           TimerDialog.h \
+           ScreenLocker.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
