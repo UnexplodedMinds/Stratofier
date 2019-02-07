@@ -37,7 +37,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "1.0.0" );
+QString g_qsRoscoPiVersion( "1.0.1" );
 
 
 /*
@@ -1003,6 +1003,13 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, c->dH - 50.0 );
     QFont           med_bu( med );
     QPen            linePen( Qt::black );
+    int             iMedFontHeight = c->iMedFontHeight;
+    int             iSmallFontHeight = c->iSmallFontHeight;
+    int             iVoff = 0;
+
+#ifdef ANDROID
+    iVoff = 50;
+#endif
 
     med_bu.setUnderline( true );
     med_bu.setBold( true );
@@ -1013,14 +1020,14 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     linePen.setWidth( c->iThickPen );
     pAhrs->setPen( linePen );
     pAhrs->setBrush( cloudyGradient );
-    pAhrs->drawRect( 50, 50, (m_bPortrait ? c->dW : width()) - 100, c->dH - 100 );
+    pAhrs->drawRect( 50, 50, (m_bPortrait ? c->dW : c->dWa) - 100, c->dH - 100 );
     pAhrs->setFont( med_bu );
-    pAhrs->drawText( 75, 95, "GPS Status" );
+    pAhrs->drawText( 75, 95 + iVoff, "GPS Status" );
     pAhrs->setFont( small );
-    pAhrs->drawText( 75, 95 + c->iMedFontHeight,  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
-    pAhrs->drawText( 75, 95 + c->iMedFontHeight + c->iSmallFontHeight,  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
-    pAhrs->drawText( 75, 95 + c->iMedFontHeight + (c->iSmallFontHeight * 2),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
-    pAhrs->drawText( 75, 95 + c->iMedFontHeight + (c->iSmallFontHeight * 3),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
+    pAhrs->drawText( 75, 95 + iVoff + iMedFontHeight,  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
+    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 2),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
+    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 3),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
+    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 4),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
 
     QList<StratuxTraffic> trafficList = g_trafficMap.values();
     StratuxTraffic        traffic;
@@ -1029,18 +1036,18 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
 
     // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
     pAhrs->setFont( med_bu );
-    pAhrs->drawText( m_bPortrait ? 75 : 400, m_bPortrait ? 290 : 95, "Non-ADS-B Traffic" );
+    pAhrs->drawText( m_bPortrait ? 75 : c->dW, m_bPortrait ? c->dH2 : 95 + iVoff, "Non-ADS-B Traffic" );
     pAhrs->setFont( small );
     foreach( traffic, trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
         if( !traffic.bHasADSB && (!traffic.qsTail.isEmpty()) )
         {
-            iLine = (m_bPortrait ? 290 : 95) + c->iMedFontHeight + (iY * c->iSmallFontHeight);
-            pAhrs->drawText( m_bPortrait ? 75 : 400, iLine, traffic.qsTail );
-            pAhrs->drawText( m_bPortrait ? 200 : 500, iLine, QString( "%1 ft" ).arg( static_cast<int>( traffic.dAlt ) ) );
+            iLine = (m_bPortrait ? static_cast<int>( c->dH2 ) : 95 + iVoff) + iMedFontHeight + (iY * iSmallFontHeight);
+            pAhrs->drawText( m_bPortrait ? 75 : c->dW, iLine, traffic.qsTail );
+            pAhrs->drawText( m_bPortrait ? m_pCanvas->scaledH( 200.0 ) : m_pCanvas->scaledH( 500.0 ), iLine, QString( "%1 ft" ).arg( static_cast<int>( traffic.dAlt ) ) );
             if( traffic.iSquawk > 0 )
-                pAhrs->drawText( m_bPortrait ? 325 : 600, iLine, QString::number( traffic.iSquawk ) );
+                pAhrs->drawText( m_bPortrait ? m_pCanvas->scaledH( 325 ) : m_pCanvas->scaledH( 600 ), iLine, QString::number( traffic.iSquawk ) );
             iY++;
         }
         if( iY > 10 )
@@ -1049,7 +1056,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setFont( med );
     pAhrs->setPen( Qt::blue );
-    pAhrs->drawText( 75, m_bPortrait ? 700 : 390, QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
+    pAhrs->drawText( 75, m_bPortrait ? m_pCanvas->scaledV( 700.0 ) : m_pCanvas->scaledV( 390.0 ), QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
 }
 
 void AHRSCanvas::paintLandscape()
@@ -1188,16 +1195,25 @@ void AHRSCanvas::paintLandscape()
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, 2 ) );
     ahrs.setBrush( Qt::black );
+    // Android has a thin indicator strip along the top that would obscure the heading so for the android version in landscape, put the heading in the bottom left middle corner
+#ifdef ANDROID
+    ahrs.drawRect( c.dW + 10.0, c.dH - c.iMedFontHeight - 10.0, c.dW5 - 20.0, c.iMedFontHeight );
+#else
     ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
+#endif
     ahrs.setPen( Qt::white );
     ahrs.setFont( med );
+#ifdef ANDROID
+    ahrs.drawText( c.dW + c.dW10 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pCanvas->scaledV( 15.0 ), qsHead );
+#else
     ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
+#endif
 
     // Arrow for heading position above heading dial
     arrow.clear();
-    arrow.append( QPointF( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() - 14.0 ) );
-    arrow.append( QPointF( c.dW + c.dW2 + 15.0, c.dH - m_pHeadIndicator->height() - 34.0 ) );
-    arrow.append( QPointF( c.dW + c.dW2 - 15.0, c.dH - m_pHeadIndicator->height() - 34.0 ) );
+    arrow.append( QPointF( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.01875 : 0.03125)) ) );
+    arrow.append( QPointF( c.dW + c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH - m_pHeadIndicator->height() - 10.0 - (c.dH * (m_bPortrait ? 0.04375 : 0.04375)) ) );
+    arrow.append( QPointF( c.dW + c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH - m_pHeadIndicator->height() - 10.0 - (c.dH * (m_bPortrait ? 0.04375 : 0.04375)) ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
