@@ -7,9 +7,10 @@ RoscoPi Stratux AHRS Display
 #include <QGuiApplication>
 #include <QScreen>
 #include <QtDebug>
+#include <QDir>
 
 #include "AHRSMainWin.h"
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
 #include "ScreenLocker.h"
 #endif
 
@@ -23,7 +24,9 @@ int main( int argc, char *argv[] )
     QString      qsIP = "192.168.10.1";
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
-#ifdef ANDROID
+    QString      qsCurrWorkPath( "/home/pi/RoscoPi" );  // If you put RoscoPi anywhere else, specify home=<whatever> as an argument when running
+
+#if defined( Q_OS_ANDROID )
     ScreenLocker locker;    // Keeps screen on until app exit where it's destroyed.
 #endif
 
@@ -42,14 +45,20 @@ int main( int argc, char *argv[] )
                 qsIP = qsVal;
             else if( qsToken == "orient" )
                 bPortrait = (qsVal == "portrait");
+            else if( qsToken == "home" )
+                qsCurrWorkPath = qsVal;
         }
     }
 
-    // For Android, override any command line setting for portrait/landscape
-#ifdef ANDROID
+// For Android, override any command line setting for portrait/landscape
+#if defined( Q_OS_ANDROID )
     QScreen *pScreen = QGuiApplication::primaryScreen();
 
+    QGuiApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
     bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
+// For running locally we need to set the correct working path so relative references work both locally and on the Pi
+#else
+    QDir::setCurrent( qsCurrWorkPath );
 #endif
 
     QCoreApplication::setOrganizationName( "Unexploded Minds" );
@@ -74,10 +83,8 @@ int main( int argc, char *argv[] )
 
     while( guiApp.exec() != 0 )
     {
-        qInfo() << "Orientation changed";
-
         // For Android, override any command line setting for portrait/landscape
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         QScreen *pScreen = QGuiApplication::primaryScreen();
 
         bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));

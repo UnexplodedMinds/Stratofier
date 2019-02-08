@@ -114,7 +114,7 @@ void AHRSMainWin::init()
         m_pMenuButton->setMinimumWidth( iMenuBtnWidth );
         m_pMenuButton->setMaximumWidth( iMenuBtnWidth );
     }
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     m_pAHRSDisp->orient( m_bPortrait );
 #endif
 }

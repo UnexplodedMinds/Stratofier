@@ -74,7 +74,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerSec( -1 )
 {
 #ifndef ANDROID
-    g_pSet = new QSettings( "../config.ini", QSettings::IniFormat );
+    g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
 #else
     g_pSet = new QSettings;
 #endif
@@ -183,7 +183,7 @@ void AHRSCanvas::init()
     if( m_bPortrait )
     {
         m_pRollIndicator = new QPixmap( static_cast<int>( c.dW - c.dW5 ), static_cast<int>( c.dW - c.dW5 ) );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         m_pVertSpeedTape = new QPixmap( c.dWa * 0.08333, c.dH2 + m_pCanvas->scaledV( 20.0 ) );
 #else
         m_pVertSpeedTape = new QPixmap( c.dWa * 0.08333, c.dH2 );
@@ -358,7 +358,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     QString qsZoom = QString( "%1 NM" ).arg( static_cast<int>( m_dZoomNM ) );
     QRect   zoomRect = tinyMetrics.boundingRect( qsZoom );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     zoomRect.setWidth( zoomRect.width() * 4 );
 #endif
 
@@ -737,7 +737,7 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.setFont( large );
     ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) + 20, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.075 : 0.125)), qsHead );
 #else
@@ -796,7 +796,7 @@ void AHRSCanvas::paintPortrait()
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         windRect.setWidth( windRect.width() * 4 );
 #endif
 
@@ -871,7 +871,7 @@ void AHRSCanvas::paintPortrait()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     intRect.setWidth( intRect.width() * 4 );
 #endif
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
@@ -892,7 +892,7 @@ void AHRSCanvas::paintPortrait()
         weeBold.setBold( true );
         ahrs.setFont( weeBold );   // 5 digits won't quite fit
     }
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 9.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 #else
     ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
@@ -908,7 +908,7 @@ void AHRSCanvas::paintPortrait()
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 #else
     ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
@@ -979,7 +979,7 @@ void AHRSCanvas::paintTimer( QPainter *pAhrs, CanvasConstants *c )
     QPen         linePen( Qt::white );
     int          iFudge = 0;
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     timerRect.setWidth( timerRect.width() * 4 );
     iFudge = 20;
 #endif
@@ -1007,7 +1007,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     int             iSmallFontHeight = c->iSmallFontHeight;
     int             iVoff = 0;
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     iVoff = 50;
 #endif
 
@@ -1072,7 +1072,7 @@ void AHRSCanvas::paintLandscape()
     QFontMetrics    tinyMetrics( tiny );
     int             iGPSFudge = 0;
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     iGPSFudge = 10;
 #endif
 
@@ -1196,14 +1196,14 @@ void AHRSCanvas::paintLandscape()
     ahrs.setPen( QPen( Qt::white, 2 ) );
     ahrs.setBrush( Qt::black );
     // Android has a thin indicator strip along the top that would obscure the heading so for the android version in landscape, put the heading in the bottom left middle corner
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawRect( c.dW + 10.0, c.dH - c.iMedFontHeight - 10.0, c.dW5 - 20.0, c.iMedFontHeight );
 #else
     ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
 #endif
     ahrs.setPen( Qt::white );
     ahrs.setFont( med );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( c.dW + c.dW10 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pCanvas->scaledV( 15.0 ), qsHead );
 #else
     ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
@@ -1260,7 +1260,7 @@ void AHRSCanvas::paintLandscape()
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         windRect.setWidth( windRect.width() * 4 );
 #endif
 
@@ -1339,7 +1339,7 @@ void AHRSCanvas::paintLandscape()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     intRect.setWidth( intRect.width() * 4 );
 #endif
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
@@ -1359,7 +1359,7 @@ void AHRSCanvas::paintLandscape()
         weeBold.setBold( true );
         ahrs.setFont( weeBold );   // 5 digits won't quite fit
     }
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( c.dW - c.dW5 - m_pCanvas->scaledH( 8.0 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 11.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
 #else
     ahrs.drawText( c.dW - c.dW5 - m_pCanvas->scaledH( 8.0 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
@@ -1373,7 +1373,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 25, c.iSmallFontHeight + 1 );
     ahrs.setFont( small );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 9.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
 #else
     ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
@@ -1466,7 +1466,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     QLineF       runwayLine;
     int          iRunway, iAPRunway;
     double       dAirportDiam = c->dWa * (m_bPortrait ? 0.03125 : 0.01875);
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     QFontMetrics itsyMetrics( wee );
 #else
     QFontMetrics itsyMetrics( itsy );
@@ -1504,7 +1504,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         pAhrs->drawEllipse( ball.p2().x() - (dAirportDiam / 2.0), ball.p2().y() - (dAirportDiam / 2.0), dAirportDiam, dAirportDiam );
         apPen.setColor( Qt::black );
         pAhrs->setPen( apPen );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         pAhrs->setFont( tiny );
 #else
         pAhrs->setFont( wee );
@@ -1523,7 +1523,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                 apPen.setWidth( c->iThickPen );
                 pAhrs->setPen( apPen );
                 pAhrs->drawLine( runwayLine );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
                 pAhrs->setFont( wee );
 #else
                 pAhrs->setFont( itsy );
@@ -1536,7 +1536,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                 pAhrs->drawText( runwayLine.p2().x() - (itsyRect.width() / 2), runwayLine.p2().y(), qsRunway );
             }
         }
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         pAhrs->setFont( tiny );
 #else
         pAhrs->setFont( wee );
@@ -1550,7 +1550,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 }
 
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
 void AHRSCanvas::orient( bool bPortrait )
 {
     if( !m_bInitialized )

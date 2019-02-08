@@ -6,6 +6,7 @@ RoscoPi Stratux AHRS Display
 #include <QFont>
 #include <QFontMetrics>
 #include <QRect>
+#include <QSettings>
 
 #include "Canvas.h"
 
@@ -68,7 +69,7 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.iTinyFontWidth = tinyRect.width();
 
 // This just works out for Android font scaling (I don't know why)
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     m_preCalc.iWeeFontHeight *= 4;
     m_preCalc.iTinyFontHeight *= 4;
     m_preCalc.iSmallFontHeight *= 4;
@@ -119,7 +120,7 @@ int Canvas::largeWidth( const QString &qsText )
     QFontMetrics largeMetrics( large );
     QRect        largeRect( largeMetrics.boundingRect( qsText ) );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     return largeRect.width() * 4;
 #else
     return largeRect.width();
@@ -132,7 +133,7 @@ int Canvas::medWidth(const QString &qsText)
 	QFontMetrics medMetrics( med );
 	QRect        medRect( medMetrics.boundingRect( qsText ) );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     return medRect.width() * 4;
 #else
     return medRect.width();
@@ -145,9 +146,10 @@ int Canvas::hugeWidth( const QString &qsText )
     QFontMetrics hugeMetrics( huge );
     QRect        hugeRect( hugeMetrics.boundingRect( qsText ) );
 
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     return static_cast<int>( static_cast<double>( hugeRect.width() ) * 2.5 );
 #else
     return hugeRect.width();
 #endif
 }
+

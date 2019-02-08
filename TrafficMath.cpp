@@ -63,10 +63,10 @@ double TrafficMath::degHeading( double dAng )
 void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist, bool bUseCache )
 {
 // Not ideal but for local testing, good enough
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     QFile faaDatabase( "assets:/Airports.csv" );
 #else
-    QFile faaDatabase( "../android/assets/Airports.csv"  );
+    QFile faaDatabase( "./android/assets/Airports.csv"  );
 #endif
 
     if( bUseCache && (g_airportCache.count() > 0) )

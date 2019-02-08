@@ -98,7 +98,7 @@ void Builder::buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas )
         ahrs.drawText( 11, iY + 1, qsSpeed );
         ahrs.setPen( Qt::white );
 		ahrs.drawText( 10, iY, qsSpeed );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         iY = iY - (c.iTinyFontHeight / 4);
 #else
         iY = iY - (c.iTinyFontHeight / 2) + 5;
@@ -142,7 +142,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.setClipRect( 0.0, 0.0, dW, clipLine.p2().y() );
 
     // Draw the black base arc surround but make it white as well in Android; the higher resolution makes it look "funny"
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     linePen.setColor( Qt::white );
 #else
     linePen.setColor( Qt::black );
@@ -172,7 +172,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
         qsRoll = QString::number( abs( -30 + (i * 10) ) );
         qsRoll.chop( 1 );
         rollRect = rollMetrics.boundingRect( qsRoll );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
         ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
 #else
         ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
@@ -189,7 +189,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.translate( -dW2, -dH2 );
     ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
     rollRect = rollMetrics.boundingRect( qsRoll );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
 #else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
@@ -200,7 +200,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.rotate( 45 );
     ahrs.translate( -dW2, -dH2 );
     ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
 #else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
@@ -217,7 +217,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
     qsRoll = "60";
     rollRect = rollMetrics.boundingRect( qsRoll );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
 #else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );
@@ -228,7 +228,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
     ahrs.rotate( 60 );
     ahrs.translate( -dW2, -dH2 );
     ahrs.drawLine( dW2, (c.dH * (c.bPortrait ? 0.0125 : 0.02083)), dW2, (c.dH * (c.bPortrait ? 0.025 : 0.04167)) );
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     ahrs.drawText( dW2 - (static_cast<double>( rollRect.width() ) * 1.5), (c.dH * (c.bPortrait ? 0.04 : 0.06)) + rollRect.height(), qsRoll );
 #else
     ahrs.drawText( dW2 - (rollRect.width() / 2.0), 22.0 + rollRect.height(), qsRoll );

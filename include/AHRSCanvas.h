@@ -33,7 +33,7 @@ public:
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void    timerReminder( int iMinutes, int iSeconds );
     Canvas *canvas() { return m_pCanvas; }
-#ifdef ANDROID
+#if defined( Q_OS_ANDROID )
     void    orient( bool bPortrait );
 #endif
     QPixmap *m_pHeadIndicator;
