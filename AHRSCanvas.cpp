@@ -38,7 +38,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "1.0.1" );
+QString g_qsRoscoPiVersion( "1.0.2" );
 
 
 /*
