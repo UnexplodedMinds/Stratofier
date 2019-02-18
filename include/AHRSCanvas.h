@@ -36,6 +36,8 @@ public:
 #if defined( Q_OS_ANDROID )
     void    orient( bool bPortrait );
 #endif
+    int     magDev() { return m_iMagDev; }
+
     QPixmap *m_pHeadIndicator;
 
 public slots:
@@ -76,6 +78,8 @@ private:
     QPixmap  *m_pVertSpeedTape;
     QPixmap  *m_pZoomInPixmap;
     QPixmap  *m_pZoomOutPixmap;
+    QPixmap  *m_pMagHeadOffLessPixmap;
+    QPixmap  *m_pMagHeadOffMorePixmap;
     int       m_iDispTimer;
     int       m_iUpdateCount;
     bool      m_bUpdated;
@@ -90,6 +94,7 @@ private:
     bool      m_bShowCrosswind;
     int       m_iTimerMin;
     int       m_iTimerSec;
+    int       m_iMagDev;
 
     Canvas::ShowAirports m_eShowAirports;
 
