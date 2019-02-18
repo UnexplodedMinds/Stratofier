@@ -12,6 +12,7 @@ RoscoPi Stratux AHRS Display
 #include <QLineF>
 #include <QSettings>
 #include <QtConcurrent>
+#include <QTransform>
 
 #include <math.h>
 
@@ -63,6 +64,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_pVertSpeedTape( Q_NULLPTR ),
       m_pZoomInPixmap( Q_NULLPTR ),
       m_pZoomOutPixmap( Q_NULLPTR ),
+      m_pMagHeadOffLessPixmap( Q_NULLPTR ),
+      m_pMagHeadOffMorePixmap( Q_NULLPTR ),
       m_iUpdateCount( 0 ),
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
@@ -71,7 +74,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_longPressStart( QDateTime::currentDateTime() ),
       m_bShowCrosswind( false ),
       m_iTimerMin( -1 ),
-      m_iTimerSec( -1 )
+      m_iTimerSec( -1 ),
+      m_iMagDev( 0 )
 {
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -92,6 +96,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
     m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
+    m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 1500, this, SLOT( init() ) );
@@ -146,6 +151,16 @@ AHRSCanvas::~AHRSCanvas()
     {
         delete m_pZoomOutPixmap;
         m_pZoomOutPixmap = Q_NULLPTR;
+    }
+    if( m_pMagHeadOffLessPixmap != Q_NULLPTR )
+    {
+        delete m_pMagHeadOffLessPixmap;
+        m_pMagHeadOffLessPixmap = Q_NULLPTR;
+    }
+    if( m_pMagHeadOffMorePixmap != Q_NULLPTR )
+    {
+        delete m_pMagHeadOffMorePixmap;
+        m_pMagHeadOffMorePixmap = Q_NULLPTR;
     }
 }
 
@@ -211,9 +226,14 @@ void AHRSCanvas::init()
 
     QPixmap zIn( ":/graphics/resources/ZoomIn.png" );
     QPixmap zOut( ":/graphics/resources/ZoomOut.png" );
+    QTransform trans;
 
+    trans.rotate( -90.0 );
     m_pZoomInPixmap = new QPixmap( zIn.scaled( iZoomBtnSize, iZoomBtnSize ) );
     m_pZoomOutPixmap = new QPixmap( zOut.scaled( iZoomBtnSize, iZoomBtnSize ) );
+    m_pMagHeadOffLessPixmap = new QPixmap( zIn.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
+    trans.rotate( 360.0 );
+    m_pMagHeadOffMorePixmap = new QPixmap( zOut.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
 
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
@@ -355,19 +375,44 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setClipping( false );
 
+    // TODO: Move these out to their own painters
+
     QString qsZoom = QString( "%1 NM" ).arg( static_cast<int>( m_dZoomNM ) );
+    QString qsMagDev = QString( "%1%2" ).arg( m_iMagDev ).arg( QChar( 0xB0 ) );
     QRect   zoomRect = tinyMetrics.boundingRect( qsZoom );
+
+    if( m_iMagDev < 0 )
+        qsMagDev.prepend( "   -" );
+    else if( m_iMagDev > 0 )
+        qsMagDev.prepend( "   +" );
+    else
+        qsMagDev.prepend( "   " );
 
 #if defined( Q_OS_ANDROID )
     zoomRect.setWidth( zoomRect.width() * 4 );
+    qsMagDev.prepend( "   " );
 #endif
 
     // Draw the zoom level
     pAhrs->setFont( tiny );
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0), c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5), qsZoom );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0),
+                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5),
+                     qsZoom );
     pAhrs->setPen( QColor( 80, 255, 80 ) );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0), c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5), qsZoom );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0),
+                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5),
+                     qsZoom );
+
+    // Draw the magnetic deviation
+    pAhrs->setPen( Qt::black );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0),
+                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5) - c->iTinyFontHeight - (m_bPortrait ? 10.0 : 0),
+                     qsMagDev );
+    pAhrs->setPen( Qt::yellow );
+    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0),
+                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5) - c->iTinyFontHeight - (m_bPortrait ? 10.0 : 0),
+                     qsMagDev );
 }
 
 
@@ -375,6 +420,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 void AHRSCanvas::situation( StratuxSituation s )
 {
     g_situation = s;
+    g_situation.dAHRSGyroHeading += static_cast<double>( m_iMagDev );
     m_bUpdated = true;
     update();
 }
@@ -463,6 +509,8 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     QRect           gpsRect( (m_bPortrait ? c.dW : c.dWa) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
     QRectF          zoomInRect;
     QRectF          zoomOutRect;
+    QRectF          magHeadLessRect;
+    QRectF          magHeadMoreRect;
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
     double          dZoomBtnWidth = m_pCanvas->scaledH( 64.0 );
@@ -472,11 +520,40 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     {
         zoomInRect.setRect( 0.0, c.dH2 - m_pCanvas->scaledV( 50.0 ), dZoomBtnWidth, dZoomBtnHeight );
         zoomOutRect.setRect( 0.0, c.dH - m_pCanvas->scaledV( 50.0 ) - dZoomBtnHeight, dZoomBtnWidth, dZoomBtnHeight );
+
+        magHeadLessRect.setRect( c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
+                                 c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
+                                 m_pMagHeadOffLessPixmap->width(),
+                                 m_pMagHeadOffLessPixmap->height() );
+        magHeadMoreRect.setRect( c.dW2 - c.dW10 + c.dW5,
+                                 c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
+                                 m_pMagHeadOffLessPixmap->width(),
+                                 m_pMagHeadOffLessPixmap->height() );
     }
     else
     {
         zoomInRect.setRect( c.dW, 10.0, dZoomBtnWidth, dZoomBtnHeight );
         zoomOutRect.setRect( c.dWa - dZoomBtnWidth - 20.0, 10.0, dZoomBtnWidth, dZoomBtnHeight );
+
+#if defined( Q_OS_ANDROID )
+        magHeadMoreRect.setRect( c.dW + c.dW5,
+                                 c.dH - c.iMedFontHeight - 10.0,
+                                 m_pMagHeadOffMorePixmap->width(),
+                                 m_pMagHeadOffMorePixmap->height() );
+        magHeadLessRect.setRect( c.dW - m_pMagHeadOffLessPixmap->width(),
+                                 c.dH - c.iMedFontHeight - 10.0,
+                                 m_pMagHeadOffLessPixmap->width(),
+                                 m_pMagHeadOffLessPixmap->height() );
+#else
+        magHeadLessRect.setRect( c.dW + c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
+                                 c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+                                 m_pMagHeadOffLessPixmap->width(),
+                                 m_pMagHeadOffLessPixmap->height() );
+        magHeadMoreRect.setRect( c.dW + c.dW2 - c.dW10 + c.dW5,
+                                 c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+                                 m_pMagHeadOffMorePixmap->width(),
+                                 m_pMagHeadOffMorePixmap->height() );
+#endif
     }
 
     // User pressed the GPS Lat/long area. This needs to be before the test for the heading indicator since it's within that area's rectangle
@@ -493,6 +570,22 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     {
         zoomOut();
         update();
+    }
+    else if( magHeadLessRect.contains( pressPt ) )
+    {
+        m_iMagDev--;
+        if( m_iMagDev < -30.0 )
+            m_iMagDev++;
+        g_pSet->setValue( "MagDev", m_iMagDev );
+        g_pSet->sync();
+    }
+    else if( magHeadMoreRect.contains( pressPt ) )
+    {
+        m_iMagDev++;
+        if( m_iMagDev > 30.0 )
+            m_iMagDev--;
+        g_pSet->setValue( "MagDev", m_iMagDev );
+        g_pSet->sync();
     }
     // User pressed on the heading indicator
     else if( headRect.contains( pressPt ) )
@@ -744,6 +837,13 @@ void AHRSCanvas::paintPortrait()
     ahrs.setFont( med );
     ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 58.0, qsHead );
 #endif
+    // Draw the magnetic deviation less/more controls
+    ahrs.drawPixmap( c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
+                     c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
+                     *m_pMagHeadOffLessPixmap );
+    ahrs.drawPixmap( c.dW2 - c.dW10 + c.dW5,
+                     c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
+                    *m_pMagHeadOffMorePixmap );
 
     // Arrow for heading position above heading dial
     arrow.clear();
@@ -1192,23 +1292,6 @@ void AHRSCanvas::paintLandscape()
 
     ahrs.translate( c.dW20, 0.0 );
 
-    // Draw the heading value over the indicator
-    ahrs.setPen( QPen( Qt::white, 2 ) );
-    ahrs.setBrush( Qt::black );
-    // Android has a thin indicator strip along the top that would obscure the heading so for the android version in landscape, put the heading in the bottom left middle corner
-#if defined( Q_OS_ANDROID )
-    ahrs.drawRect( c.dW + 10.0, c.dH - c.iMedFontHeight - 10.0, c.dW5 - 20.0, c.iMedFontHeight );
-#else
-    ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
-#endif
-    ahrs.setPen( Qt::white );
-    ahrs.setFont( med );
-#if defined( Q_OS_ANDROID )
-    ahrs.drawText( c.dW + c.dW10 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pCanvas->scaledV( 15.0 ), qsHead );
-#else
-    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
-#endif
-
     // Arrow for heading position above heading dial
     arrow.clear();
     arrow.append( QPointF( c.dW + c.dW2, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.01875 : 0.03125)) ) );
@@ -1311,13 +1394,52 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPixmap( c.dWa - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
 
     // Draw the Altitude tape
+#if defined( Q_OS_ANDROID )
+    ahrs.fillRect( QRectF( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 0.0, c.dW5 - m_pCanvas->scaledH( 30.0 ), c.dH - m_pMagHeadOffLessPixmap->height() - 10.0 ), QColor( 0, 0, 0, 100 ) );
+#else
     ahrs.fillRect( QRectF( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 0.0, c.dW5 - m_pCanvas->scaledH( 30.0 ), c.dH ), QColor( 0, 0, 0, 100 ) );
+#endif
     ahrs.setClipRect( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 2.0, c.dW5 + m_pCanvas->scaledH( 10.0 ), c.dH - 5 );
     ahrs.drawPixmap( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), c.dH2 - (static_cast<double>( c.iTinyFontHeight ) * 1.5) - (((20000.0 - g_situation.dBaroPressAlt) / 20000.0) * m_pAltTape->height()) + m_pCanvas->scaledV( 7 ), *m_pAltTape );
     ahrs.setClipping( false );
 
     // Draw the vertical speed static pixmap
     ahrs.drawPixmap( c.dW - m_pVertSpeedTape->width(), 0.0, *m_pVertSpeedTape );
+
+    // Android has a thin indicator strip along the top that would obscure the heading so for the android version in landscape, put the heading in the bottom left middle corner
+    ahrs.setBrush( Qt::black );
+#if defined( Q_OS_ANDROID )
+    ahrs.setPen( QPen( Qt::white, 3 ) );
+    ahrs.drawRect( c.dW + 10.0, c.dH - c.iMedFontHeight - 10.0, c.dW5 - 20.0, c.iMedFontHeight );
+
+    // Draw the magnetic deviation more control. For Android draw the less button further down so it's not obscured by the vertical speed pixmap
+    ahrs.drawPixmap( c.dW + c.dW5,
+                     c.dH - c.iMedFontHeight - 10.0,
+                    *m_pMagHeadOffMorePixmap );
+    ahrs.drawPixmap( c.dW - m_pMagHeadOffLessPixmap->width(),
+                     c.dH - c.iMedFontHeight - 10.0,
+                    *m_pMagHeadOffLessPixmap );
+#else
+    ahrs.setPen( QPen( Qt::white, 2 ) );
+    ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
+
+    // Draw the magnetic deviation less/more controls
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
+                     c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+                    *m_pMagHeadOffLessPixmap );
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 + c.dW5,
+                     c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+                    *m_pMagHeadOffMorePixmap );
+#endif
+
+    // Draw the heading value over the indicator
+    ahrs.setPen( Qt::white );
+    ahrs.setFont( med );
+#if defined( Q_OS_ANDROID )
+    ahrs.drawText( c.dW + c.dW10 - (m_pCanvas->medWidth( qsHead ) / 2) + 10.0, c.dH - m_pCanvas->scaledV( 15.0 ), qsHead );
+#else
+    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
+#endif
 
     // Draw the vertical speed indicator
     ahrs.translate( 0.0, c.dH2 - (dPxPerVSpeed * g_situation.dGPSVertSpeed / 100.0) );
