@@ -62,6 +62,7 @@ private:
     void paintLandscape();
     void paintInfo( QPainter *pAhrs, CanvasConstants *c );
     void paintTimer( QPainter *pAhrs, CanvasConstants *c );
+    void loadSettings();
 
     Canvas *m_pCanvas;
 
@@ -97,8 +98,8 @@ private:
     int       m_iMagDev;
 
     Canvas::ShowAirports m_eShowAirports;
-
-    QList<Airport> m_airports;
+    QList<Airport>       m_airports;
+    FuelTanks            m_tanks;
 };
 
 #endif // __AHRSCANVAS_H__

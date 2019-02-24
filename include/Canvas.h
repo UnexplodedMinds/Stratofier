@@ -6,6 +6,9 @@ RoscoPi Stratux AHRS Display
 #ifndef __CANVAS_H__
 #define __CANVAS_H__
 
+#include <QList>
+#include <QDataStream>
+
 
 struct CanvasConstants
 {
@@ -68,6 +71,20 @@ struct Airport
     bool        bPublic;
     BearingDist bd;
     QList<int>  runways;
+};
+
+
+struct FuelTanks
+{
+    double dLeftCapacity;
+    double dRightCapacity;
+    double dLeftRemaining;
+    double dRightRemaining;
+    double dFuelRateCruise;
+    double dFuelRateClimb;
+    double dFuelRateDescent;
+    double dFuelRateTaxi;
+    int    iSwitchIntervalMins;
 };
 
 

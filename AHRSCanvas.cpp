@@ -13,6 +13,7 @@ RoscoPi Stratux AHRS Display
 #include <QSettings>
 #include <QtConcurrent>
 #include <QTransform>
+#include <QVariant>
 
 #include <math.h>
 
@@ -75,7 +76,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bShowCrosswind( false ),
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 ),
-      m_iMagDev( 0 )
+      m_iMagDev( 0 ),
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30 } )
 {
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -92,11 +94,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_headIcon.load( ":/icons/resources/HeadingIcon.png" );
     m_windIcon.load( ":/icons/resources/WindIcon.png" );
 
-    m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
-    m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
-    m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
-    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
-    m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
+    loadSettings();
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
     QTimer::singleShot( 1500, this, SLOT( init() ) );
@@ -237,6 +235,28 @@ void AHRSCanvas::init()
 
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
     m_bInitialized = true;
+}
+
+
+void AHRSCanvas::loadSettings()
+{
+    m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
+    m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
+    m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
+    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
+    m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
+
+    g_pSet->beginGroup( "FuelTanks" );
+    m_tanks.dLeftCapacity = g_pSet->value( "LeftCapacity", 24.0 ).toDouble();
+    m_tanks.dRightCapacity = g_pSet->value( "RightCapacity", 24.0 ).toDouble();
+    m_tanks.dLeftRemaining = g_pSet->value( "LeftRemaining", 24.0 ).toDouble();
+    m_tanks.dRightRemaining = g_pSet->value( "RightRemaining", 24.0 ).toDouble();
+    m_tanks.dFuelRateCruise = g_pSet->value( "CruiseRate", 8.3 ).toDouble();
+    m_tanks.dFuelRateClimb = g_pSet->value( "ClimbRate", 9.0 ).toDouble();
+    m_tanks.dFuelRateDescent = g_pSet->value( "DescentRate", 7.0 ).toDouble();
+    m_tanks.dFuelRateTaxi = g_pSet->value( "TaxiRate", 4.0 ).toDouble();
+    m_tanks.iSwitchIntervalMins = g_pSet->value( "SwitchInterval", 15 ).toInt();
+    g_pSet->endGroup();
 }
 
 
@@ -736,6 +756,38 @@ void AHRSCanvas::paintPortrait()
     linePen.setWidth( c.iThinPen );
 
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
+
+    // Tank indicators background
+    ahrs.setPen( linePen );
+    ahrs.setBrush( QColor( 0x2F, 0x2F, 0x2F ) );
+    ahrs.drawRect( 0.0, c.dH2 + c.dH40, c.dW10, c.dH2 - c.dH5 );
+    ahrs.drawRect( c.dW - c.dW10 - 1, c.dH2 + c.dH40, c.dW10, c.dH2 - c.dH5 );
+
+    // Tank indicators level
+    ahrs.setBrush( Qt::darkGreen );
+    ahrs.drawRect( 0.0,
+                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)),
+                   c.dW10,
+                   c.dH2 - c.dH5 - ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)) );
+    ahrs.drawRect( c.dW - c.dW10 - 1,
+                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
+                   c.dW10,
+                   c.dH2 - c.dH5 - ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
+
+    // Tank indicators ticks
+    for( int iTankLine = 0; iTankLine < 8; iTankLine++ )
+    {
+        ahrs.drawLine( 0.0, c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0),
+                       (c.dW40 / 2.0), c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0) );
+        ahrs.drawLine( c.dW - (c.dW40 / 2.0), c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0),
+                       c.dW, c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0) );
+    }
+
+    // Tank indicator labels
+    ahrs.setFont( large );
+    ahrs.setPen( Qt::white );
+    ahrs.drawText( (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
+    ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
 
     // Translate to dead center and rotate by stratux roll then translate back
     ahrs.translate( c.dW2, c.dH4 );
