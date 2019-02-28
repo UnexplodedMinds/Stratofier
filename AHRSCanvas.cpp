@@ -77,7 +77,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 ),
       m_iMagDev( 0 ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30 } )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -267,6 +267,8 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
     if( pEvent == 0 )
         return;
 
+    QDateTime qdtNow = QDateTime::currentDateTime();
+
     if( !m_bUpdated )
         update();
 
@@ -283,6 +285,26 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
             m_iUpdateCount = 0;
         }
         m_iUpdateCount++;
+    }
+
+    double dInterval = 0.00416666666667;   // 15 seconds / 3600 seconds (1 hour)
+
+    // If the aircraft is moving and there is virtually no vertical movement then we are taxiing
+    if( (g_situation.dGPSGroundSpeed > 5.0) && (g_situation.dBaroVertSpeed < 5.0) )
+    {
+        if( m_tanks.bOnLeftTank )
+            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
+        else
+            m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
+    }
+
+    // LEFT OFF HERE:
+    // Need to pop a notice to switch tanks.  A mechanism like how the GPS info is displayed should do nicely.
+    // Also need to flesh out how the above algorithm decides you're ascending, cruising or descending.
+    if( (m_tanks.lastSwitch.secsTo( qdtNow ) > (m_tanks.iSwitchIntervalMins * 60)) && m_tanks.bDualTanks )
+    {
+        m_tanks.lastSwitch = qdtNow;
+        m_tanks.bOnLeftTank = (!m_tanks.bOnLeftTank);
     }
 
     m_bUpdated = false;
@@ -786,7 +808,7 @@ void AHRSCanvas::paintPortrait()
     // Tank indicator labels
     ahrs.setFont( large );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
+    ahrs.drawText( (c.dW40 / 2.0) + 2, c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
     ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
 
     // Translate to dead center and rotate by stratux roll then translate back

@@ -171,6 +171,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( inOutToggled( bool ) ), this, SLOT( inOutToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
+        connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
     }
     else
     {
@@ -326,4 +327,18 @@ void AHRSMainWin::orient( Qt::ScreenOrientation o )
     Q_UNUSED( o )
 
     qApp->exit( 1 );
+}
+
+
+void AHRSMainWin::fuelTanks( FuelTanks tanks )
+{
+    m_pAHRSDisp->setFuelTanks( tanks );
+    QTimer::singleShot( 10, this, SLOT( fuelTanks2() ) );
+}
+
+
+void AHRSMainWin::fuelTanks2()
+{
+    delete m_pMenuDialog;
+    m_pMenuDialog = Q_NULLPTR;
 }

@@ -10,13 +10,11 @@ RoscoPi Stratux AHRS Display
 #include <QPixmap>
 #include <QMap>
 #include <QList>
+#include <QDateTime>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
 #include "TrafficMath.h"
-
-
-class QDial;
 
 
 class AHRSCanvas : public QWidget
@@ -31,6 +29,7 @@ public:
     void    showOutside( bool bOut );
     void    showAirports( Canvas::ShowAirports eShow );
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
+    void    setFuelTanks( FuelTanks tanks ) { m_tanks = tanks; }
     void    timerReminder( int iMinutes, int iSeconds );
     Canvas *canvas() { return m_pCanvas; }
 #if defined( Q_OS_ANDROID )

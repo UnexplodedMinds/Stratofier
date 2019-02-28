@@ -66,7 +66,9 @@ SOURCES += main.cpp \
            Canvas.cpp \
            MenuDialog.cpp \
            Builder.cpp \
-           TimerDialog.cpp
+           TimerDialog.cpp \
+           FuelTanksDialog.cpp \
+           ClickLabel.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -80,12 +82,15 @@ HEADERS += StratuxStreams.h \
            Builder.h \
            RoscoPiDefs.h \
            TimerDialog.h \
-           ScreenLocker.h
+           ScreenLocker.h \
+           FuelTanksDialog.h \
+           ClickLabel.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
          Keypad.ui \
          MenuDialog.ui \
-         TimerDialog.ui
+         TimerDialog.ui \
+         FuelTanksDialog.ui
 
 RESOURCES += AHRSResources.qrc

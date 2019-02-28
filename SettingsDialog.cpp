@@ -10,7 +10,6 @@ RoscoPi Stratux AHRS Display
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
 #include "Canvas.h"
-#include "FuelTanksDialog.h"
 
 #include "ui_MenuDialog.h"
 
@@ -66,7 +65,6 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pTrafficInOutButton, SIGNAL( toggled( bool ) ), this, SLOT( inOut( bool ) ) );
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
-    connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
 }
 
 
@@ -99,33 +97,21 @@ void MenuDialog::airports()
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 goldenrod, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowPublicAirports;
-        m_pAirportButton->setText( "PUB AIRPORTS" );
+        m_pAirportButton->setText( " PUB AIRPORTS" );
     }
     else if( m_eShowAirports == Canvas::ShowPublicAirports )
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 green, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowAllAirports;
-        m_pAirportButton->setText( "ALL AIRPORTS" );
+        m_pAirportButton->setText( " ALL AIRPORTS" );
     }
     else
     {
         m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 #641200, stop:1 white ); margin: 2px }" );
         m_eShowAirports = Canvas::ShowNoAirports;
-        m_pAirportButton->setText( "NO AIRPORTS  " );
+        m_pAirportButton->setText( " NO AIRPORTS  " );
     }
 
     emit showAirports( m_eShowAirports );
-}
-
-
-void MenuDialog::settings()
-{
-    FuelTanksDialog dlg( this );
-
-    dlg.setGeometry( 0, 0, 480, 480 );
-
-    dlg.exec();
-
-    emit fuelTanks( dlg.settings() );
 }
 

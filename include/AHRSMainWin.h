@@ -65,6 +65,8 @@ private slots:
     void showAirports( Canvas::ShowAirports eShow );
     void init();
     void orient( Qt::ScreenOrientation o );
+    void fuelTanks( FuelTanks tanks );
+    void fuelTanks2();
 };
 
 #endif // __AHRSMAINWIN_H__

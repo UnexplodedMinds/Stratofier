@@ -8,6 +8,7 @@ RoscoPi Stratux AHRS Display
 
 #include <QList>
 #include <QDataStream>
+#include <QDateTime>
 
 
 struct CanvasConstants
@@ -76,15 +77,18 @@ struct Airport
 
 struct FuelTanks
 {
-    double dLeftCapacity;
-    double dRightCapacity;
-    double dLeftRemaining;
-    double dRightRemaining;
-    double dFuelRateCruise;
-    double dFuelRateClimb;
-    double dFuelRateDescent;
-    double dFuelRateTaxi;
-    int    iSwitchIntervalMins;
+    double    dLeftCapacity;
+    double    dRightCapacity;
+    double    dLeftRemaining;
+    double    dRightRemaining;
+    double    dFuelRateCruise;
+    double    dFuelRateClimb;
+    double    dFuelRateDescent;
+    double    dFuelRateTaxi;
+    int       iSwitchIntervalMins;
+    bool      bDualTanks;
+    bool      bOnLeftTank;
+    QDateTime lastSwitch;
 };
 
 

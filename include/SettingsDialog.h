@@ -27,7 +27,6 @@ private slots:
     void traffic( bool bAll );
     void inOut( bool bAll );
     void airports();
-    void settings();
 
 signals:
     void resetLevel();
@@ -39,7 +38,6 @@ signals:
     void inOutToggled( bool );
     void showAirports( Canvas::ShowAirports );
     void timer();
-    void fuelTanks( FuelTanks );
 };
 
 #endif // __MENUDIALOG_H__
