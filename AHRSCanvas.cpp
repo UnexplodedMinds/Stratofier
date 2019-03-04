@@ -39,7 +39,7 @@ StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
 
-QString g_qsRoscoPiVersion( "1.0.2" );
+QString g_qsRoscoPiVersion( "1.0.3" );
 
 
 /*
@@ -77,6 +77,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 ),
       m_iMagDev( 0 ),
+      m_bDisplayTanksSwitchNotice( false ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
 #ifndef ANDROID
@@ -298,14 +299,8 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
             m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
     }
 
-    // LEFT OFF HERE:
-    // Need to pop a notice to switch tanks.  A mechanism like how the GPS info is displayed should do nicely.
-    // Also need to flesh out how the above algorithm decides you're ascending, cruising or descending.
     if( (m_tanks.lastSwitch.secsTo( qdtNow ) > (m_tanks.iSwitchIntervalMins * 60)) && m_tanks.bDualTanks )
-    {
-        m_tanks.lastSwitch = qdtNow;
-        m_tanks.bOnLeftTank = (!m_tanks.bOnLeftTank);
-    }
+        m_bDisplayTanksSwitchNotice = true;
 
     m_bUpdated = false;
 }
@@ -522,6 +517,15 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
     if( m_bShowGPSDetails )
     {
         m_bShowGPSDetails = false;
+        update();
+        return;
+    }
+
+    if( m_bDisplayTanksSwitchNotice )
+    {
+        m_bDisplayTanksSwitchNotice = false;
+        m_tanks.bOnLeftTank = (!m_tanks.bOnLeftTank);
+        m_tanks.lastSwitch = qdtNow;
         update();
         return;
     }
@@ -807,8 +811,25 @@ void AHRSCanvas::paintPortrait()
 
     // Tank indicator labels
     ahrs.setFont( large );
-    ahrs.setPen( Qt::white );
+    if( !m_tanks.bDualTanks )
+        ahrs.setPen( Qt::white );
+    else
+    {
+        if( m_tanks.bOnLeftTank )
+            ahrs.setPen( Qt::cyan );
+        else
+            ahrs.setPen( Qt::white );
+    }
     ahrs.drawText( (c.dW40 / 2.0) + 2, c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
+    if( !m_tanks.bDualTanks )
+        ahrs.setPen( Qt::white );
+    else
+    {
+        if( !m_tanks.bOnLeftTank )
+            ahrs.setPen( Qt::cyan );
+        else
+            ahrs.setPen( Qt::white );
+    }
     ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
 
     // Translate to dead center and rotate by stratux roll then translate back
@@ -1139,9 +1160,33 @@ void AHRSCanvas::paintPortrait()
     
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
+    else if( m_bDisplayTanksSwitchNotice )
+        paintSwitchNotice( &ahrs, &c );
 
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
+}
+
+
+void AHRSCanvas::paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c )
+{
+    QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, c->dH - 50.0 );
+    QPen            linePen( Qt::black );
+    int             iVoff = 0;
+
+    cloudyGradient.setColorAt( 0, QColor( 255, 255, 255, 225 ) );
+    cloudyGradient.setColorAt( 1, QColor( 175, 175, 255, 225 ) );
+
+    linePen.setWidth( c->iThickPen );
+    pAhrs->setPen( linePen );
+    pAhrs->setBrush( cloudyGradient );
+
+    pAhrs->drawRect( c->dW10, c->dH10, (m_bPortrait ? c->dW : c->dWa) - c->dW5, c->dH - c->dH5 );
+    pAhrs->setFont( med );
+    pAhrs->drawText( 75, 95 + iVoff + c->iMedFontHeight, "Tank Switch" );
+    pAhrs->setFont( small );
+    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 3),  QString( "Switch to %1 tank" ).arg( m_tanks.bOnLeftTank ? "RIGHT" : "LEFT" ) );
+    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 5),  QString( "Press anywhere when done." ) );
 }
 
 

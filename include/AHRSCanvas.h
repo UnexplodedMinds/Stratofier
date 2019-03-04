@@ -61,6 +61,7 @@ private:
     void paintLandscape();
     void paintInfo( QPainter *pAhrs, CanvasConstants *c );
     void paintTimer( QPainter *pAhrs, CanvasConstants *c );
+    void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
 
     Canvas *m_pCanvas;
@@ -95,6 +96,7 @@ private:
     int       m_iTimerMin;
     int       m_iTimerSec;
     int       m_iMagDev;
+    bool      m_bDisplayTanksSwitchNotice;
 
     Canvas::ShowAirports m_eShowAirports;
     QList<Airport>       m_airports;
