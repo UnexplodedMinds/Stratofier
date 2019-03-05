@@ -298,6 +298,30 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         else
             m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
     }
+    // If we're moving faster than 35 knots and we're at least anemically climbing, then use the climb rate
+    else if( (g_situation.dGPSGroundSpeed > 35.0) && (g_situation.dBaroVertSpeed > 50.0) )
+    {
+        if( m_tanks.bOnLeftTank )
+            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateClimb * dInterval);
+        else
+            m_tanks.dRightRemaining -= (m_tanks.dFuelRateClimb * dInterval);
+    }
+    // If we're at least at an anemic airspeed and reasonbly acceptable altitude control, then use the cruise rate
+    else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < 100.0) )
+    {
+        if( m_tanks.bOnLeftTank )
+            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateCruise * dInterval);
+        else
+            m_tanks.dRightRemaining -= (m_tanks.dFuelRateCruise * dInterval);
+    }
+    // If we're in at least a slow descent, use the descent rate
+    else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < -250.0) )
+    {
+        if( m_tanks.bOnLeftTank )
+            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateDescent * dInterval);
+        else
+            m_tanks.dRightRemaining -= (m_tanks.dFuelRateDescent * dInterval);
+    }
 
     if( (m_tanks.lastSwitch.secsTo( qdtNow ) > (m_tanks.iSwitchIntervalMins * 60)) && m_tanks.bDualTanks )
         m_bDisplayTanksSwitchNotice = true;
@@ -816,9 +840,9 @@ void AHRSCanvas::paintPortrait()
     else
     {
         if( m_tanks.bOnLeftTank )
-            ahrs.setPen( Qt::cyan );
-        else
             ahrs.setPen( Qt::white );
+        else
+            ahrs.setPen( Qt::black );
     }
     ahrs.drawText( (c.dW40 / 2.0) + 2, c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
     if( !m_tanks.bDualTanks )
@@ -826,9 +850,9 @@ void AHRSCanvas::paintPortrait()
     else
     {
         if( !m_tanks.bOnLeftTank )
-            ahrs.setPen( Qt::cyan );
-        else
             ahrs.setPen( Qt::white );
+        else
+            ahrs.setPen( Qt::black );
     }
     ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
 
@@ -1676,9 +1700,9 @@ void AHRSCanvas::paintLandscape()
     else
     {
         if( m_tanks.bOnLeftTank )
-            ahrs.setPen( Qt::cyan );
-        else
             ahrs.setPen( Qt::white );
+        else
+            ahrs.setPen( Qt::black );
     }
     ahrs.drawText( c.dW5 + (c.dW40 / 2.0) + 5, c.dH2 + c.dH5 + c.iLargeFontHeight, "L" );
     if( !m_tanks.bDualTanks )
@@ -1686,9 +1710,9 @@ void AHRSCanvas::paintLandscape()
     else
     {
         if( !m_tanks.bOnLeftTank )
-            ahrs.setPen( Qt::cyan );
-        else
             ahrs.setPen( Qt::white );
+        else
+            ahrs.setPen( Qt::black );
     }
     ahrs.drawText( c.dW - c.dW5 - c.dW5 + 5, c.dH2 + c.dH5 + c.iLargeFontHeight, "R" );
 

@@ -76,9 +76,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->resize( 480, 800 );
+            pMainWin->setGeometry( 0, 0, 480, 800 );
         else
-            pMainWin->resize( 800, 480 );
+            pMainWin->setGeometry( 0, 0, 800, 480 );
 	}
 
     while( guiApp.exec() != 0 )

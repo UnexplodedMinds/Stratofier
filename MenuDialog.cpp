@@ -66,7 +66,7 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pTrafficInOutButton, SIGNAL( toggled( bool ) ), this, SLOT( inOut( bool ) ) );
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
-    connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
+    connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
 }
 
 
@@ -118,7 +118,7 @@ void MenuDialog::airports()
 }
 
 
-void MenuDialog::settings()
+void MenuDialog::fuel()
 {
     FuelTanksDialog dlg( this );
 

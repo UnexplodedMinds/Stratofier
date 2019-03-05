@@ -27,7 +27,7 @@ private slots:
     void traffic( bool bAll );
     void inOut( bool bAll );
     void airports();
-    void settings();
+    void fuel();
 
 signals:
     void resetLevel();
