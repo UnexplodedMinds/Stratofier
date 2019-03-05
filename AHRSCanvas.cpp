@@ -1641,6 +1641,57 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
+    // Tank indicators background
+    linePen.setColor( Qt::black );
+    linePen.setWidth( c.iThinPen );
+    ahrs.setPen( linePen );
+    ahrs.setBrush( QColor( 0x2F, 0x2F, 0x2F ) );
+    ahrs.drawRect( c.dW5, c.dH2 + c.dH5, c.dW10, c.dH2 - c.dH5 );
+    ahrs.drawRect( c.dW - c.dW5 - c.dW5, c.dH2 + c.dH5, c.dW10, c.dH2 - c.dH5 );
+
+    // Tank indicators level
+    ahrs.setBrush( Qt::darkGreen );
+    ahrs.drawRect( c.dW5,
+                   c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)),
+                   c.dW10,
+                   c.dH2 - c.dH5 - ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)) );
+    ahrs.drawRect( c.dW - c.dW5 - c.dW5,
+                   c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
+                   c.dW10,
+                   c.dH2 - c.dH5 - ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
+
+    // Tank indicators ticks
+    for( int iTankLine = 0; iTankLine < 8; iTankLine++ )
+    {
+        ahrs.drawLine( c.dW5, c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0),
+                       c.dW5 + (c.dW40 / 2.0), c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0) );
+        ahrs.drawLine( c.dW - c.dW5 - c.dW5 + c.dW10 - (c.dW40 / 2.0), c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0),
+                       c.dW - c.dW5 - c.dW5 + c.dW10, c.dH2 + c.dH5 + ((c.dH2 - c.dH5) * static_cast<double>( iTankLine ) / 8.0) );
+    }
+
+    // Tank indicator labels
+    ahrs.setFont( large );
+    if( !m_tanks.bDualTanks )
+        ahrs.setPen( Qt::white );
+    else
+    {
+        if( m_tanks.bOnLeftTank )
+            ahrs.setPen( Qt::cyan );
+        else
+            ahrs.setPen( Qt::white );
+    }
+    ahrs.drawText( c.dW5 + (c.dW40 / 2.0) + 5, c.dH2 + c.dH5 + c.iLargeFontHeight, "L" );
+    if( !m_tanks.bDualTanks )
+        ahrs.setPen( Qt::white );
+    else
+    {
+        if( !m_tanks.bOnLeftTank )
+            ahrs.setPen( Qt::cyan );
+        else
+            ahrs.setPen( Qt::white );
+    }
+    ahrs.drawText( c.dW - c.dW5 - c.dW5 + 5, c.dH2 + c.dH5 + c.iLargeFontHeight, "R" );
+
     // GPS Lat/Long
     QString qsLat = QString( "%1 %2" )
         .arg( fabs( g_situation.dGPSlat ), 0, 'f', 3, QChar( '0' ) )
