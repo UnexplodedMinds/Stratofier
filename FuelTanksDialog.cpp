@@ -31,6 +31,7 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent )
 
     connect( m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
+    connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
 }
 
@@ -109,4 +110,3 @@ void FuelTanksDialog::switchable()
     m_pRightCapLabel->setEnabled( m_tanks.bDualTanks );
     m_pStartRightButton->setEnabled( m_tanks.bDualTanks );
 }
-

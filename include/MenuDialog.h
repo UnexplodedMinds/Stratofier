@@ -40,6 +40,7 @@ signals:
     void showAirports( Canvas::ShowAirports );
     void timer();
     void fuelTanks( FuelTanks );
+    void stopFuelFlow();
 };
 
 #endif // __MENUDIALOG_H__

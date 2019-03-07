@@ -78,7 +78,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerSec( -1 ),
       m_iMagDev( 0 ),
       m_bDisplayTanksSwitchNotice( false ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
+      m_bFuelFlowStarted( false )
 {
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -288,43 +289,46 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         m_iUpdateCount++;
     }
 
-    double dInterval = 0.00416666666667;   // 15 seconds / 3600 seconds (1 hour)
+    if( m_bFuelFlowStarted )
+    {
+        double dInterval = 0.00416666666667;   // 15 seconds / 3600 seconds (1 hour); 15 seconds is the interval of the one and only timer
 
-    // If the aircraft is moving and there is virtually no vertical movement then we are taxiing
-    if( (g_situation.dGPSGroundSpeed > 5.0) && (g_situation.dBaroVertSpeed < 5.0) )
-    {
-        if( m_tanks.bOnLeftTank )
-            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
-        else
-            m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
-    }
-    // If we're moving faster than 35 knots and we're at least anemically climbing, then use the climb rate
-    else if( (g_situation.dGPSGroundSpeed > 35.0) && (g_situation.dBaroVertSpeed > 50.0) )
-    {
-        if( m_tanks.bOnLeftTank )
-            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateClimb * dInterval);
-        else
-            m_tanks.dRightRemaining -= (m_tanks.dFuelRateClimb * dInterval);
-    }
-    // If we're at least at an anemic airspeed and reasonbly acceptable altitude control, then use the cruise rate
-    else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < 100.0) )
-    {
-        if( m_tanks.bOnLeftTank )
-            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateCruise * dInterval);
-        else
-            m_tanks.dRightRemaining -= (m_tanks.dFuelRateCruise * dInterval);
-    }
-    // If we're in at least a slow descent, use the descent rate
-    else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < -250.0) )
-    {
-        if( m_tanks.bOnLeftTank )
-            m_tanks.dLeftRemaining -= (m_tanks.dFuelRateDescent * dInterval);
-        else
-            m_tanks.dRightRemaining -= (m_tanks.dFuelRateDescent * dInterval);
-    }
+        // If the aircraft is moving and there is virtually no vertical movement then we are taxiing
+        if( (g_situation.dGPSGroundSpeed > 5.0) && (g_situation.dBaroVertSpeed < 5.0) )
+        {
+            if( m_tanks.bOnLeftTank )
+                m_tanks.dLeftRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
+            else
+                m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
+        }
+        // If we're moving faster than 35 knots and we're at least anemically climbing, then use the climb rate
+        else if( (g_situation.dGPSGroundSpeed > 35.0) && (g_situation.dBaroVertSpeed > 50.0) )
+        {
+            if( m_tanks.bOnLeftTank )
+                m_tanks.dLeftRemaining -= (m_tanks.dFuelRateClimb * dInterval);
+            else
+                m_tanks.dRightRemaining -= (m_tanks.dFuelRateClimb * dInterval);
+        }
+        // If we're at least at an anemic airspeed and reasonbly acceptable altitude control, then use the cruise rate
+        else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < 100.0) )
+        {
+            if( m_tanks.bOnLeftTank )
+                m_tanks.dLeftRemaining -= (m_tanks.dFuelRateCruise * dInterval);
+            else
+                m_tanks.dRightRemaining -= (m_tanks.dFuelRateCruise * dInterval);
+        }
+        // If we're in at least a slow descent, use the descent rate
+        else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < -250.0) )
+        {
+            if( m_tanks.bOnLeftTank )
+                m_tanks.dLeftRemaining -= (m_tanks.dFuelRateDescent * dInterval);
+            else
+                m_tanks.dRightRemaining -= (m_tanks.dFuelRateDescent * dInterval);
+        }
 
-    if( (m_tanks.lastSwitch.secsTo( qdtNow ) > (m_tanks.iSwitchIntervalMins * 60)) && m_tanks.bDualTanks )
-        m_bDisplayTanksSwitchNotice = true;
+        if( (m_tanks.lastSwitch.secsTo( qdtNow ) > (m_tanks.iSwitchIntervalMins * 60)) && m_tanks.bDualTanks )
+            m_bDisplayTanksSwitchNotice = true;
+    }
 
     m_bUpdated = false;
 }

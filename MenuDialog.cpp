@@ -124,8 +124,9 @@ void MenuDialog::fuel()
 
     dlg.setGeometry( 0, 0, 480, 480 );
 
-    dlg.exec();
-
-    emit fuelTanks( dlg.settings() );
+    if( dlg.exec() == QDialog::Accepted )
+        emit fuelTanks( dlg.settings() );
+    else
+        emit stopFuelFlow();
 }
 

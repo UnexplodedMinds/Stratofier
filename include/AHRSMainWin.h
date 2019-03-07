@@ -67,6 +67,7 @@ private slots:
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();
+    void stopFuelFlow();
 };
 
 #endif // __AHRSMAINWIN_H__

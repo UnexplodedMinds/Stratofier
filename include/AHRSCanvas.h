@@ -38,6 +38,7 @@ public:
     int     magDev() { return m_iMagDev; }
 
     QPixmap *m_pHeadIndicator;
+    bool     m_bFuelFlowStarted;
 
 public slots:
     void init();
