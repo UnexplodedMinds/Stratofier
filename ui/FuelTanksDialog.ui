@@ -2631,7 +2631,7 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>18</pointsize>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -2670,7 +2670,7 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>18</pointsize>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -2697,7 +2697,7 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>18</pointsize>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>

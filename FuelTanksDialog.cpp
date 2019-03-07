@@ -29,6 +29,11 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent )
     m_pTaxiRateLabel->setTitle( "TAXI RATE" );
     m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
 
+#ifdef Q_OS_ANDROID
+    m_pSwitchableButton->setMaximumHeight( 60 );
+    m_pStopButton->setMaximumWidth( 300 );
+#endif
+
     connect( m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );

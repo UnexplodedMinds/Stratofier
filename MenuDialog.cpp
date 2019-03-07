@@ -19,7 +19,8 @@ extern QSettings *g_pSet;
 
 
 MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
-    : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
+    : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
+      m_bPortrait( bPortrait )
 {
     bool                bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     bool                bShowOutsideHead = g_pSet->value( "ShowOutsideHeading", true ).toBool();
@@ -121,8 +122,12 @@ void MenuDialog::airports()
 void MenuDialog::fuel()
 {
     FuelTanksDialog dlg( this );
+    QWidget        *pMainWin = parentWidget();
 
-    dlg.setGeometry( 0, 0, 480, 480 );
+    if( m_bPortrait )
+        dlg.setGeometry( 0, 0, pMainWin->width(), pMainWin->width() );
+    else
+        dlg.setGeometry( 0, 0, pMainWin->width() / 2, pMainWin->width() / 2 );
 
     if( dlg.exec() == QDialog::Accepted )
         emit fuelTanks( dlg.settings() );

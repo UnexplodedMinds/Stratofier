@@ -54,6 +54,7 @@ dWa constant is used differently which is why the more convenient dH is used ins
 AHRSCanvas::AHRSCanvas( QWidget *parent )
     : QWidget( parent ),
       m_pHeadIndicator( Q_NULLPTR ),
+      m_bFuelFlowStarted( false ),
       m_pCanvas( Q_NULLPTR ),
       m_bInitialized( false ),
       m_iHeadBugAngle( -1 ),
@@ -78,8 +79,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerSec( -1 ),
       m_iMagDev( 0 ),
       m_bDisplayTanksSwitchNotice( false ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
-      m_bFuelFlowStarted( false )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -839,25 +839,35 @@ void AHRSCanvas::paintPortrait()
 
     // Tank indicator labels
     ahrs.setFont( large );
-    if( !m_tanks.bDualTanks )
-        ahrs.setPen( Qt::white );
-    else
+    if( m_bFuelFlowStarted )
     {
-        if( m_tanks.bOnLeftTank )
+        if( !m_tanks.bDualTanks )
             ahrs.setPen( Qt::white );
         else
-            ahrs.setPen( Qt::black );
+        {
+            if( m_tanks.bOnLeftTank )
+                ahrs.setPen( Qt::white );
+            else
+                ahrs.setPen( Qt::black );
+        }
     }
+    else
+        ahrs.setPen( Qt::yellow );
     ahrs.drawText( (c.dW40 / 2.0) + 2, c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "L" );
-    if( !m_tanks.bDualTanks )
-        ahrs.setPen( Qt::white );
-    else
+    if( m_bFuelFlowStarted )
     {
-        if( !m_tanks.bOnLeftTank )
+        if( !m_tanks.bDualTanks )
             ahrs.setPen( Qt::white );
         else
-            ahrs.setPen( Qt::black );
+        {
+            if( !m_tanks.bOnLeftTank )
+                ahrs.setPen( Qt::white );
+            else
+                ahrs.setPen( Qt::black );
+        }
     }
+    else
+        ahrs.setPen( Qt::yellow );
     ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
 
     // Translate to dead center and rotate by stratux roll then translate back

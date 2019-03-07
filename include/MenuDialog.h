@@ -22,6 +22,7 @@ public:
 
 private:
     Canvas::ShowAirports m_eShowAirports;
+    bool                 m_bPortrait;
 
 private slots:
     void traffic( bool bAll );
