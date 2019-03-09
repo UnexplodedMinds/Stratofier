@@ -4,6 +4,7 @@ RoscoPi Stratux AHRS Display
 */
 
 #include <QtDebug>
+#include <QFile>
 
 #include <math.h>
 
