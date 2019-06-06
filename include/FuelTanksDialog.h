@@ -32,6 +32,7 @@ private:
 private slots:
     void saveSettings();
     void switchable();
+    void resetFuel();
 };
 
 #endif // __FUELTANKSDIALOG_H__

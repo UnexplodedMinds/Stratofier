@@ -4,9 +4,11 @@ RoscoPi Stratux AHRS Display
 */
 
 #include <QSettings>
+#include <QtDebug>
 
 #include "FuelTanksDialog.h"
 #include "ClickLabel.h"
+#include "Keypad.h"
 
 
 extern QSettings *g_pSet;
@@ -38,6 +40,7 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent )
     connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
+    connect( m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
 }
 
 
@@ -114,4 +117,41 @@ void FuelTanksDialog::switchable()
     m_pRightRemainLabel->setEnabled( m_tanks.bDualTanks );
     m_pRightCapLabel->setEnabled( m_tanks.bDualTanks );
     m_pStartRightButton->setEnabled( m_tanks.bDualTanks );
+
+    m_pSwitchableButton->setIcon( m_tanks.bDualTanks ? QIcon( ":/icons/resources/OK.png" ) : QIcon() );
+}
+
+
+void FuelTanksDialog::resetFuel()
+{
+    Keypad keypadL( this, "RESET LEFT" );
+    int    iGalR = 0, iGalL = 0;
+
+    keypadL.setGeometry( 0, 0, 400, 350 );
+    keypadL.exec();
+
+    iGalL = keypadL.value();
+
+    if( m_tanks.bDualTanks )
+    {
+        Keypad keypadR( this, "RESET RIGHT" );
+
+        keypadR.setGeometry( 0, 0, 400, 350 );
+        keypadR.exec();
+
+        iGalR = keypadR.value();
+        if( iGalR < 0 )
+            iGalR = 0;
+    }
+
+    m_tanks.dLeftRemaining = iGalL;
+    m_tanks.dRightRemaining = iGalR;
+    m_pLeftRemainLabel->setText( QString::number( iGalL ) );
+    m_pRightRemainLabel->setText( QString::number( iGalR ) );
+
+    g_pSet->beginGroup( "FuelTanks" );
+    g_pSet->setValue( "LeftRemaining", iGalL );
+    g_pSet->setValue( "RightRemaining", iGalR );
+    g_pSet->endGroup();
+    g_pSet->sync();
 }

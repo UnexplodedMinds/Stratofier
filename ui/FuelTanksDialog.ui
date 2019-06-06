@@ -2485,7 +2485,7 @@ QPushButton::pressed
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>20</height>
+       <height>40</height>
       </size>
      </property>
      <property name="font">
@@ -2636,8 +2636,23 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGreen );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkGreen, stop:1 white );
+	margin: 2px;
+}
+</string>
+       </property>
        <property name="text">
-        <string>START LEFT</string>
+        <string>START L</string>
        </property>
        <property name="iconSize">
         <size>
@@ -2675,8 +2690,77 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 Brown );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 Brown, stop:1 white );
+	margin: 2px;
+}
+</string>
+       </property>
        <property name="text">
         <string>STOP</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_pResetFuelButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Piboto</family>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 GoldenRod );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 GoldenRod, stop:1 white );
+	margin: 2px;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>RESET</string>
        </property>
        <property name="iconSize">
         <size>
@@ -2702,8 +2786,23 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGreen );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkGreen, stop:1 white );
+	margin: 2px;
+}
+</string>
+       </property>
        <property name="text">
-        <string>START RIGHT</string>
+        <string>START R</string>
        </property>
        <property name="iconSize">
         <size>

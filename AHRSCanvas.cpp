@@ -809,7 +809,100 @@ void AHRSCanvas::paintPortrait()
 
     linePen.setWidth( c.iThinPen );
 
+    // Don't draw past the bottom of the fuel indicators
+    ahrs.setClipRect( 0, 0, c.dW, c.dH2 + c.dH5 );
+
     ahrs.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing, true );
+
+    // Translate to dead center and rotate by stratux roll then translate back
+    ahrs.translate( c.dW2, c.dH4 );
+    ahrs.rotate( -g_situation.dAHRSroll );
+    ahrs.translate( -c.dW2, -c.dH4 );
+
+    // Top half sky blue gradient offset by stratux pitch
+    QLinearGradient skyGradient( 0.0, -c.dH2, 0.0, dPitchH );
+    skyGradient.setColorAt( 0, Qt::blue );
+    skyGradient.setColorAt( 1, QColor( 85, 170, 255 ) );
+    ahrs.fillRect( -400.0, -c.dH4, c.dW + 800.0, dPitchH + c.dH4, skyGradient );
+
+    // Draw brown gradient horizon half offset by stratux pitch
+    // Extreme overdraw accounts for extreme roll angles that might expose the corners
+    QLinearGradient groundGradient( 0.0, dPitchH, 0, c.dH2 );
+    groundGradient.setColorAt( 0, QColor( 170, 85, 0  ) );
+    groundGradient.setColorAt( 1, Qt::black );
+
+    ahrs.fillRect( -400.0, dPitchH, c.dW + 800.0, c.dH4 + c.dH5, groundGradient );
+    ahrs.setPen( linePen );
+    ahrs.drawLine( -400, dPitchH, c.dW + 800.0, dPitchH );
+
+    for( int i = 0; i < 20; i += 10 )
+    {
+        linePen.setColor( Qt::cyan );
+        ahrs.setPen( linePen );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 2.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 2.5) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 5.0) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 5.0) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 7.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 7.5) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW5, dPitchH - ((i + 10.0) / 45.0 * c.dH4), c.dW2 + c.dW5, dPitchH - (( i + 10.0) / 45.0 * c.dH4) );
+        linePen.setColor( QColor( 67, 33, 9 ) );
+        ahrs.setPen( linePen );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 2.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 2.5) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 5.0) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 5.0) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 7.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 7.5) / 45.0 * c.dH4) );
+        ahrs.drawLine( c.dW2 - c.dW5, dPitchH + ((i + 10.0) / 45.0 * c.dH4), c.dW2 + c.dW5, dPitchH + (( i + 10.0) / 45.0 * c.dH4) );
+    }
+
+    // Reset rotation and clipping
+    ahrs.resetTransform();
+    ahrs.setClipping( false );
+
+    // Slip/Skid indicator
+    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
+    ahrs.setBrush( Qt::black );
+    ahrs.drawRect( c.dW2 - c.dW4, 1, c.dW2, c.dH40 );
+    ahrs.drawRect( c.dW2 - m_pCanvas->scaledH( 15.0 ), 1.0, m_pCanvas->scaledH( 30.0 ), c.dH40 );
+    ahrs.setPen( Qt::NoPen );
+    ahrs.setBrush( Qt::white );
+    ahrs.drawEllipse( dSlipSkid - m_pCanvas->scaledH( 10.0 ),
+                      1.0,
+                      m_pCanvas->scaledV( 20.0 ),
+                      c.dH40 );
+
+    // Draw the top roll indicator
+    ahrs.translate( c.dW2, (static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 );
+    ahrs.rotate( -g_situation.dAHRSroll );
+    ahrs.translate( -c.dW2, -((static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 )  );
+    ahrs.drawPixmap( c.dW10, c.dH40, *m_pRollIndicator );
+    ahrs.resetTransform();
+
+    QPolygonF arrow;
+
+    arrow.append( QPointF( c.dW2, c.dH40 + (c.dH * (m_bPortrait ? 0.0625 : 0.104167)) ) );
+    arrow.append( QPointF( c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
+    arrow.append( QPointF( c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
+    ahrs.setBrush( Qt::white );
+    ahrs.setPen( Qt::black );
+    ahrs.drawPolygon( arrow );
+
+    // Draw the yellow pitch indicators
+    ahrs.setBrush( Qt::yellow );
+    shape.append( QPoint( c.dW5 + c.dW20, c.dH4 - c.dH160 ) );
+    shape.append( QPoint( c.dW2 - c.dW10, c.dH4 - c.dH160 ) );
+    shape.append( QPoint( c.dW2 - c.dW10 + 20, c.dH4 ) );
+    shape.append( QPoint( c.dW2 - c.dW10, c.dH4 + c.dH160 ) );
+    shape.append( QPoint( c.dW5 + c.dW20, c.dH4 + c.dH160 ) );
+    ahrs.drawPolygon( shape );
+    shape.clear();
+    shape.append( QPoint( c.dW - c.dW5 - c.dW20, c.dH4 - c.dH160 ) );
+    shape.append( QPoint( c.dW2 + c.dW10, c.dH4 - c.dH160 ) );
+    shape.append( QPoint( c.dW2 + c.dW10 - 20, c.dH4 ) );
+    shape.append( QPoint( c.dW2 + c.dW10, c.dH4 + c.dH160 ) );
+    shape.append( QPoint( c.dW - c.dW5 - c.dW20, c.dH4 + c.dH160 ) );
+    ahrs.drawPolygon( shape );
+    shape.clear();
+    shape.append( QPoint( c.dW2, c.dH4 ) );
+    shape.append( QPoint( c.dW2 - c.dW20, c.dH4 + 20 ) );
+    shape.append( QPoint( c.dW2 + c.dW20, c.dH4 + 20 ) );
+    ahrs.drawPolygon( shape );
 
     // Tank indicators background
     ahrs.setPen( linePen );
@@ -869,95 +962,6 @@ void AHRSCanvas::paintPortrait()
     else
         ahrs.setPen( Qt::yellow );
     ahrs.drawText( c.dW - c.dW20 - (c.dW40 / 2.0), c.dH2 + (c.dH40 / 2.0) + c.iLargeFontHeight, "R" );
-
-    // Translate to dead center and rotate by stratux roll then translate back
-    ahrs.translate( c.dW2, c.dH4 );
-    ahrs.rotate( -g_situation.dAHRSroll );
-    ahrs.translate( -c.dW2, -c.dH4 );
-
-    // Top half sky blue gradient offset by stratux pitch
-    QLinearGradient skyGradient( 0.0, -c.dH2, 0.0, dPitchH );
-    skyGradient.setColorAt( 0, Qt::blue );
-    skyGradient.setColorAt( 1, QColor( 85, 170, 255 ) );
-    ahrs.fillRect( -400.0, -c.dH4, c.dW + 800.0, dPitchH + c.dH4, skyGradient );
-
-    // Draw brown gradient horizon half offset by stratux pitch
-    // Extreme overdraw accounts for extreme roll angles that might expose the corners
-    QLinearGradient groundGradient( 0.0, dPitchH, 0, c.dH2 );
-    groundGradient.setColorAt( 0, QColor( 170, 85, 0  ) );
-    groundGradient.setColorAt( 1, Qt::black );
-
-    ahrs.fillRect( -400.0, dPitchH, c.dW + 800.0, c.dH4, groundGradient );
-    ahrs.setPen( linePen );
-    ahrs.drawLine( -400, dPitchH, c.dW + 800.0, dPitchH );
-
-    for( int i = 0; i < 20; i += 10 )
-    {
-        linePen.setColor( Qt::cyan );
-        ahrs.setPen( linePen );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 2.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 2.5) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 5.0) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 5.0) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH - ((i + 7.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH - ((i + 7.5) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW5, dPitchH - ((i + 10.0) / 45.0 * c.dH4), c.dW2 + c.dW5, dPitchH - (( i + 10.0) / 45.0 * c.dH4) );
-        linePen.setColor( QColor( 67, 33, 9 ) );
-        ahrs.setPen( linePen );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 2.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 2.5) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 5.0) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 5.0) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW20, dPitchH + ((i + 7.5) / 45.0 * c.dH4), c.dW2 + c.dW20, dPitchH + ((i + 7.5) / 45.0 * c.dH4) );
-        ahrs.drawLine( c.dW2 - c.dW5, dPitchH + ((i + 10.0) / 45.0 * c.dH4), c.dW2 + c.dW5, dPitchH + (( i + 10.0) / 45.0 * c.dH4) );
-    }
-
-    // Reset rotation
-    ahrs.resetTransform();
-
-    // Slip/Skid indicator
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW2 - c.dW4, 1, c.dW2, c.dH40 );
-    ahrs.drawRect( c.dW2 - m_pCanvas->scaledH( 15.0 ), 1.0, m_pCanvas->scaledH( 30.0 ), c.dH40 );
-    ahrs.setPen( Qt::NoPen );
-    ahrs.setBrush( Qt::white );
-    ahrs.drawEllipse( dSlipSkid - m_pCanvas->scaledH( 10.0 ),
-                      1.0,
-                      m_pCanvas->scaledV( 20.0 ),
-                      c.dH40 );
-
-    // Draw the top roll indicator
-    ahrs.translate( c.dW2, (static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 );
-    ahrs.rotate( -g_situation.dAHRSroll );
-    ahrs.translate( -c.dW2, -((static_cast<double>( m_pRollIndicator->height() ) / 2.0) + c.dH40 )  );
-    ahrs.drawPixmap( c.dW10, c.dH40, *m_pRollIndicator );
-    ahrs.resetTransform();
-
-    QPolygonF arrow;
-
-    arrow.append( QPointF( c.dW2, c.dH40 + (c.dH * (m_bPortrait ? 0.0625 : 0.104167)) ) );
-    arrow.append( QPointF( c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
-    arrow.append( QPointF( c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
-    ahrs.setBrush( Qt::white );
-    ahrs.setPen( Qt::black );
-    ahrs.drawPolygon( arrow );
-
-    // Draw the yellow pitch indicators
-    ahrs.setBrush( Qt::yellow );
-    shape.append( QPoint( c.dW5 + c.dW20, c.dH4 - c.dH160 ) );
-    shape.append( QPoint( c.dW2 - c.dW10, c.dH4 - c.dH160 ) );
-    shape.append( QPoint( c.dW2 - c.dW10 + 20, c.dH4 ) );
-    shape.append( QPoint( c.dW2 - c.dW10, c.dH4 + c.dH160 ) );
-    shape.append( QPoint( c.dW5 + c.dW20, c.dH4 + c.dH160 ) );
-    ahrs.drawPolygon( shape );
-    shape.clear();
-    shape.append( QPoint( c.dW - c.dW5 - c.dW20, c.dH4 - c.dH160 ) );
-    shape.append( QPoint( c.dW2 + c.dW10, c.dH4 - c.dH160 ) );
-    shape.append( QPoint( c.dW2 + c.dW10 - 20, c.dH4 ) );
-    shape.append( QPoint( c.dW2 + c.dW10, c.dH4 + c.dH160 ) );
-    shape.append( QPoint( c.dW - c.dW5 - c.dW20, c.dH4 + c.dH160 ) );
-    ahrs.drawPolygon( shape );
-    shape.clear();
-    shape.append( QPoint( c.dW2, c.dH4 ) );
-    shape.append( QPoint( c.dW2 - c.dW20, c.dH4 + 20 ) );
-    shape.append( QPoint( c.dW2 + c.dW20, c.dH4 + 20 ) );
-    ahrs.drawPolygon( shape );
 
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
@@ -1220,11 +1224,12 @@ void AHRSCanvas::paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c )
     pAhrs->setBrush( cloudyGradient );
 
     pAhrs->drawRect( c->dW10, c->dH10, (m_bPortrait ? c->dW : c->dWa) - c->dW5, c->dH - c->dH5 );
+    pAhrs->setFont( large );
+    pAhrs->drawText( 75, 95 + iVoff + c->iLargeFontHeight, "TANK SWITCH" );
     pAhrs->setFont( med );
-    pAhrs->drawText( 75, 95 + iVoff + c->iMedFontHeight, "Tank Switch" );
-    pAhrs->setFont( small );
-    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 3),  QString( "Switch to %1 tank" ).arg( m_tanks.bOnLeftTank ? "RIGHT" : "LEFT" ) );
-    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 5),  QString( "Press anywhere when done." ) );
+    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 3),  QString( "Switch to  %1  tank" ).arg( m_tanks.bOnLeftTank ? "RIGHT" : "LEFT" ) );
+    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 5),  QString( "ADJUST MIXTURE" ) );
+    pAhrs->drawText( 75, 95 + iVoff + (c->iMedFontHeight * 7),  QString( "PRESS SCREEN TO CONFIRM" ) );
 }
 
 
