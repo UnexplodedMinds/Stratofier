@@ -2499,6 +2499,10 @@ QPushButton::pressed
      <property name="text">
       <string>SWITCHABLE TANKS</string>
      </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/OK.png</normaloff>:/icons/resources/OK.png</iconset>
+     </property>
      <property name="iconSize">
       <size>
        <width>32</width>
@@ -2823,6 +2827,8 @@ QPushButton::pressed
    <header location="global">ClickLabel.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../AHRSResources.qrc"/>
+ </resources>
  <connections/>
 </ui>
