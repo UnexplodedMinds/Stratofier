@@ -17,6 +17,9 @@ RoscoPi Stratux AHRS Display
 #include "TrafficMath.h"
 
 
+extern bool g_bUnitsKnots;
+
+
 StreamReader::StreamReader( QObject *parent, const QString &qsIP )
     : QObject( parent ),
       m_bHaveMyPos( false ),
@@ -125,7 +128,7 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         else if( qsTag == "GPSTurnRate" )
             situation.dGPSTurnRate = dVal;
         else if( qsTag == "GPSGroundSpeed" )
-            situation.dGPSGroundSpeed = dVal;
+            situation.dGPSGroundSpeed = dVal * (g_bUnitsKnots ? 1.0 : 1.15078);
         else if( qsTag == "GPSLastGroundTrackTime" )
             situation.lastGPSGroundTrackTime.fromString( qsVal, Qt::ISODate );
         else if( qsTag == "GPSTime" )
@@ -242,7 +245,7 @@ void StreamReader::trafficUpdate( const QString &qsMessage )
         else if( qsTag == "Track" )
             traffic.dTrack = dVal;
         else if( qsTag == "Speed" )
-            traffic.dSpeed = dVal;
+            traffic.dSpeed = dVal * (g_bUnitsKnots ? 1.0 : 1.15078);
         else if( qsTag == "Vvel" )
             traffic.dVertSpeed = dVal;
         else if( qsTag == "Tail" )

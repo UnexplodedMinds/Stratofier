@@ -42,6 +42,8 @@ signals:
     void timer();
     void fuelTanks( FuelTanks );
     void stopFuelFlow();
+    void unitsKnots();
+    void dayMode();
 };
 
 #endif // __MENUDIALOG_H__

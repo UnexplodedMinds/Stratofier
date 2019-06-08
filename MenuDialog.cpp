@@ -68,6 +68,8 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
     connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
+    connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
+    connect( m_pUnitsKnotsButton, SIGNAL( clicked() ), this, SIGNAL( unitsKnots() ) );
 }
 
 

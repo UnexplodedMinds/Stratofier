@@ -64,6 +64,7 @@ private:
     void paintTimer( QPainter *pAhrs, CanvasConstants *c );
     void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
+    void drawDayMode( QPainter *pArs, CanvasConstants *c );
 
     Canvas *m_pCanvas;
 

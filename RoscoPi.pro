@@ -56,6 +56,8 @@ UI_DIR = ../RoscoPi/uic
 MOC_DIR = ../RoscoPi/moc
 RCC_DIR = ../RoscoPi/rcc
 
+QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+
 SOURCES += main.cpp \
            StreamReader.cpp \
            AHRSCanvas.cpp \

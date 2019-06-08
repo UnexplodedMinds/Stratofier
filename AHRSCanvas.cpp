@@ -35,6 +35,9 @@ extern QFont med;
 extern QFont large;
 extern QFont huge;
 
+extern bool g_bUnitsKnots;
+extern bool g_bDayMode;
+
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 QSettings                *g_pSet;
@@ -77,8 +80,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bShowCrosswind( false ),
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 ),
-      m_iMagDev( 0 ),
       m_bDisplayTanksSwitchNotice( false ),
+      m_iMagDev( 0 ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
 #ifndef ANDROID
@@ -1147,8 +1150,12 @@ void AHRSCanvas::paintPortrait()
     ahrs.setFont( small );
 #if defined( Q_OS_ANDROID )
     ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.setFont( wee );
+    ahrs.drawText( c.dW10 + 15.0, c.dH4 + (c.iTinyFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), g_bUnitsKnots ? "KTS" : "MPH"  );
 #else
     ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.setFont( wee );
+    ahrs.drawText( c.dW10 + 15.0, c.dH4 + (c.iTinyFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), g_bUnitsKnots ? "KTS" : "MPH"  );
 #endif
 
     // Draw the G-Force indicator box and scale
@@ -1207,6 +1214,8 @@ void AHRSCanvas::paintPortrait()
 
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
+
+    drawDayMode( &ahrs, &c );
 }
 
 
@@ -1659,8 +1668,12 @@ void AHRSCanvas::paintLandscape()
     ahrs.setFont( small );
 #if defined( Q_OS_ANDROID )
     ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 9.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.setFont( wee );
+    ahrs.drawText( c.dW10 + 15.0, c.dH4 + (c.iTinyFontHeight / 2) + m_pCanvas->scaledV( 16.0 ), g_bUnitsKnots ? "KTS" : "MPH"  );
 #else
     ahrs.drawText( m_pCanvas->scaledH( 5 ), c.dH2 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+    ahrs.setFont( wee );
+    ahrs.drawText( c.dW10 + 15.0, c.dH2 - (c.iTinyFontHeight / 2) + m_pCanvas->scaledV( 16.0 ), g_bUnitsKnots ? "KTS" : "MPH"  );
 #endif
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1764,6 +1777,8 @@ void AHRSCanvas::paintLandscape()
 
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
+
+    drawDayMode( &ahrs, &c );
 }
 
 
@@ -1898,4 +1913,13 @@ void AHRSCanvas::orient( bool bPortrait )
     init();
 }
 #endif
+
+
+void AHRSCanvas::drawDayMode( QPainter *pAhrs, CanvasConstants *c )
+{
+    if( !g_bDayMode )
+    {
+        pAhrs->fillRect( 0.0, 0.0, c->dWa, c->dH, QColor( 0, 0, 0, 128 ) );
+    }
+}
 

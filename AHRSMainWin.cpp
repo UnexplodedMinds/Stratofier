@@ -42,6 +42,10 @@ QFont huge(  "Piboto", 30, QFont::Bold   );
 #endif
 
 
+bool g_bUnitsKnots = true;
+bool g_bDayMode = true;
+
+
 // Setup minimal UI elements and make the connections
 AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
@@ -152,7 +156,7 @@ void AHRSMainWin::menu()
     if( m_pMenuDialog == Q_NULLPTR )
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
-        int             iW = static_cast<int>( c.dWa * (m_bPortrait ? 0.8333 : 0.5) );
+        int             iW = static_cast<int>( c.dWa * (m_bPortrait ? 1.0 : 0.5) );
         int             iH = static_cast<int>( c.dH * (m_bPortrait ? 0.375 : 0.625) );
 
         m_pMenuDialog = new MenuDialog( this, m_bPortrait );
@@ -173,6 +177,8 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
+        connect( m_pMenuDialog, SIGNAL( unitsKnots() ), this, SLOT( unitsKnots() ) );
+        connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
     }
     else
     {
@@ -350,4 +356,24 @@ void AHRSMainWin::stopFuelFlow()
 {
     m_pAHRSDisp->m_bFuelFlowStarted = false;
     QTimer::singleShot( 10, this, SLOT( fuelTanks2() ) );
+}
+
+
+void AHRSMainWin::unitsKnots()
+{
+    MenuDialog *pDlg = static_cast<MenuDialog *>( sender() );
+
+    g_bUnitsKnots = (!g_bUnitsKnots);
+    pDlg->m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
+    m_pAHRSDisp->update();
+}
+
+
+void AHRSMainWin::dayMode()
+{
+    MenuDialog *pDlg = static_cast<MenuDialog *>( sender() );
+
+    g_bDayMode = (!g_bDayMode);
+    pDlg->m_pDayModeButton->setText( g_bDayMode ? "DAY MODE" : "NIGHT MODE" );
+    m_pAHRSDisp->update();
 }

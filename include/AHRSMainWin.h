@@ -68,6 +68,8 @@ private slots:
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();
     void stopFuelFlow();
+    void unitsKnots();
+    void dayMode();
 };
 
 #endif // __AHRSMAINWIN_H__
