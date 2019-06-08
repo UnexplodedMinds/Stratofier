@@ -12,6 +12,7 @@ RoscoPi Stratux AHRS Display
 #include <QDesktopWidget>
 #include <QScreen>
 #include <QGuiApplication>
+#include <QSettings>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -19,6 +20,9 @@ RoscoPi Stratux AHRS Display
 #include "MenuDialog.h"
 #include "Canvas.h"
 #include "Keypad.h"
+
+
+extern QSettings *g_pSet;
 
 
 #if defined( Q_OS_ANDROID )
@@ -365,6 +369,8 @@ void AHRSMainWin::unitsKnots()
 
     g_bUnitsKnots = (!g_bUnitsKnots);
     pDlg->m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
+    g_pSet->setValue( "UnitsKnots", g_bUnitsKnots );
+    g_pSet->sync();
     m_pAHRSDisp->update();
 }
 

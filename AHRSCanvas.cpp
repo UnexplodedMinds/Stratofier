@@ -38,9 +38,10 @@ extern QFont huge;
 extern bool g_bUnitsKnots;
 extern bool g_bDayMode;
 
+extern QSettings *g_pSet;
+
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
-QSettings                *g_pSet;
 
 QString g_qsRoscoPiVersion( "1.0.3" );
 
@@ -84,12 +85,6 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iMagDev( 0 ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
-#ifndef ANDROID
-    g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
-#else
-    g_pSet = new QSettings;
-#endif
-
     // Initialize AHRS settings
     // No need to init the traffic because it starts out as an empty QMap.
     StreamReader::initSituation( g_situation );
@@ -250,6 +245,7 @@ void AHRSCanvas::loadSettings()
     m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
     m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
     m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
+    g_bUnitsKnots = g_pSet->value( "UnitsKnots", true ).toBool();
 
     g_pSet->beginGroup( "FuelTanks" );
     m_tanks.dLeftCapacity = g_pSet->value( "LeftCapacity", 24.0 ).toDouble();

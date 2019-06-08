@@ -8,11 +8,16 @@ RoscoPi Stratux AHRS Display
 #include <QScreen>
 #include <QtDebug>
 #include <QDir>
+#include <QSettings>
 
 #include "AHRSMainWin.h"
 #if defined( Q_OS_ANDROID )
 #include "ScreenLocker.h"
 #endif
+
+
+QSettings *g_pSet = Q_NULLPTR;
+
 
 int main( int argc, char *argv[] )
 {
@@ -65,6 +70,12 @@ int main( int argc, char *argv[] )
     QCoreApplication::setOrganizationDomain( "unexplodedminds.com" );
     QCoreApplication::setApplicationName( "RoscoPi" );
     QGuiApplication::setApplicationDisplayName( "RoscoPi" );
+
+#ifndef ANDROID
+    g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
+#else
+    g_pSet = new QSettings;
+#endif
 
     qInfo() << "Starting RoscoPi";
     pMainWin = new AHRSMainWin( qsIP, bPortrait );
