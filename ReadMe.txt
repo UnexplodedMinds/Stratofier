@@ -1,11 +1,11 @@
-RoscoPi
+Stratofier
 AHRS and ADS-B Traffic display app for RaspberryPi and Android
 --------------------------------------------------------------
 
 (c) Allen K. Lair
-    Unexploded Minds
+    SkyFun
 
-Updated 2019-02-06
+Updated 2019-07-07
 
 DO NOT RELY ON THIS APP FOR YOUR PRIMARY FLIGHT INSTRUMENTATION.
 
@@ -49,18 +49,19 @@ Reset G-Mtr:  Allows you to reset the G-force indicator the same as in the
 All Traffic/Cls Traffic:  Filter traffic showing all (unfiltered) or only traffic
 			  that is within 5000 feet above or below you.
 			  
-Exit RoscoPi: Exit the RoscoPi display app back to the X-Windows desktop.
+Exit RoscoPi: Exit the Stratofier display app back to the X-Windows desktop or
+              the Android main screen.
 
-Shutdown:     Shuts down your Raspberry Pi.
+Shutdown:     Shuts down your Raspberry Pi. Not available for Android.
 
-Upgrade:      Upgrades the RoscoPi software.  You will see an LXTerminal
+Upgrade:      Upgrades the Stratofier software.  You will see an LXTerminal
               window open showing compile progress.  Once it finishes it will
 	          reboot and you should have the most recent version.  This pulls
 	          the source code from github and compiles it.  You need an active
 	          connection to the internet in order to do this.  The easiest way
 	          to accomplish this is plug your ethernet port from your Pi
 	          into your router or any available ethernet plug on your network.
-	          Note also that this only upgrades the RoscoPi software, not the
+	          Note also that this only upgrades the Stratofier software, not the
 	          Stratux software.  That must be done according to the instructions
 	          from the stratux.me website.
 	          
@@ -88,13 +89,13 @@ is GPS-derived ground speed, NOT airspeed since the Stratux can't provide that
 data without an external pitot-static sensor.
 
 That's it.  All the data is supplied by the Stratux software.  You can also
-use RoscoPi as a standalone display on another Raspberry Pi as long as it can
+use Stratofier as a standalone display on another Raspberry Pi as long as it can
 connect to the Stratux WiFi access point.
 
 The only difference between the Raspberry Pi version and the Android version is
 that the Android version auto-rotates between portrait and landscape according
 to the orientation of the device whereas the dedicated screen has to be configured
-for that manually.
+for that manually.  The Android version has no shutdown button in the menu.
 
 The full user manual is available at:
 
