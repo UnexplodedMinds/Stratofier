@@ -287,7 +287,7 @@ QPushButton::checked
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Rosco.png</normaloff>:/icons/resources/Rosco.png</iconset>
+       <normaloff>:/icons/resources/Stratofier.png</normaloff>:/icons/resources/Stratofier.png</iconset>
      </property>
      <property name="iconSize">
       <size>
