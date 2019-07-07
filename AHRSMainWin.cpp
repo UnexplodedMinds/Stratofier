@@ -25,25 +25,14 @@ RoscoPi Stratux AHRS Display
 extern QSettings *g_pSet;
 
 
-#if defined( Q_OS_ANDROID )
-// Android default font
-QFont itsy(  "Roboto", 6, QFont::Normal  );
-QFont wee(   "Roboto", 8, QFont::Normal  );
-QFont tiny(  "Roboto", 12, QFont::Normal );
-QFont small( "Roboto", 16, QFont::Normal );
-QFont med(   "Roboto", 18, QFont::Bold   );
-QFont large( "Roboto", 24, QFont::Bold   );
-QFont huge(  "Roboto", 30, QFont::Bold   );
-#else
-// Raspbian default font
-QFont itsy(  "Piboto", 6, QFont::Normal  );
-QFont wee(   "Piboto", 8, QFont::Normal  );
-QFont tiny(  "Piboto", 12, QFont::Normal );
-QFont small( "Piboto", 16, QFont::Normal );
-QFont med(   "Piboto", 18, QFont::Bold   );
-QFont large( "Piboto", 24, QFont::Bold   );
-QFont huge(  "Piboto", 30, QFont::Bold   );
-#endif
+// Standard fonts used throughout the app
+QFont itsy(  "Rational Integer", 6, QFont::Normal  );
+QFont wee(   "Rational Integer", 8, QFont::Normal  );
+QFont tiny(  "Rational Integer", 12, QFont::Normal );
+QFont small( "Rational Integer", 16, QFont::Normal );
+QFont med(   "Rational Integer", 18, QFont::Bold   );
+QFont large( "Rational Integer", 24, QFont::Bold   );
+QFont huge(  "Rational Integer", 30, QFont::Bold   );
 
 
 bool g_bUnitsKnots = true;
@@ -63,6 +52,13 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_iReconnectTimer( -1 ),
       m_iTimerTimer( -1 )
 {
+    itsy.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+    wee.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+    tiny.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+    med.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+    large.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+    huge.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
+
     setupUi( this );
 
     m_pAHRSDisp->setPortrait( bPortrait );

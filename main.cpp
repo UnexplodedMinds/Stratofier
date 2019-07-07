@@ -9,6 +9,7 @@ RoscoPi Stratux AHRS Display
 #include <QtDebug>
 #include <QDir>
 #include <QSettings>
+#include <QFontDatabase>
 
 #include "AHRSMainWin.h"
 #if defined( Q_OS_ANDROID )
@@ -55,6 +56,10 @@ int main( int argc, char *argv[] )
         }
     }
 
+    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_reg.ttf" );
+    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_bold.ttf" );
+    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_rationalint.ttf" );
+
 // For Android, override any command line setting for portrait/landscape
 #if defined( Q_OS_ANDROID )
     QScreen *pScreen = QGuiApplication::primaryScreen();
@@ -87,9 +92,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->setGeometry( 0, 0, 480, 800 );
+            pMainWin->setGeometry( 0, 0, 564, 1000 );
         else
-            pMainWin->setGeometry( 0, 0, 800, 480 );
+            pMainWin->setGeometry( 0, 0, 1000, 564 );
 	}
 
     while( guiApp.exec() != 0 )

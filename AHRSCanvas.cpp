@@ -965,14 +965,18 @@ void AHRSCanvas::paintPortrait()
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
-#if defined( Q_OS_ANDROID )
-    ahrs.setFont( large );
-    ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) + 20, c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.075 : 0.125)), qsHead );
-#else
+    ahrs.drawRect( c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - (c.dH * 0.06625) - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
     ahrs.setFont( med );
-    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 58.0, qsHead );
+#if defined( Q_OS_ANDROID )
+    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) + c.dW80,
+                   c.dH - m_pHeadIndicator->height() - (c.dH * 0.06625) + c.iMedFontHeight - c.iMedFontHeight - c.dH80,
+                   qsHead );
+#else
+    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2),
+                   c.dH - m_pHeadIndicator->height() - (c.dH * 0.06625) + c.iMedFontHeight - c.iMedFontHeight - c.dH160,
+                   qsHead );
 #endif
+
     // Draw the magnetic deviation less/more controls
     ahrs.drawPixmap( c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
                      c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
@@ -1575,38 +1579,19 @@ void AHRSCanvas::paintLandscape()
 
     // Android has a thin indicator strip along the top that would obscure the heading so for the android version in landscape, put the heading in the bottom left middle corner
     ahrs.setBrush( Qt::black );
-#if defined( Q_OS_ANDROID )
-    ahrs.setPen( QPen( Qt::white, 3 ) );
-    ahrs.drawRect( c.dW + 10.0, c.dH - c.iMedFontHeight - 10.0, c.dW5 - 20.0, c.iMedFontHeight );
-
-    // Draw the magnetic deviation more control. For Android draw the less button further down so it's not obscured by the vertical speed pixmap
-    ahrs.drawPixmap( c.dW + c.dW5,
-                     c.dH - c.iMedFontHeight - 10.0,
-                    *m_pMagHeadOffMorePixmap );
-    ahrs.drawPixmap( c.dW - m_pMagHeadOffLessPixmap->width(),
-                     c.dH - c.iMedFontHeight - 10.0,
-                    *m_pMagHeadOffLessPixmap );
-#else
     ahrs.setPen( QPen( Qt::white, 2 ) );
-    ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight, c.dW5 - 20.0, c.iMedFontHeight );
+    ahrs.drawRect( c.dW + c.dW2 - c.dW10 + 10.0, 0.0, c.dW5 - 20.0, c.iMedFontHeight );
 
     // Draw the magnetic deviation less/more controls
-    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
-                     c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(), 0.0,
                     *m_pMagHeadOffLessPixmap );
-    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 + c.dW5,
-                     c.dH - m_pHeadIndicator->height() - 36.0 - c.iMedFontHeight,
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10 + c.dW5, 0.0,
                     *m_pMagHeadOffMorePixmap );
-#endif
 
     // Draw the heading value over the indicator
     ahrs.setPen( Qt::white );
-    ahrs.setFont( med );
-#if defined( Q_OS_ANDROID )
-    ahrs.drawText( c.dW + c.dW10 - (m_pCanvas->medWidth( qsHead ) / 2) + 10.0, c.dH - m_pCanvas->scaledV( 15.0 ), qsHead );
-#else
-    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2), c.dH - m_pHeadIndicator->height() - 42.0, qsHead );
-#endif
+    ahrs.setFont( large );
+    ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - 2, c.iMedFontHeight - c.dH80 + 2, qsHead );
 
     // Draw the vertical speed indicator
     ahrs.translate( 0.0, c.dH2 - (dPxPerVSpeed * g_situation.dGPSVertSpeed / 100.0) );

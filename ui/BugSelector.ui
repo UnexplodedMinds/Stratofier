@@ -124,8 +124,8 @@
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
+       <family>Orbitron</family>
+       <pointsize>16</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -164,8 +164,8 @@
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
+       <family>Orbitron</family>
+       <pointsize>16</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -198,14 +198,14 @@
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
+       <family>Orbitron</family>
+       <pointsize>16</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>CLEAR     </string>
+      <string>CLEAR   </string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -232,14 +232,14 @@
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
+       <family>Orbitron</family>
+       <pointsize>16</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>CANCEL  </string>
+      <string>CANCEL</string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">

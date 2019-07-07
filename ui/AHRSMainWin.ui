@@ -158,8 +158,8 @@
         </property>
         <property name="font">
          <font>
-          <family>Piboto</family>
-          <pointsize>10</pointsize>
+          <family>Rational Integer</family>
+          <pointsize>16</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -169,17 +169,7 @@
 QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue ); border: 2px solid black; }</string>
         </property>
         <property name="text">
-         <string> MENU</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../AHRSResources.qrc">
-          <normaloff>:/icons/resources/Rosco.png</normaloff>:/icons/resources/Rosco.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
+         <string>M E N U</string>
         </property>
        </widget>
       </item>
@@ -395,8 +385,8 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         </property>
         <property name="font">
          <font>
-          <family>Piboto</family>
-          <pointsize>10</pointsize>
+          <family>Orbitron</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -627,8 +617,8 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         </property>
         <property name="font">
          <font>
-          <family>Piboto</family>
-          <pointsize>10</pointsize>
+          <family>Orbitron</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -859,8 +849,8 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         </property>
         <property name="font">
          <font>
-          <family>Piboto</family>
-          <pointsize>10</pointsize>
+          <family>Orbitron</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -1091,8 +1081,8 @@ QPushButton::pressed { background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1
         </property>
         <property name="font">
          <font>
-          <family>Piboto</family>
-          <pointsize>10</pointsize>
+          <family>Orbitron</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>

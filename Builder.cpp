@@ -251,15 +251,16 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
 {
     Q_UNUSED( pCanvas )
 
+    CanvasConstants c = pCanvas->constants();
     QPainter     ahrs( pHeadInd );
-    double       dW = pHeadInd->width();
-    double       dH = pHeadInd->height();
+    double       dW = pHeadInd->width() - c.iFatPen;
+    double       dH = pHeadInd->height() - c.iFatPen;
     double       dW2 = dW / 2.0;
     double       dH2 = dH / 2.0;
-    QPen         linePen( Qt::white, 3 );
+    QPen         linePen( Qt::white, c.iFatPen );
     bool         bThis = true;
     QColor       orange( 255, 165, 0 );
-    QFont        headFont( "Piboto", 20, QFont::Bold );
+    QFont        headFont( "Orbitron", 20, QFont::Bold );
     QFontMetrics headMetrics( headFont );
     QString      qsHead;
     QRect        headRect;
@@ -268,14 +269,15 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
     // Heading background
 	ahrs.setPen( linePen );
 	ahrs.setBrush( Qt::black );
-    ahrs.drawEllipse( 0.0, 0.0, dW, dH );
+    ahrs.drawEllipse( static_cast<double>( c.iFatPen ) / 2.0, static_cast<double>( c.iFatPen ) / 2.0,
+                      dW - static_cast<double>( c.iFatPen ) / 2.0, dH - static_cast<double>( c.iFatPen ) / 2.0 );
     // Tens of degrees
     for( int i = 0; i < 360; i += 10 )
     {
         ahrs.translate( dW2, dH2 );
         ahrs.rotate( i );
         ahrs.translate( -dW2, -dH2 );
-        ahrs.drawLine( dW2, 0, dW2, 20 );
+        ahrs.drawLine( dW2, c.iFatPen / 2, dW2, 20 - (c.iFatPen / 2) );
         ahrs.resetTransform();
     }
     // Every five degrees
@@ -289,7 +291,7 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
             ahrs.translate( dW2, dH2 );
             ahrs.rotate( i );
             ahrs.translate( -dW2, -dH2 );
-            ahrs.drawLine( dW2, 0, dW2, 10 );
+            ahrs.drawLine( dW2, 0, dW2, 10 - (c.iFatPen / 2) );
             ahrs.resetTransform();
             bThis = false;
         }

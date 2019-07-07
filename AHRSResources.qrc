@@ -17,6 +17,11 @@
     <file>resources/OK.png</file>
     <file>resources/Upgrade.png</file>
   </qresource>
+  <qresource prefix="/fonts">
+    <file>resources/orbitron_bold.ttf</file>
+    <file>resources/orbitron_reg.ttf</file>
+    <file>resources/rationalint.ttf</file>
+  </qresource>
   <qresource prefix="/graphics">
     <file>resources/Plane.png</file>
     <file>resources/ZoomIn.png</file>

@@ -23,6 +23,7 @@ struct CanvasConstants
     double dW20;
 	double dW30;
 	double dW40;
+    double dW80;
 
     double dH;
     double dH2;
@@ -33,6 +34,8 @@ struct CanvasConstants
     double dH20;
 	double dH30;
 	double dH40;
+    double dH80;
+    double dH100;
     double dH160;
 
     double dAspectP;

@@ -50,6 +50,8 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.dH20 = dHeight / 20.0;
 	m_preCalc.dH30 = dHeight / 30.0;
 	m_preCalc.dH40 = dHeight / 40.0;
+    m_preCalc.dH80 = dHeight / 80.0;
+    m_preCalc.dH100 = dHeight / 100.0;
 	m_preCalc.dH160 = dHeight / 160.0;
     m_preCalc.dW = dWidth;
     m_preCalc.dW2 = dWidth / 2.0;
@@ -60,6 +62,7 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.dW20 = dWidth / 20.0;
 	m_preCalc.dW30 = dWidth / 30.0;
 	m_preCalc.dW40 = dWidth / 40.0;
+    m_preCalc.dW80 = dWidth / 80.0;
 
 	m_preCalc.iWeeFontHeight = weeRect.height();
 	m_preCalc.iTinyFontHeight = tinyRect.height();
