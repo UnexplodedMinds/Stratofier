@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -57,7 +57,7 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     airports();
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratux() ) );
-    connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownRoscoPi() ) );
+    connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );

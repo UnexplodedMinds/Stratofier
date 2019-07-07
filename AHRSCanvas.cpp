@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -23,7 +23,7 @@ RoscoPi Stratux AHRS Display
 #include "AHRSMainWin.h"
 #include "StreamReader.h"
 #include "Builder.h"
-#include "RoscoPiDefs.h"
+#include "StratofierDefs.h"
 #include "TimerDialog.h"
 
 
@@ -43,7 +43,7 @@ extern QSettings *g_pSet;
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 
-QString g_qsRoscoPiVersion( "1.0.3" );
+QString g_qsStratofierVersion( "1.0.3" );
 
 
 /*
@@ -356,7 +356,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 	QLineF				  track, ball;
 	double                dAlt;
 	QString               qsSign;
-    QFontMetrics          tinyMetrics( tiny );
+    QFontMetrics          medMetrics( med );
     int                   iBallPenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.01875 : 0.03125) );
     int                   iCourseLinePenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) );
     int                   iCourseLineLength = static_cast<int>( c->dH * (m_bPortrait ? 0.0375 : 0.0625) );
@@ -443,7 +443,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
     QString qsZoom = QString( "%1 NM" ).arg( static_cast<int>( m_dZoomNM ) );
     QString qsMagDev = QString( "%1%2" ).arg( m_iMagDev ).arg( QChar( 0xB0 ) );
-    QRect   zoomRect = tinyMetrics.boundingRect( qsZoom );
+    double  dInfoH = medMetrics.boundingRect( qsZoom ).height() / 2.0;
 
     if( m_iMagDev < 0 )
         qsMagDev.prepend( "   -" );
@@ -458,24 +458,24 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 #endif
 
     // Draw the zoom level
-    pAhrs->setFont( tiny );
+    pAhrs->setFont( med );
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0),
-                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5),
+    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - m_pCanvas->medWidth( qsZoom ) - 8.0,
+                     c->dH - 15.0 - (dInfoH * 2.0) + 2.0 - (m_bPortrait ? c->dH20 : 0.0),
                      qsZoom );
     pAhrs->setPen( QColor( 80, 255, 80 ) );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0),
-                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5),
+    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - m_pCanvas->medWidth( qsZoom ) - 10.0,
+                     c->dH - 15.0 - (dInfoH * 2.0) - (m_bPortrait ? c->dH20 : 0.0),
                      qsZoom );
 
     // Draw the magnetic deviation
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 5.0 : 2.0),
-                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) + (m_bPortrait ? 0 : 5) - c->iTinyFontHeight - (m_bPortrait ? 10.0 : 0),
+    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - m_pCanvas->medWidth( qsMagDev ) - 8.0,
+                     c->dH - dInfoH + 2.0 - (m_bPortrait ? c->dH20 : 0.0),
                      qsMagDev );
     pAhrs->setPen( Qt::yellow );
-    pAhrs->drawText( (c->dW * (m_bPortrait ? 1.0 : 2.0)) - zoomRect.width() - (m_bPortrait ? 7.0 : 4.0),
-                     c->dH - (c->dH * (m_bPortrait ? 0.0775 : 0.1292)) - 2 + (m_bPortrait ? 0 : 5) - c->iTinyFontHeight - (m_bPortrait ? 10.0 : 0),
+    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - m_pCanvas->medWidth( qsMagDev ) - 10.0,
+                     c->dH - dInfoH - (m_bPortrait ? c->dH20 : 0.0),
                      qsMagDev );
 }
 
@@ -1161,13 +1161,13 @@ void AHRSCanvas::paintPortrait()
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( 10, c.dH - 15, "2" );
-    ahrs.drawText( c.dW10 - (c.iTinyFontWidth / 2), c.dH - 15, "0" );
-    ahrs.drawText( c.dW5 - c.iTinyFontWidth - 10, c.dH - 15, "2" );
+    ahrs.drawText( c.dW - c.dW5, c.dH - 15, "2" );
+    ahrs.drawText( c.dW - c.dW5 + c.dW10 - (c.iTinyFontWidth / 2), c.dH - 15, "0" );
+    ahrs.drawText( c.dW - c.iTinyFontWidth - 10, c.dH - 15, "2" );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( 9, c.dH - 16, "2" );
-    ahrs.drawText( c.dW10 - (c.iTinyFontWidth / 2), c.dH - 16, "0" );
-    ahrs.drawText( c.dW5 - c.iTinyFontWidth - 11, c.dH - 16, "2" );
+    ahrs.drawText( c.dW - c.dW5 + 1, c.dH - 16, "2" );
+    ahrs.drawText( c.dW - c.dW5 + c.dW10 - (c.iTinyFontWidth / 2), c.dH - 16, "0" );
+    ahrs.drawText( c.dW - c.iTinyFontWidth - 11, c.dH - 16, "2" );
 
     // Arrow for G-Force indicator
     arrow.clear();
@@ -1176,25 +1176,9 @@ void AHRSCanvas::paintPortrait()
     arrow.append( QPoint( m_pCanvas->scaledH( 16.0 ), c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 25.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
-    ahrs.translate( c.dW10 - m_pCanvas->scaledH( 10.0 ) + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - m_pCanvas->scaledH( 10.0 ))), 0.0 );
+    ahrs.translate( c.dW - c.dW5 + c.dW10 - m_pCanvas->scaledH( 10.0 ) + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - m_pCanvas->scaledH( 10.0 ))), 0.0 );
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
-
-    // GPS Lat/Long
-    QString qsLat = QString( "%1 %2" )
-        .arg( fabs( g_situation.dGPSlat ), 0, 'f', 3, QChar( '0' ) )
-        .arg( (g_situation.dGPSlat < 0.0) ? "E" : "W" );
-    QString qsLong = QString( "%1 %2" )
-        .arg( fabs( g_situation.dGPSlong ), 0, 'f', 3, QChar( '0') )
-        .arg( (g_situation.dGPSlong < 0.0) ? "N" : "S" );
-
-    ahrs.setPen( Qt::black );
-    ahrs.setFont( tiny );
-    ahrs.drawText( c.dW - c.dW5 + 10.0, c.dH - c.iTinyFontHeight - 15, qsLat );
-    ahrs.drawText( c.dW - c.dW5 + 10.0, c.dH - 15, qsLong );
-    ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW - c.dW5 + 9.0, c.dH - c.iTinyFontHeight - 16, qsLat );
-    ahrs.drawText( c.dW - c.dW5 + 9.0, c.dH - 16, qsLong );
 
     // Update the airport positions
     if( m_eShowAirports != Canvas::ShowNoAirports )
@@ -1327,7 +1311,7 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setFont( med );
     pAhrs->setPen( Qt::blue );
-    pAhrs->drawText( 75, m_bPortrait ? m_pCanvas->scaledV( 700.0 ) : m_pCanvas->scaledV( 390.0 ), QString( "Version: %1" ).arg( g_qsRoscoPiVersion ) );
+    pAhrs->drawText( 75, m_bPortrait ? m_pCanvas->scaledV( 700.0 ) : m_pCanvas->scaledV( 390.0 ), QString( "Version: %1" ).arg( g_qsStratofierVersion ) );
 }
 
 void AHRSCanvas::paintLandscape()
@@ -1341,7 +1325,6 @@ void AHRSCanvas::paintLandscape()
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
     double          dPxPerVSpeed = (c.dH - 30.0) / 40.0;
     QFontMetrics    tinyMetrics( tiny );
-    int             iGPSFudge = 0;
 
 #if defined( Q_OS_ANDROID )
     iGPSFudge = 10;
@@ -1728,23 +1711,6 @@ void AHRSCanvas::paintLandscape()
             ahrs.setPen( Qt::black );
     }
     ahrs.drawText( c.dW - c.dW5 - c.dW5 + 5, c.dH2 + c.dH5 + c.iLargeFontHeight, "R" );
-
-    // GPS Lat/Long
-    QString qsLat = QString( "%1 %2" )
-        .arg( fabs( g_situation.dGPSlat ), 0, 'f', 3, QChar( '0' ) )
-        .arg( (g_situation.dGPSlat < 0.0) ? "E" : "W" );
-    QString qsLong = QString( "%1 %2" )
-        .arg( fabs( g_situation.dGPSlong ), 0, 'f', 3, QChar( '0') )
-        .arg( (g_situation.dGPSlong < 0.0) ? "N" : "S" );
-
-    ahrs.setPen( Qt::black );
-    ahrs.setFont( tiny );
-
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge, c.dH - c.iTinyFontHeight - 10, qsLat );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge, c.dH - 10, qsLong );
-    ahrs.setPen( Qt::white );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge - 1, c.dH - c.iTinyFontHeight - 11, qsLat );
-    ahrs.drawText( (c.dW * 2.0) - c.dW5 + iGPSFudge - 1, c.dH - 11, qsLong );
 
     // Update the airport positions
     if( m_eShowAirports != Canvas::ShowNoAirports )

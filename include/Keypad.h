@@ -1,10 +1,10 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
-#ifndef __ROSCOPIKEYPAD_H__
-#define __ROSCOPIKEYPAD_H__
+#ifndef __StratofierKEYPAD_H__
+#define __StratofierKEYPAD_H__
 
 #include <QDialog>
 
@@ -32,4 +32,4 @@ private slots:
     void keypadClick();
 };
 
-#endif // __ROSCOPIKEYPAD_H__
+#endif // __StratofierKEYPAD_H__

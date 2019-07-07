@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -52,6 +52,7 @@ private:
     bool          m_bTimerActive;
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
+    QPushButton  *m_pMenuButton;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -59,7 +60,7 @@ private slots:
     void resetGMeter();
     void upgradeRosco();
     void shutdownStratux();
-    void shutdownRoscoPi();
+    void shutdownStratofier();
     void trafficToggled( bool bAll );
     void inOutToggled( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );

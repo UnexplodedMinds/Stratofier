@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -35,7 +35,7 @@ signals:
     void resetGMeter();
     void upgradeRosco();
     void shutdownStratux();
-    void shutdownRoscoPi();
+    void shutdownStratofier();
     void trafficToggled( bool );
     void inOutToggled( bool );
     void showAirports( Canvas::ShowAirports );

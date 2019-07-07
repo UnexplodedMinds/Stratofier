@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -8,7 +8,7 @@ RoscoPi Stratux AHRS Display
 
 #include <math.h>
 
-#include "RoscoPiDefs.h"
+#include "StratofierDefs.h"
 #include "TrafficMath.h"
 #include "StratuxStreams.h"
 

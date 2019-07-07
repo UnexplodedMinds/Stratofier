@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -13,6 +13,7 @@ RoscoPi Stratux AHRS Display
 #include <QScreen>
 #include <QGuiApplication>
 #include <QSettings>
+#include <QPushButton>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -50,7 +51,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_iTimerSeconds( 0 ),
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
-      m_iTimerTimer( -1 )
+      m_iTimerTimer( -1 ),
+      m_pMenuButton( new QPushButton( this ) )
 {
     itsy.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     wee.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
@@ -62,8 +64,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     setupUi( this );
 
     m_pAHRSDisp->setPortrait( bPortrait );
-
-    connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 
     m_lastStatusUpdate = QDateTime::currentDateTime();
 
@@ -85,42 +85,20 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
 
 void AHRSMainWin::init()
 {
-    if( !m_bPortrait )
-    {
-        int iBtnHeight = static_cast<int>( static_cast<double>( height() ) * 0.04187 );
-        int iIconSize = static_cast<int>( static_cast<double>( height() ) * 0.025 );
-
-        m_pMenuButton->setMinimumHeight( iBtnHeight );
-        m_pMenuButton->setMaximumHeight( iBtnHeight );
-        m_pMenuButton->setIconSize( QSize( iIconSize, iIconSize ) );
-        m_pStatusIndicator->setMaximumHeight( iBtnHeight );
-        m_pAHRSIndicator->setMaximumHeight( iBtnHeight );
-        m_pTrafficIndicator->setMaximumHeight( iBtnHeight );
-        m_pGPSIndicator->setMaximumHeight( iBtnHeight );
-
-        m_pMenuButton->setMinimumWidth( width() / 2 );
-        m_pMenuButton->setMaximumWidth( width() / 2 );
-    }
-    else
-    {
-        int iBtnHeight = static_cast<int>( static_cast<double>( height() ) * 0.0375 );
-        int iIconSize = static_cast<int>( static_cast<double>( height() ) * 0.02 );
-        int iMenuBtnWidth = static_cast<int>( static_cast<double>( width() ) * 0.3125 );
-
-        m_pMenuButton->setMinimumHeight( iBtnHeight );
-        m_pMenuButton->setMaximumHeight( iBtnHeight );
-        m_pMenuButton->setIconSize( QSize( iIconSize, iIconSize ) );
-        m_pStatusIndicator->setMaximumHeight( iBtnHeight );
-        m_pAHRSIndicator->setMaximumHeight( iBtnHeight );
-        m_pTrafficIndicator->setMaximumHeight( iBtnHeight );
-        m_pGPSIndicator->setMaximumHeight( iBtnHeight );
-
-        m_pMenuButton->setMinimumWidth( iMenuBtnWidth );
-        m_pMenuButton->setMaximumWidth( iMenuBtnWidth );
-    }
 #if defined( Q_OS_ANDROID )
     m_pAHRSDisp->orient( m_bPortrait );
 #endif
+
+    m_pStatusIndicator->setMinimumHeight( height() * (m_bPortrait ? 0.0125 : 0.025) );
+
+    m_pMenuButton->setGeometry( 0, height() - 100, 100, 100 );
+    m_pMenuButton->setStyleSheet( "QPushButton { border: 0px; }" );
+    m_pMenuButton->setIcon( QIcon( ":/icons/resources/Stratofier.png" ) );
+    m_pMenuButton->setIconSize( QSize( 100, 100 ) );
+    m_pMenuButton->show();
+    m_pMenuButton->raise();
+
+    connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 }
 
 
@@ -164,13 +142,13 @@ void AHRSMainWin::menu()
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( iW );
         m_pMenuDialog->setMinimumHeight( iH );
-        m_pMenuDialog->setGeometry( x(), y() + c.dH - iH, iW, iH );
+        m_pMenuDialog->setGeometry( x(), y() + c.dH - iH + 15, iW, iH );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
         connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
-        connect( m_pMenuDialog, SIGNAL( shutdownRoscoPi() ), this, SLOT( shutdownRoscoPi() ) );
+        connect( m_pMenuDialog, SIGNAL( shutdownStratofier() ), this, SLOT( shutdownStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( inOutToggled( bool ) ), this, SLOT( inOutToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
@@ -208,18 +186,18 @@ void AHRSMainWin::upgradeRosco()
 {
     delete m_pMenuDialog;
     m_pMenuDialog = Q_NULLPTR;
-    if( QMessageBox::question( this, "UPGRADE", "Upgrading RoscoPi requires an active internet connection.\n\n"
-                                                "Select 'Yes' to download and install the latest RoscoPi version.",
+    if( QMessageBox::question( this, "UPGRADE", "Upgrading Stratofier requires an active internet connection.\n\n"
+                                                "Select 'Yes' to download and install the latest Stratofier version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
-        system( "/home/pi/RoscoPi/upgrade.sh > /dev/null 2>&1 &" );
+        system( "/home/pi/Stratofier/upgrade.sh > /dev/null 2>&1 &" );
         QApplication::processEvents();
         qApp->closeAllWindows();
     }
 }
 
 
-void AHRSMainWin::shutdownRoscoPi()
+void AHRSMainWin::shutdownStratofier()
 {
     qApp->exit( 0 );
 }

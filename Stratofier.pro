@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# RoscoPi
+# Stratofier
 # Copyright 2019 Unexploded Minds
 #
 #-------------------------------------------------
@@ -9,8 +9,8 @@ QT += core gui websockets widgets network concurrent
 
 VPATH += ./include \
          ../include \
-         ../RoscoPi/ui \
-         ../RoscoPi/include
+         ../Stratofier/ui \
+         ../Stratofier/include
 
 android {
 QT += androidextras
@@ -38,23 +38,23 @@ SOURCES += ScreenLocker.cpp
 HEADERS += ScreenLocker.h
 }
 
-TARGET = RoscoPi
+TARGET = Stratofier
 TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += ./include \
                ../include \
-               ../RoscoPi/include \
-               ../RoscoPi/uic \
-               ../RoscoPi/rcc
+               ../Stratofier/include \
+               ../Stratofier/uic \
+               ../Stratofier/rcc
 
-DESTDIR = ../RoscoPi/bin
-OBJECTS_DIR = ../RoscoPi/obj
+DESTDIR = ../Stratofier/bin
+OBJECTS_DIR = ../Stratofier/obj
 
-UI_DIR = ../RoscoPi/uic
-MOC_DIR = ../RoscoPi/moc
-RCC_DIR = ../RoscoPi/rcc
+UI_DIR = ../Stratofier/uic
+MOC_DIR = ../Stratofier/moc
+RCC_DIR = ../Stratofier/rcc
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
@@ -82,7 +82,7 @@ HEADERS += StratuxStreams.h \
            Canvas.h \
            MenuDialog.h \
            Builder.h \
-           RoscoPiDefs.h \
+           StratofierDefs.h \
            TimerDialog.h \
            ScreenLocker.h \
            FuelTanksDialog.h \

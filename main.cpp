@@ -1,5 +1,5 @@
 /*
-RoscoPi Stratux AHRS Display
+Stratofier Stratux AHRS Display
 (c) 2018 Allen K. Lair, Unexploded Minds
 */
 
@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
     QString      qsIP = "192.168.10.1";
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
-    QString      qsCurrWorkPath( "/home/pi/RoscoPi" );  // If you put RoscoPi anywhere else, specify home=<whatever> as an argument when running
+    QString      qsCurrWorkPath( "/home/pi/Stratofier" );  // If you put Stratofier anywhere else, specify home=<whatever> as an argument when running
 
 #if defined( Q_OS_ANDROID )
     ScreenLocker locker;    // Keeps screen on until app exit where it's destroyed.
@@ -73,8 +73,8 @@ int main( int argc, char *argv[] )
 
     QCoreApplication::setOrganizationName( "Unexploded Minds" );
     QCoreApplication::setOrganizationDomain( "unexplodedminds.com" );
-    QCoreApplication::setApplicationName( "RoscoPi" );
-    QGuiApplication::setApplicationDisplayName( "RoscoPi" );
+    QCoreApplication::setApplicationName( "Stratofier" );
+    QGuiApplication::setApplicationDisplayName( "Stratofier" );
 
 #ifndef ANDROID
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
@@ -82,7 +82,7 @@ int main( int argc, char *argv[] )
     g_pSet = new QSettings;
 #endif
 
-    qInfo() << "Starting RoscoPi";
+    qInfo() << "Starting Stratofier";
     pMainWin = new AHRSMainWin( qsIP, bPortrait );
     // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
