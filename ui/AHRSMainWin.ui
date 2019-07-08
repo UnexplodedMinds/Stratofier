@@ -89,7 +89,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Stratofier</string>
+   <string>RoscoPi</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -201,7 +201,7 @@
        <number>0</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="m_pStatusSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -227,12 +227,6 @@
         <property name="minimumSize">
          <size>
           <width>75</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>4096</width>
           <height>15</height>
          </size>
         </property>
@@ -1123,7 +1117,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../AHRSResources.qrc"/>
+  <include location="../../RoscoPi/AHRSResources.qrc"/>
  </resources>
  <connections/>
 </ui>

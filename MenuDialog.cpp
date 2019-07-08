@@ -16,6 +16,7 @@ Stratofier Stratux AHRS Display
 
 
 extern QSettings *g_pSet;
+extern bool       g_bUnitsKnots;
 
 
 MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
@@ -55,6 +56,8 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
         m_eShowAirports = Canvas::ShowPublicAirports;
     // Call the cycler to update and initialize the stored airport show selection
     airports();
+
+    m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratux() ) );
     connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );

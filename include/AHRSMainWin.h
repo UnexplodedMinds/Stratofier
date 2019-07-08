@@ -35,6 +35,7 @@ public:
 public slots:
     void menu();
     void changeTimer();
+    void init();
 
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
@@ -64,7 +65,6 @@ private slots:
     void trafficToggled( bool bAll );
     void inOutToggled( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );
-    void init();
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();

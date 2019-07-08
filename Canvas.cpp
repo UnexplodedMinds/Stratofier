@@ -123,11 +123,7 @@ int Canvas::largeWidth( const QString &qsText )
     QFontMetrics largeMetrics( large );
     QRect        largeRect( largeMetrics.boundingRect( qsText ) );
 
-#if defined( Q_OS_ANDROID )
-    return largeRect.width() * 4;
-#else
     return largeRect.width();
-#endif
 }
 
 
@@ -136,11 +132,7 @@ int Canvas::medWidth(const QString &qsText)
 	QFontMetrics medMetrics( med );
 	QRect        medRect( medMetrics.boundingRect( qsText ) );
 
-#if defined( Q_OS_ANDROID )
-    return medRect.width() * 4;
-#else
     return medRect.width();
-#endif
 }
 
 
@@ -149,10 +141,6 @@ int Canvas::hugeWidth( const QString &qsText )
     QFontMetrics hugeMetrics( huge );
     QRect        hugeRect( hugeMetrics.boundingRect( qsText ) );
 
-#if defined( Q_OS_ANDROID )
-    return static_cast<int>( static_cast<double>( hugeRect.width() ) * 2.5 );
-#else
     return hugeRect.width();
-#endif
 }
 

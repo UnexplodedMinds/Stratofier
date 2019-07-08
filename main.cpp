@@ -105,7 +105,6 @@ int main( int argc, char *argv[] )
 
         bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
 #endif
-        delete pMainWin;
         pMainWin = new AHRSMainWin( qsIP, bPortrait );
         pMainWin->showMaximized();
     }

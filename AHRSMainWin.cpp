@@ -14,6 +14,7 @@ Stratofier Stratux AHRS Display
 #include <QGuiApplication>
 #include <QSettings>
 #include <QPushButton>
+#include <QSpacerItem>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -31,13 +32,14 @@ QFont itsy(  "Rational Integer", 6, QFont::Normal  );
 QFont wee(   "Rational Integer", 8, QFont::Normal  );
 QFont tiny(  "Rational Integer", 12, QFont::Normal );
 QFont small( "Rational Integer", 16, QFont::Normal );
-QFont med(   "Rational Integer", 18, QFont::Bold   );
-QFont large( "Rational Integer", 24, QFont::Bold   );
-QFont huge(  "Rational Integer", 30, QFont::Bold   );
+QFont med(   "Rational Integer", 27, QFont::Bold   );
+QFont large( "Orbitron", 24, QFont::Bold );
+QFont huge(  "Orbitron", 30, QFont::Bold );
 
 
 bool g_bUnitsKnots = true;
 bool g_bDayMode = true;
+bool g_bTablet = false;
 
 
 // Setup minimal UI elements and make the connections
@@ -85,16 +87,31 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
 
 void AHRSMainWin::init()
 {
+    int iSize = static_cast<int>( static_cast<double>( m_bPortrait ? width() : height() ) * 0.2 );
+
 #if defined( Q_OS_ANDROID )
+    QScreen *pScreen = QGuiApplication::primaryScreen();
+    QSizeF   physicalSize = pScreen->physicalSize();
+    double   dWorH = 0;
+
+    if( physicalSize.width() > physicalSize.height() )
+        dWorH = physicalSize.width();
+    else
+        dWorH = physicalSize.height();
+
+    if( (pScreen->logicalDotsPerInch() > 140) && (dWorH > 177) )
+        g_bTablet = true;
+
     m_pAHRSDisp->orient( m_bPortrait );
 #endif
 
     m_pStatusIndicator->setMinimumHeight( height() * (m_bPortrait ? 0.0125 : 0.025) );
 
-    m_pMenuButton->setGeometry( 0, height() - 100, 100, 100 );
+    m_pStatusSpacer->changeSize( iSize, 5 );
+    m_pMenuButton->setGeometry( 0, height() - iSize, iSize, iSize );
     m_pMenuButton->setStyleSheet( "QPushButton { border: 0px; }" );
     m_pMenuButton->setIcon( QIcon( ":/icons/resources/Stratofier.png" ) );
-    m_pMenuButton->setIconSize( QSize( 100, 100 ) );
+    m_pMenuButton->setIconSize( QSize( iSize, iSize ) );
     m_pMenuButton->show();
     m_pMenuButton->raise();
 
@@ -311,6 +328,7 @@ void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
     Q_UNUSED( o )
 
+    QApplication::closeAllWindows();
     qApp->exit( 1 );
 }
 
