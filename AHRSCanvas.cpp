@@ -977,7 +977,7 @@ void AHRSCanvas::paintPortrait()
 #else
     ahrs.setFont( med );
     ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 5.0,
-                   c.dH - m_pHeadIndicator->height() - (c.dH * 0.06625) + c.iMedFontHeight - c.iMedFontHeight - c.dH160,
+                   c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH40,
                    qsHead );
 #endif
 
@@ -1571,7 +1571,7 @@ void AHRSCanvas::paintLandscape()
         ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW40, c.iLargeFontHeight - c.dH40 + 2, qsHead );
 #else
         ahrs.setFont( med );
-        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 2, c.iMedFontHeight - c.dH80 + 2, qsHead );
+        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 2, c.iMedFontHeight - c.dH80, qsHead );
 #endif
 
     // Draw the vertical speed indicator

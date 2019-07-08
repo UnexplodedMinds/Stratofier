@@ -32,7 +32,7 @@ QFont itsy(  "Rational Integer", 6, QFont::Normal  );
 QFont wee(   "Rational Integer", 8, QFont::Normal  );
 QFont tiny(  "Rational Integer", 12, QFont::Normal );
 QFont small( "Rational Integer", 16, QFont::Normal );
-QFont med(   "Rational Integer", 27, QFont::Bold   );
+QFont med(   "Rational Integer", 18, QFont::Bold   );
 QFont large( "Orbitron", 24, QFont::Bold );
 QFont huge(  "Orbitron", 30, QFont::Bold );
 
