@@ -972,8 +972,8 @@ void AHRSCanvas::paintPortrait()
 
 #if defined( Q_OS_ANDROID )
     ahrs.setFont( large );
-    ahrs.drawText( c.dW2 - c.dW10 + c.dW80,
-                   c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH80,
+    ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW80 - 10.0,
+                   c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH40,
                    qsHead );
 #else
     ahrs.setFont( med );
@@ -1569,10 +1569,12 @@ void AHRSCanvas::paintLandscape()
     ahrs.setPen( Qt::white );
 #if defined( Q_OS_ANDROID )
         ahrs.setFont( large );
-        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW40, c.iLargeFontHeight - c.dH40 + 2, qsHead );
+        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW80 - 10.0,
+                       (c.iLargeFontHeight / 2), qsHead );
 #else
         ahrs.setFont( med );
-        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 2, c.iMedFontHeight - c.dH80, qsHead );
+        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 2,
+                       c.iMedFontHeight - c.dH80, qsHead );
 #endif
 
     // Draw the vertical speed indicator

@@ -154,9 +154,9 @@ void AHRSMainWin::menu()
 
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW2 ) );
-        m_pMenuDialog->setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
-        m_pMenuDialog->setGeometry( x(), m_bPortrait ? (y() + static_cast<int>( c.dH2 )) : 0,
-                                    static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
+        m_pMenuDialog->setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH - c.dH5 ) );
+        m_pMenuDialog->setGeometry( x(), m_bPortrait ? (y() + static_cast<int>( c.dH2 )) : c.dH5,
+                                    static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH - c.dH5 ) );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );

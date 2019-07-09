@@ -4,10 +4,14 @@ Stratofier Stratux AHRS Display
 */
 
 #include <QKeyEvent>
+#include <QObjectList>
 
 #include "Keypad.h"
 
 #include "ui_Keypad.h"
+
+
+extern QFont large;
 
 
 Keypad::Keypad( QWidget *pParent, const QString &qsTitle, bool bTimeMode )
@@ -20,12 +24,18 @@ Keypad::Keypad( QWidget *pParent, const QString &qsTitle, bool bTimeMode )
     QObjectList  kids = children();
     QObject     *pKid;
     QPushButton *pButton;
+    QWidget     *pWidget;
 
     foreach( pKid, kids )
     {
         pButton = qobject_cast<QPushButton *>( pKid );
-        if( pButton != 0 )
+        if( pButton != nullptr )
             connect( pButton, SIGNAL( clicked() ), this, SLOT( keypadClick() ) );
+#if defined( Q_OS_ANDROID )
+        pWidget = qobject_cast<QWidget *>( pKid );
+        if( pWidget != nullptr )
+            pWidget->setFont( large );
+#endif
     }
 
     m_pTitleLabel->setText( qsTitle );

@@ -331,7 +331,11 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
             qsHead = QString::number( abs( i ) );
         }
         headRect = headMetrics.boundingRect( qsHead );
+#if defined( Q_OS_ANDROID )
+        ahrs.drawText( dW2 - (headRect.width() / 2.0), headRect.height() + c.dH40, qsHead );
+#else
         ahrs.drawText( dW2 - (headRect.width() / 2.0), headRect.height() + c.dH80, qsHead );
+#endif
         ahrs.resetTransform();
     }
 }
