@@ -422,7 +422,7 @@
         </property>
         <property name="font">
          <font>
-          <family>Orbitron</family>
+          <family>Piboto</family>
           <pointsize>7</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -642,7 +642,7 @@
         </property>
         <property name="font">
          <font>
-          <family>Orbitron</family>
+          <family>Piboto</family>
           <pointsize>7</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -862,7 +862,7 @@
         </property>
         <property name="font">
          <font>
-          <family>Orbitron</family>
+          <family>Piboto</family>
           <pointsize>7</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -1082,7 +1082,7 @@
         </property>
         <property name="font">
          <font>
-          <family>Orbitron</family>
+          <family>Piboto</family>
           <pointsize>7</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -1117,7 +1117,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../RoscoPi/AHRSResources.qrc"/>
+  <include location="../AHRSResources.qrc"/>
  </resources>
  <connections/>
 </ui>

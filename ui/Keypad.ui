@@ -121,7 +121,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -149,7 +149,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -176,7 +176,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -203,7 +203,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -230,7 +230,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -257,7 +257,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -290,7 +290,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -323,7 +323,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -350,7 +350,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -383,7 +383,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -627,7 +627,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -654,7 +654,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -898,7 +898,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>16</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -995,7 +995,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -1128,7 +1128,7 @@ QPushButton::pressed { border: none; background-color: qlineargradient( x1:0, y1
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Piboto [Goog]</family>
        <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>

@@ -34,7 +34,6 @@ extern QFont tiny;
 extern QFont small;
 extern QFont med;
 extern QFont large;
-extern QFont huge;
 
 extern bool g_bUnitsKnots;
 extern bool g_bDayMode;
@@ -668,12 +667,14 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         int         iButton = -1;
         BugSelector bugSel( this );
 
-        bugSel.setGeometry( iXoff + (m_bPortrait ? c.dW2 : c.dW + c.dW2) - static_cast<int>( c.dWa * (m_bPortrait ? 0.2083 : 0.125) ),
-                            iYoff + c.dH - (m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( c.dH * (m_bPortrait ? 0.125 : 0.2083) ),
-                            static_cast<int>( c.dWa * 0.4167 ),
-                            static_cast<int>( c.dH * 0.25 ) );
-        bugSel.setMinimumSize( static_cast<int>( c.dWa * (m_bPortrait? 0.4167 : 0.25) ),
-                               static_cast<int>( c.dH * (m_bPortrait ? 0.25 : 0.4167) ) );
+        if( m_bPortrait )
+        {
+            bugSel.setGeometry( c.dW2 - c.dW4, c.dH2, c.dW2, c.dH2 - c.dH10 );
+        }
+        else
+        {
+            bugSel.setGeometry( c.dW + c.dW2 - c.dW4, c.dH2 - c.dH4, c.dW2, c.dH2 );
+        }
 
         iButton = bugSel.exec();
 

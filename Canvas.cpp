@@ -16,7 +16,6 @@ extern QFont tiny;
 extern QFont small;
 extern QFont med;
 extern QFont large;
-extern QFont huge;
 
 
 Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
@@ -134,13 +133,3 @@ int Canvas::medWidth(const QString &qsText)
 
     return medRect.width();
 }
-
-
-int Canvas::hugeWidth( const QString &qsText )
-{
-    QFontMetrics hugeMetrics( huge );
-    QRect        hugeRect( hugeMetrics.boundingRect( qsText ) );
-
-    return hugeRect.width();
-}
-

@@ -28,13 +28,12 @@ extern QSettings *g_pSet;
 
 
 // Standard fonts used throughout the app
-QFont itsy(  "Rational Integer", 6, QFont::Normal  );
-QFont wee(   "Rational Integer", 8, QFont::Normal  );
-QFont tiny(  "Rational Integer", 12, QFont::Normal );
-QFont small( "Rational Integer", 16, QFont::Normal );
-QFont med(   "Rational Integer", 18, QFont::Bold   );
-QFont large( "Orbitron", 24, QFont::Bold );
-QFont huge(  "Orbitron", 30, QFont::Bold );
+QFont itsy(  "Piboto", 6, QFont::Normal  );
+QFont wee(   "Piboto", 8, QFont::Normal  );
+QFont tiny(  "Piboto", 12, QFont::Normal );
+QFont small( "Piboto", 16, QFont::Normal );
+QFont med(   "Piboto", 18, QFont::Bold   );
+QFont large( "Piboto", 24, QFont::Bold );
 
 
 bool g_bUnitsKnots = true;
@@ -61,7 +60,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     tiny.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     med.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     large.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
-    huge.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
 
     setupUi( this );
 
@@ -151,15 +149,14 @@ void AHRSMainWin::menu()
     if( m_pMenuDialog == Q_NULLPTR )
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
-        int             iW = static_cast<int>( c.dWa * (m_bPortrait ? 1.0 : 0.5) );
-        int             iH = static_cast<int>( c.dH * (m_bPortrait ? 0.375 : 0.625) );
 
         m_pMenuDialog = new MenuDialog( this, m_bPortrait );
 
         // Scale the menu dialog according to screen resolution
-        m_pMenuDialog->setMinimumWidth( iW );
-        m_pMenuDialog->setMinimumHeight( iH );
-        m_pMenuDialog->setGeometry( x(), y() + c.dH - iH + 15, iW, iH );
+        m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW2 ) );
+        m_pMenuDialog->setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
+        m_pMenuDialog->setGeometry( x(), m_bPortrait ? (y() + static_cast<int>( c.dH2 )) : 0,
+                                    static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );

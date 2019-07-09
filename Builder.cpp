@@ -260,8 +260,7 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
     QPen         linePen( Qt::white, c.iFatPen );
     bool         bThis = true;
     QColor       orange( 255, 165, 0 );
-    QFont        headFont( "Orbitron", 20, QFont::Bold );
-    QFontMetrics headMetrics( headFont );
+    QFontMetrics headMetrics( large );
     QString      qsHead;
     QRect        headRect;
 
@@ -300,7 +299,7 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
     }
     ahrs.resetTransform();
     // Number labels
-    ahrs.setFont( headFont );
+    ahrs.setFont( large );
     for( int i = 0; i < 36; i += 3 )
     {
         ahrs.translate( dW2, dH2 );
@@ -332,7 +331,7 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
             qsHead = QString::number( abs( i ) );
         }
         headRect = headMetrics.boundingRect( qsHead );
-        ahrs.drawText( dW2 - (headRect.width() / 2.0), 22.0 + headRect.height(), qsHead );
+        ahrs.drawText( dW2 - (headRect.width() / 2.0), headRect.height() + c.dH80, qsHead );
         ahrs.resetTransform();
     }
 }
