@@ -44,7 +44,7 @@ extern QSettings *g_pSet;
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 
-QString g_qsStratofierVersion( "1.0.3" );
+QString g_qsStratofierVersion( "1.2.0" );
 
 
 /*
@@ -593,7 +593,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     if( m_bPortrait )
     {
         zoomInRect.setRect( 0.0, c.dH2 - m_pCanvas->scaledV( 50.0 ), dZoomBtnWidth, dZoomBtnHeight );
-        zoomOutRect.setRect( 0.0, c.dH - m_pCanvas->scaledV( 50.0 ) - dZoomBtnHeight, dZoomBtnWidth, dZoomBtnHeight );
+        zoomOutRect.setRect( 0.0, c.dH - m_pCanvas->scaledV( 80.0 ) - dZoomBtnHeight, dZoomBtnWidth, dZoomBtnHeight );
 
         magHeadLessRect.setRect( c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
                                  c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
@@ -999,6 +999,9 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
 
+    // Draw the zoom in button - done earlier than landscape to avoid drawing artifacts
+    ahrs.drawPixmap( 0, c.dH - m_pCanvas->scaledV( 80.0 ) - m_pZoomOutPixmap->height(), *m_pZoomOutPixmap );
+
     // Draw the heading pixmap and rotate it to the current heading
     ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
     ahrs.rotate( -g_situation.dAHRSGyroHeading );
@@ -1186,10 +1189,9 @@ void AHRSCanvas::paintPortrait()
     // Update the traffic positions
     updateTraffic( &ahrs, &c );
 
-    // Draw the zoom in/out buttons
+    // Draw zoom out control
     ahrs.drawPixmap( 0, c.dH2 - m_pCanvas->scaledV( 50.0 ), *m_pZoomInPixmap );
-    ahrs.drawPixmap( 0, c.dH - m_pCanvas->scaledV( 50.0 ) - m_pZoomOutPixmap->height(), *m_pZoomOutPixmap );
-    
+
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
     else if( m_bDisplayTanksSwitchNotice )
