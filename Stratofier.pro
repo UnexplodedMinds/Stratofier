@@ -45,16 +45,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += ./include \
                ../include \
-               ../Stratofier/include \
-               ../Stratofier/uic \
-               ../Stratofier/rcc
+               ./gen/uic \
+               ./gen/rcc
 
-DESTDIR = ../Stratofier/bin
-OBJECTS_DIR = ../Stratofier/obj
+DESTDIR = ./bin
+OBJECTS_DIR = ./obj
 
-UI_DIR = ../Stratofier/uic
-MOC_DIR = ../Stratofier/moc
-RCC_DIR = ../Stratofier/rcc
+UI_DIR = ./gen/uic
+MOC_DIR = ./gen/moc
+RCC_DIR = ./gen/rcc
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 

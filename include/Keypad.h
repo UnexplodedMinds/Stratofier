@@ -19,7 +19,7 @@ public:
     explicit Keypad( QWidget *pParent, const QString &qsTitle, bool bTimeMode = false );
     ~Keypad();
 
-    int     value();
+    double  value();
     QString textValue();
     void    clear();
     void    setTitle( const QString &qsTitle );

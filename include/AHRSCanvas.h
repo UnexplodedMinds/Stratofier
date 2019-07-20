@@ -11,6 +11,9 @@ Stratofier Stratux AHRS Display
 #include <QMap>
 #include <QList>
 #include <QDateTime>
+#include <QGestureEvent>
+#include <QSwipeGesture>
+#include <QPinchGesture>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
@@ -49,6 +52,7 @@ protected:
     void paintEvent( QPaintEvent *pEvent );
     void mouseReleaseEvent( QMouseEvent *pEvent );
     void mousePressEvent( QMouseEvent *pEvent );
+    void mouseMoveEvent( QMouseEvent *pEvent );
     void timerEvent( QTimerEvent *pEvent );
 
 private:
@@ -65,6 +69,10 @@ private:
     void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
     void drawDayMode( QPainter *pArs, CanvasConstants *c );
+    void swipeLeft();
+    void swipeRight();
+    void swipeUp();
+    void swipeDown();
 
     Canvas *m_pCanvas;
 
@@ -79,8 +87,6 @@ private:
     QPixmap  *m_pAltTape;
     QPixmap  *m_pSpeedTape;
     QPixmap  *m_pVertSpeedTape;
-    QPixmap  *m_pZoomInPixmap;
-    QPixmap  *m_pZoomOutPixmap;
     QPixmap  *m_pMagHeadOffLessPixmap;
     QPixmap  *m_pMagHeadOffMorePixmap;
     int       m_iDispTimer;
@@ -89,8 +95,6 @@ private:
     bool      m_bShowGPSDetails;
     double    m_dZoomNM;
     bool      m_bShowAllTraffic;
-    bool      m_bShowOutside;
-    bool      m_bShowOutsideHeading;
     bool      m_bPortrait;
     bool      m_bLongPress;
     QDateTime m_longPressStart;
@@ -99,6 +103,8 @@ private:
     int       m_iTimerSec;
     int       m_iMagDev;
     bool      m_bDisplayTanksSwitchNotice;
+    QPoint    m_SwipeStart;
+    int       m_iSwiping;
 
     Canvas::ShowAirports m_eShowAirports;
     QList<Airport>       m_airports;

@@ -56,9 +56,8 @@ int main( int argc, char *argv[] )
         }
     }
 
-    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_reg.ttf" );
-    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_bold.ttf" );
-    QFontDatabase::addApplicationFont( ":/fonts/resources/orbitron_rationalint.ttf" );
+    QFontDatabase::addApplicationFont( ":/fonts/resources/piboto_reg.ttf" );
+    QFontDatabase::addApplicationFont( ":/fonts/resources/piboto_reg.ttf" );
 
 // For Android, override any command line setting for portrait/landscape
 #if defined( Q_OS_ANDROID )

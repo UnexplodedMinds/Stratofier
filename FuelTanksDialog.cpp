@@ -130,7 +130,7 @@ void FuelTanksDialog::resetFuel()
     keypadL.setGeometry( 0, 0, 400, 350 );
     keypadL.exec();
 
-    iGalL = keypadL.value();
+    iGalL = static_cast<int>( keypadL.value() );
 
     if( m_tanks.bDualTanks )
     {
@@ -139,7 +139,7 @@ void FuelTanksDialog::resetFuel()
         keypadR.setGeometry( 0, 0, 400, 350 );
         keypadR.exec();
 
-        iGalR = keypadR.value();
+        iGalR = static_cast<int>( keypadR.value() );
         if( iGalR < 0 )
             iGalR = 0;
     }

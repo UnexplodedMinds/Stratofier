@@ -28,12 +28,18 @@ extern QSettings *g_pSet;
 
 
 // Standard fonts used throughout the app
+#if defined( Q_OS_ANDROID )
+QFont itsy(  "Piboto", 8, QFont::Normal  );
+QFont wee(   "Piboto", 10, QFont::Normal  );
+QFont tiny(  "Piboto", 14, QFont::Normal );
+#else
 QFont itsy(  "Piboto", 6, QFont::Normal  );
 QFont wee(   "Piboto", 8, QFont::Normal  );
 QFont tiny(  "Piboto", 12, QFont::Normal );
+#endif
 QFont small( "Piboto", 16, QFont::Normal );
 QFont med(   "Piboto", 18, QFont::Bold   );
-QFont large( "Piboto", 24, QFont::Bold );
+QFont large( "Piboto", 24, QFont::Bold   );
 
 
 bool g_bUnitsKnots = true;
@@ -46,14 +52,13 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
       m_pStratuxStream( new StreamReader( this, qsIP ) ),
       m_bStartup( true ),
-      m_pMenuDialog( Q_NULLPTR ),
+      m_pMenuDialog( nullptr ),
       m_qsIP( qsIP ),
       m_bPortrait( bPortrait ),
       m_iTimerSeconds( 0 ),
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
-      m_iTimerTimer( -1 ),
-      m_pMenuButton( new QPushButton( this ) )
+      m_iTimerTimer( -1 )
 {
     itsy.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     wee.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
@@ -85,8 +90,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
 
 void AHRSMainWin::init()
 {
-    int iSize = static_cast<int>( static_cast<double>( m_bPortrait ? width() : height() ) * 0.2 );
-
 #if defined( Q_OS_ANDROID )
     QScreen *pScreen = QGuiApplication::primaryScreen();
     QSizeF   physicalSize = pScreen->physicalSize();
@@ -104,16 +107,6 @@ void AHRSMainWin::init()
 #endif
 
     m_pStatusIndicator->setMinimumHeight( height() * (m_bPortrait ? 0.0125 : 0.025) );
-
-    m_pStatusSpacer->changeSize( iSize, 5 );
-    m_pMenuButton->setGeometry( 0, height() - iSize, iSize, iSize );
-    m_pMenuButton->setStyleSheet( "QPushButton { border: 0px; }" );
-    m_pMenuButton->setIcon( QIcon( ":/icons/resources/Stratofier.png" ) );
-    m_pMenuButton->setIconSize( QSize( iSize, iSize ) );
-    m_pMenuButton->show();
-    m_pMenuButton->raise();
-
-    connect( m_pMenuButton, SIGNAL( clicked() ), this, SLOT( menu() ) );
 }
 
 
@@ -146,7 +139,7 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 // Display the menu dialog and handle specific returns
 void AHRSMainWin::menu()
 {
-    if( m_pMenuDialog == Q_NULLPTR )
+    if( m_pMenuDialog == nullptr )
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
 
@@ -155,8 +148,7 @@ void AHRSMainWin::menu()
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW2 ) );
         m_pMenuDialog->setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH - c.dH5 ) );
-        m_pMenuDialog->setGeometry( x(), m_bPortrait ? (y() + static_cast<int>( c.dH2 )) : c.dH5,
-                                    static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH - c.dH5 ) );
+        m_pMenuDialog->setGeometry( x() + c.dW - c.dW2, y(), static_cast<int>( c.dW2 ), static_cast<int>( c.dH ) );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -164,7 +156,6 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratofier() ), this, SLOT( shutdownStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
-        connect( m_pMenuDialog, SIGNAL( inOutToggled( bool ) ), this, SLOT( inOutToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
@@ -175,7 +166,7 @@ void AHRSMainWin::menu()
     else
     {
         delete m_pMenuDialog;
-        m_pMenuDialog = Q_NULLPTR;
+        m_pMenuDialog = nullptr;
     }
 }
 
@@ -184,7 +175,7 @@ void AHRSMainWin::resetLevel()
 {
     system( QString( "wget -q --post-data=\"\" http://%1/cageAHRS >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
-    m_pMenuDialog = Q_NULLPTR;
+    m_pMenuDialog = nullptr;
 }
 
 
@@ -192,14 +183,14 @@ void AHRSMainWin::resetGMeter()
 {
     system( QString( "wget -q --post-data=\"\" http://%1/resetGMeter >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
     delete m_pMenuDialog;
-    m_pMenuDialog = Q_NULLPTR;
+    m_pMenuDialog = nullptr;
 }
 
 
 void AHRSMainWin::upgradeRosco()
 {
     delete m_pMenuDialog;
-    m_pMenuDialog = Q_NULLPTR;
+    m_pMenuDialog = nullptr;
     if( QMessageBox::question( this, "UPGRADE", "Upgrading Stratofier requires an active internet connection.\n\n"
                                                 "Select 'Yes' to download and install the latest Stratofier version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
@@ -265,12 +256,6 @@ void AHRSMainWin::trafficToggled( bool bAll )
 }
 
 
-void AHRSMainWin::inOutToggled( bool bOut )
-{
-    m_pAHRSDisp->showOutside( bOut );
-}
-
-
 void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
 {
     m_pAHRSDisp->showAirports( eShow );
@@ -288,7 +273,7 @@ void AHRSMainWin::changeTimer()
     keypad.setMinimumSize( m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
 
     delete m_pMenuDialog;
-    m_pMenuDialog = Q_NULLPTR;
+    m_pMenuDialog = nullptr;
 
     if( keypad.exec() == QDialog::Accepted )
     {
@@ -341,7 +326,7 @@ void AHRSMainWin::fuelTanks( FuelTanks tanks )
 void AHRSMainWin::fuelTanks2()
 {
     delete m_pMenuDialog;
-    m_pMenuDialog = Q_NULLPTR;
+    m_pMenuDialog = nullptr;
 }
 
 

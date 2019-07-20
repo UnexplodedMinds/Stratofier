@@ -15,6 +15,10 @@ Stratofier Stratux AHRS Display
 #include <QTransform>
 #include <QVariant>
 #include <QScreen>
+#include <QGesture>
+#include <QGestureEvent>
+#include <QSwipeGesture>
+#include <QPinchGesture>
 
 #include <math.h>
 
@@ -69,8 +73,6 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_pAltTape( Q_NULLPTR ),
       m_pSpeedTape( Q_NULLPTR ),
       m_pVertSpeedTape( Q_NULLPTR ),
-      m_pZoomInPixmap( Q_NULLPTR ),
-      m_pZoomOutPixmap( Q_NULLPTR ),
       m_pMagHeadOffLessPixmap( Q_NULLPTR ),
       m_pMagHeadOffMorePixmap( Q_NULLPTR ),
       m_iUpdateCount( 0 ),
@@ -84,7 +86,9 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iTimerSec( -1 ),
       m_bDisplayTanksSwitchNotice( false ),
       m_iMagDev( 0 ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
+      m_SwipeStart( 0, 0 ),
+      m_iSwiping( 0 )
 {
     // Initialize AHRS settings
     // No need to init the traffic because it starts out as an empty QMap.
@@ -141,16 +145,6 @@ AHRSCanvas::~AHRSCanvas()
         delete m_pCanvas;
         m_pCanvas = Q_NULLPTR;
     }
-    if( m_pZoomInPixmap != Q_NULLPTR )
-    {
-        delete m_pZoomInPixmap;
-        m_pZoomInPixmap = Q_NULLPTR;
-    }
-    if( m_pZoomOutPixmap != Q_NULLPTR )
-    {
-        delete m_pZoomOutPixmap;
-        m_pZoomOutPixmap = Q_NULLPTR;
-    }
     if( m_pMagHeadOffLessPixmap != Q_NULLPTR )
     {
         delete m_pMagHeadOffLessPixmap;
@@ -174,7 +168,6 @@ void AHRSCanvas::init()
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
-    int             iZoomBtnSize = c.dH * (m_bPortrait ? 0.06 : 0.1 );
     int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) );
 
     m_headIcon = m_headIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
@@ -190,10 +183,6 @@ void AHRSCanvas::init()
         delete m_pAltTape;
     if( m_pSpeedTape != Q_NULLPTR )
         delete m_pSpeedTape;
-    if( m_pZoomInPixmap != Q_NULLPTR )
-        delete m_pZoomInPixmap;
-    if( m_pZoomOutPixmap != Q_NULLPTR )
-        delete m_pZoomOutPixmap;
 
     if( m_bPortrait )
     {
@@ -219,7 +208,7 @@ void AHRSCanvas::init()
     m_pSpeedTape->fill( Qt::transparent );
     m_pVertSpeedTape->fill( QColor( 0, 0, 0, 160 ) );
     Builder::buildRollIndicator( m_pRollIndicator, m_pCanvas, m_bPortrait );
-    Builder::buildHeadingIndicator( m_pHeadIndicator, m_pCanvas );
+    Builder::buildHeadingIndicator( m_pHeadIndicator, m_pCanvas, m_bPortrait );
     Builder::buildAltTape( m_pAltTape, m_pCanvas );
     Builder::buildSpeedTape( m_pSpeedTape, m_pCanvas );
     Builder::buildVertSpeedTape( m_pVertSpeedTape, m_pCanvas, m_bPortrait );
@@ -229,8 +218,6 @@ void AHRSCanvas::init()
     QTransform trans;
 
     trans.rotate( -90.0 );
-    m_pZoomInPixmap = new QPixmap( zIn.scaled( iZoomBtnSize, iZoomBtnSize ) );
-    m_pZoomOutPixmap = new QPixmap( zOut.scaled( iZoomBtnSize, iZoomBtnSize ) );
     m_pMagHeadOffLessPixmap = new QPixmap( zIn.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
     trans.rotate( 360.0 );
     m_pMagHeadOffMorePixmap = new QPixmap( zOut.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
@@ -244,7 +231,6 @@ void AHRSCanvas::loadSettings()
 {
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
-    m_bShowOutsideHeading = g_pSet->value( "ShowOutsideHeading", true ).toBool();
     m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
     m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
     g_bUnitsKnots = g_pSet->value( "UnitsKnots", true ).toBool();
@@ -272,8 +258,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
 
     QDateTime qdtNow = QDateTime::currentDateTime();
 
-    if( !m_bUpdated )
-        update();
+    update();
 
     cullTrafficMap();
 
@@ -362,16 +347,12 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     int                   iBallPenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.01875 : 0.03125) );
     int                   iCourseLinePenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) );
     int                   iCourseLineLength = static_cast<int>( c->dH * (m_bPortrait ? 0.0375 : 0.0625) );
+    QPainterPath          maskPath;
 
-    if( !m_bShowOutsideHeading )
-    {
-        QPainterPath maskPath;
-
-        maskPath.addEllipse( (m_bPortrait ? 0 : c->dW) + c->dW2 - (m_pHeadIndicator->width() / 2),
-                             c->dH - m_pHeadIndicator->height() - 10.0,
-                             m_pHeadIndicator->width(), m_pHeadIndicator->height() );
-        pAhrs->setClipPath( maskPath );
-    }
+    maskPath.addEllipse( (m_bPortrait ? 0 : c->dW) + c->dW2 - (m_pHeadIndicator->width() / 2),
+                         c->dH - m_pHeadIndicator->height() - 10.0,
+                         m_pHeadIndicator->width(), m_pHeadIndicator->height() );
+    pAhrs->setClipPath( maskPath );
 
     // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
 	foreach( traffic, trafficList )
@@ -533,6 +514,40 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
     if( pEvent == 0 )
         return;
 
+    QPoint          pt( pEvent->pos() );
+    CanvasConstants c = m_pCanvas->constants();
+
+    // Any x delta greater than half the width of the screen and a continuous mouse move of at least 10 events, is a swipe left or right
+    if( ((pt.x() - m_SwipeStart.x()) < -c.dW4) && (m_iSwiping > 10) && (abs( pt.y() - m_SwipeStart.y() ) < c.dH10) )
+    {
+        m_SwipeStart = QPoint( 0, 0 );
+        m_iSwiping = 0;
+        swipeLeft();
+        return;
+    }
+    else if( ((pt.x() - m_SwipeStart.x()) > c.dW4) && (m_iSwiping > 10) && (abs( pt.y() - m_SwipeStart.y() ) < c.dH10) )
+    {
+        m_SwipeStart = QPoint( 0, 0 );
+        m_iSwiping = 0;
+        swipeRight();
+        return;
+    }
+    // Any y delta greater than 1/2 the screen height (or 1/4 in portrait) and a continuous mouse move of at least 10 events, is a swipe up or down
+    else if( ((pt.y() - m_SwipeStart.y()) < -c.dH4) && (m_iSwiping > 10) )
+    {
+        m_SwipeStart = QPoint( 0, 0 );
+        m_iSwiping = 0;
+        swipeUp();
+        return;
+    }
+    else if( ((pt.y() - m_SwipeStart.y()) > c.dH4) && (m_iSwiping > 10) )
+    {
+        m_SwipeStart = QPoint( 0, 0 );
+        m_iSwiping = 0;
+        swipeDown();
+        return;
+    }
+
     AHRSMainWin *pMainWin = static_cast<AHRSMainWin *>( parentWidget()->parentWidget() );
     QDateTime    qdtNow = QDateTime::currentDateTime();
 
@@ -567,7 +582,7 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
     else
     {
         m_bLongPress = false;
-        handleScreenPress( pEvent->pos() );
+        handleScreenPress( pt );
 
         m_bUpdated = true;
         update();
@@ -577,24 +592,16 @@ void AHRSCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
 
 void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 {
-    // Otherwise we're looking for specific spots
     CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
     QRect           gpsRect( (m_bPortrait ? c.dW : c.dWa) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
-    QRectF          zoomInRect;
-    QRectF          zoomOutRect;
     QRectF          magHeadLessRect;
     QRectF          magHeadMoreRect;
     int             iXoff = parentWidget()->parentWidget()->geometry().x();	// Likely 0 on a dedicated screen (mostly useful emulating on a PC)
     int             iYoff = parentWidget()->parentWidget()->geometry().y();	// Ditto
-    double          dZoomBtnWidth = m_pCanvas->scaledH( 64.0 );
-    double          dZoomBtnHeight = m_pCanvas->scaledV( 64.0 );
 
     if( m_bPortrait )
     {
-        zoomInRect.setRect( 0.0, c.dH2 - m_pCanvas->scaledV( 50.0 ), dZoomBtnWidth, dZoomBtnHeight );
-        zoomOutRect.setRect( 0.0, c.dH - m_pCanvas->scaledV( 80.0 ) - dZoomBtnHeight, dZoomBtnWidth, dZoomBtnHeight );
-
         magHeadLessRect.setRect( c.dW2 - c.dW10 - m_pMagHeadOffLessPixmap->width(),
                                  c.dH - m_pHeadIndicator->height() - (c.dH * (m_bPortrait ? 0.06625 : 0.1104167)) - c.iMedFontHeight,
                                  m_pMagHeadOffLessPixmap->width(),
@@ -606,9 +613,6 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     }
     else
     {
-        zoomInRect.setRect( c.dW, 10.0, dZoomBtnWidth, dZoomBtnHeight );
-        zoomOutRect.setRect( c.dWa - dZoomBtnWidth - 20.0, 10.0, dZoomBtnWidth, dZoomBtnHeight );
-
 #if defined( Q_OS_ANDROID )
         magHeadMoreRect.setRect( c.dW + c.dW5,
                                  c.dH - c.iMedFontHeight - 10.0,
@@ -633,18 +637,6 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     // User pressed the GPS Lat/long area. This needs to be before the test for the heading indicator since it's within that area's rectangle
     if( gpsRect.contains( pressPt ) )
         m_bShowGPSDetails = (!m_bShowGPSDetails);
-    // User pressed the zoom in button
-    else if( zoomInRect.contains( pressPt ) )
-    {
-        zoomIn();
-        update();
-    }
-    // User pressed the zoom out button
-    else if( zoomOutRect.contains( pressPt ) )
-    {
-        zoomOut();
-        update();
-    }
     else if( magHeadLessRect.contains( pressPt ) )
     {
         m_iMagDev--;
@@ -668,13 +660,9 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         BugSelector bugSel( this );
 
         if( m_bPortrait )
-        {
             bugSel.setGeometry( c.dW2 - c.dW4, c.dH2, c.dW2, c.dH2 - c.dH10 );
-        }
         else
-        {
             bugSel.setGeometry( c.dW + c.dW2 - c.dW4, c.dH2 - c.dH4, c.dW2, c.dH2 );
-        }
 
         iButton = bugSel.exec();
 
@@ -701,7 +689,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 
         if( keypad.exec() == QDialog::Accepted )
         {
-            int iAngle = keypad.value();
+            int iAngle = static_cast<int>( keypad.value() );
 
             // Automatically wrap around
             while( iAngle > 360 )
@@ -736,11 +724,22 @@ void AHRSCanvas::mousePressEvent( QMouseEvent *pEvent )
     CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_pHeadIndicator->width() / 4), c.dH - m_pHeadIndicator->height() + (m_pHeadIndicator->height() / 4) - 10.0, m_pHeadIndicator->width() / 2, m_pHeadIndicator->height() / 2 );
 
+    m_SwipeStart = pEvent->pos();
+    m_iSwiping = 0;
+
     if( headRect.contains( pEvent->pos() ) )
     {
         m_longPressStart = QDateTime::currentDateTime();
         m_bLongPress = true;
     }
+}
+
+
+void AHRSCanvas::mouseMoveEvent( QMouseEvent *pEvent )
+{
+    Q_UNUSED( pEvent )
+
+    m_iSwiping++;
 }
 
 
@@ -770,15 +769,6 @@ void AHRSCanvas::showAllTraffic( bool bAll )
 {
     m_bShowAllTraffic = bAll;
     g_pSet->setValue( "ShowAllTraffic", bAll );
-    g_pSet->sync();
-    update();
-}
-
-
-void AHRSCanvas::showOutside( bool bOut )
-{
-    m_bShowOutsideHeading = bOut;
-    g_pSet->setValue( "ShowOutsideHeading", bOut );
     g_pSet->sync();
     update();
 }
@@ -972,12 +962,12 @@ void AHRSCanvas::paintPortrait()
 
 #if defined( Q_OS_ANDROID )
     ahrs.setFont( large );
-    ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW80 - 10.0,
-                   c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH40,
+    ahrs.drawText( c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW40 - 10.0,
+                   c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH40 - 5.0,
                    qsHead );
 #else
     ahrs.setFont( med );
-    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - 5.0,
+    ahrs.drawText( c.dW2 - (m_pCanvas->medWidth( qsHead ) / 2) - c.dW80,
                    c.dH - m_pHeadIndicator->height() - c.dH10 + c.dH40,
                    qsHead );
 #endif
@@ -998,9 +988,6 @@ void AHRSCanvas::paintPortrait()
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
-
-    // Draw the zoom in button - done earlier than landscape to avoid drawing artifacts
-    ahrs.drawPixmap( 0, c.dH - m_pCanvas->scaledV( 80.0 ) - m_pZoomOutPixmap->height(), *m_pZoomOutPixmap );
 
     // Draw the heading pixmap and rotate it to the current heading
     ahrs.translate( c.dW2, c.dH - (m_pHeadIndicator->height() / 2) - 10.0 );
@@ -1129,18 +1116,16 @@ void AHRSCanvas::paintPortrait()
 
     // Draw the current altitude
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
+    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
+    ahrs.drawRect( c.dW - c.dW5, c.dH4 - (c.iSmallFontHeight / 2), c.dW5, c.iSmallFontHeight + 1 );
     ahrs.setPen( Qt::white );
-    if( g_situation.dBaroPressAlt < 10000.0 )
-        ahrs.setFont( tiny );
-    else
-    {
-        QFont weeBold( wee );
-        weeBold.setBold( true );
-        ahrs.setFont( weeBold );   // 5 digits won't quite fit
-    }
-    ahrs.drawText( c.dW - c.dW5 + m_pCanvas->scaledH( 4 ), c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#if defined( Q_OS_ANDROID )
+    ahrs.setFont( med );
+    ahrs.drawText( c.dW - c.dW5 + 8, c.dH4 + (c.iMedFontHeight / 2) - c.dH80, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#else
+    ahrs.setFont( small );
+    ahrs.drawText( c.dW - c.dW5 + 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 6.0 ), QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#endif
 
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH2, QColor( 0, 0, 0, 100 ) );
@@ -1152,8 +1137,13 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( 0, c.dH4 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 40.0 ), c.iSmallFontHeight + 1 );
+#if defined( Q_OS_ANDROID )
+    ahrs.setFont( med );
+    ahrs.drawText( 8, c.dH4 + (c.iSmallFontHeight / 2) - c.dH80, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#else
     ahrs.setFont( small );
     ahrs.drawText( 4, c.dH4 + (c.iSmallFontHeight / 2) - m_pCanvas->scaledV( 4.0 ), QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#endif
     ahrs.setFont( tiny );
     ahrs.setPen( Qt::black );
     ahrs.drawText( c.dW10 + c.dW40 + 1, c.dH4 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
@@ -1178,7 +1168,7 @@ void AHRSCanvas::paintPortrait()
     arrow.append( QPoint( m_pCanvas->scaledH( 16.0 ), c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 25.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
-    ahrs.translate( c.dW - c.dW5 + c.dW10 - m_pCanvas->scaledH( 10.0 ) + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - m_pCanvas->scaledH( 10.0 ))), 0.0 );
+    ahrs.translate( c.dW - c.dW5 + c.dW10 - m_pCanvas->scaledH( 10.0 ) + ((g_situation.dAHRSGLoad - 1.0) * (c.dW10 - m_pCanvas->scaledH( 10.0 ))), c.dH80 );
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
@@ -1188,9 +1178,6 @@ void AHRSCanvas::paintPortrait()
 
     // Update the traffic positions
     updateTraffic( &ahrs, &c );
-
-    // Draw zoom out control
-    ahrs.drawPixmap( 0, c.dH2 - m_pCanvas->scaledV( 50.0 ), *m_pZoomInPixmap );
 
     if( m_bShowGPSDetails )
         paintInfo( &ahrs, &c );
@@ -1231,25 +1218,35 @@ void AHRSCanvas::paintTimer( QPainter *pAhrs, CanvasConstants *c )
 {
     QString      qsTimer = QString( "%1:%2" ).arg( m_iTimerMin, 2, 10, QChar( '0' ) ).arg( m_iTimerSec, 2, 10, QChar( '0' ) );
     QFontMetrics largeMetrics( large );
-    QRect        timerRect = largeMetrics.boundingRect( qsTimer );
     QPen         linePen( Qt::white );
-    int          iFudge = 0;
-
-#if defined( Q_OS_ANDROID )
-    timerRect.setWidth( timerRect.width() * 4 );
-    iFudge = 20;
-#endif
 
     linePen.setWidth( c->iThinPen );
 
     pAhrs->setPen( linePen );
     pAhrs->setBrush( Qt::black );
-    pAhrs->drawRect( c->dW2 - (m_bPortrait ? m_pCanvas->scaledH( 50.0 ) : m_pCanvas->scaledH( 70.0 )),
-                     c->dH - (m_bPortrait ? m_pCanvas->scaledV( 70.0 ) : m_pCanvas->scaledV( 100.0 )),
-                     m_pCanvas->scaledH( 100.0 ), m_pCanvas->scaledV( 35.0 ) );
+
+    if( m_bPortrait )
+        pAhrs->drawRect( c->dW2 - c->dW10 - c->dW20, c->dH - c->dH20, c->dW5 + c->dW10, c->dH20 );
+    else
+        pAhrs->drawRect( c->dW2 - c->dW5, c->dH - c->dH5, c->dW5 + c->dW10, c->dH10 );
     pAhrs->setPen( Qt::cyan );
     pAhrs->setFont( large );
-    pAhrs->drawText( c->dW2 - (m_bPortrait ? 0 : m_pCanvas->scaledH( 20.0 )) - (timerRect.width() / 2) + iFudge, c->dH - (m_bPortrait ? m_pCanvas->scaledV( 41.0 ) : m_pCanvas->scaledV( 71.0 )), qsTimer );
+    if( m_bPortrait )
+    {
+#if defined( Q_OS_ANDROID )
+        pAhrs->drawText( c->dW2 - (static_cast<double>( m_pCanvas->largeWidth( qsTimer ) ) / 2.0) - c->dW40 - c->dW40, c->dH - c->dH80, qsTimer );
+#else
+        pAhrs->drawText( c->dW2 - (static_cast<double>( m_pCanvas->largeWidth( qsTimer ) ) / 2.0) - c->dW80, c->dH - c->dH80, qsTimer );
+#endif
+    }
+    else
+    {
+#if defined( Q_OS_ANDROID )
+        pAhrs->drawText( c->dW2 - (static_cast<double>( m_pCanvas->largeWidth( qsTimer ) ) / 2.0) - c->dW10, c->dH - c->dH10 - c->dH40, qsTimer );
+#else
+        pAhrs->drawText( c->dW2 - (static_cast<double>( m_pCanvas->largeWidth( qsTimer ) ) / 2.0) - c->dW10 + c->dW40, c->dH - c->dH10 - c->dH40, qsTimer );
+#endif
+    }
 }
 
 
@@ -1540,10 +1537,6 @@ void AHRSCanvas::paintLandscape()
         ahrs.resetTransform();
     }
 
-    // Draw zoom in/out buttons
-    ahrs.drawPixmap( c.dW + 10.0, 10, *m_pZoomInPixmap );
-    ahrs.drawPixmap( c.dWa - m_pZoomOutPixmap->width() - 20, 10, *m_pZoomOutPixmap );
-
     // Draw the Altitude tape
 #if defined( Q_OS_ANDROID )
     ahrs.fillRect( QRectF( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), 0.0, c.dW5 - m_pCanvas->scaledH( 30.0 ), c.dH - m_pMagHeadOffLessPixmap->height() - 10.0 ), QColor( 0, 0, 0, 100 ) );
@@ -1571,7 +1564,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.setPen( Qt::white );
 #if defined( Q_OS_ANDROID )
         ahrs.setFont( large );
-        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW80 - 10.0,
+        ahrs.drawText( c.dW + c.dW2 - (m_pCanvas->largeWidth( qsHead ) / 2) - c.dW20 + c.dW80,
                        (c.iLargeFontHeight / 2), qsHead );
 #else
         ahrs.setFont( med );
@@ -1609,11 +1602,16 @@ void AHRSCanvas::paintLandscape()
 
     // Draw the current altitude
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW - c.dW5 - m_pCanvas->scaledH( 10.0 ), c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - m_pCanvas->scaledH( 23.0 ), c.iSmallFontHeight + 1 );
+    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
+    ahrs.drawRect( c.dW - c.dW5 - c.dW40 - c.dW80, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 + c.dW40 + c.dW80, c.iSmallFontHeight + 1 );
     ahrs.setPen( Qt::white );
+#if defined( Q_OS_ANDROID )
+    ahrs.setFont( med );
+    ahrs.drawText( c.dW - c.dW5 - c.dW40, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#else
     ahrs.setFont( small );
-    ahrs.drawText( c.dW - c.dW5 - c.dW80, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+    ahrs.drawText( c.dW - c.dW5 - c.dW40, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dBaroPressAlt ) ) );
+#endif
 
     // Draw the Speed tape
     ahrs.fillRect( QRectF( 0.0, 0.0, c.dW5 - m_pCanvas->scaledH( 25.0 ), c.dH ), QColor( 0, 0, 0, 100 ) );
@@ -1622,21 +1620,19 @@ void AHRSCanvas::paintLandscape()
     // Draw the current speed
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
-    ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - 25, c.iSmallFontHeight + 1 );
-    if( g_bTablet )
-    {
-        ahrs.setFont( large );
-        ahrs.drawText( 4, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
-    }
-    else
-    {
-        ahrs.setFont( small );
-        ahrs.drawText( 4, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
-    }
+    ahrs.drawRect( 0, c.dH2 - (c.iSmallFontHeight / 2), c.dW5 - c.dW20, c.iSmallFontHeight + 1 );
+#if defined( Q_OS_ANDROID )
+    ahrs.setFont( large );
+    ahrs.drawText( 8, c.dH2 + c.dH80 + 5, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#else
+    ahrs.setFont( small );
+    ahrs.drawText( 4, c.dH2 + c.dH80, QString::number( static_cast<int>( g_situation.dGPSGroundSpeed ) ) );
+#endif
+    ahrs.setFont( tiny );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( c.dW5 - c.dW40 + 1, c.dH2 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW5 - c.dW20 + 1, c.dH2 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW5 - c.dW40, c.dH2, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW5 - c.dW20, c.dH2, g_bUnitsKnots ? "KTS" : "MPH"  );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1867,5 +1863,34 @@ void AHRSCanvas::drawDayMode( QPainter *pAhrs, CanvasConstants *c )
     {
         pAhrs->fillRect( 0.0, 0.0, c->dWa, c->dH, QColor( 0, 0, 0, 128 ) );
     }
+}
+
+
+void AHRSCanvas::swipeLeft()
+{
+    AHRSMainWin *pMainWin = static_cast<AHRSMainWin *>( parentWidget()->parentWidget() );
+
+    pMainWin->menu();
+    update();
+}
+
+
+void AHRSCanvas::swipeRight()
+{
+    update();
+}
+
+
+void AHRSCanvas::swipeUp()
+{
+    zoomOut();
+    update();
+}
+
+
+void AHRSCanvas::swipeDown()
+{
+    zoomIn();
+    update();
 }
 

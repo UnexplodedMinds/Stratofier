@@ -16,7 +16,7 @@ public:
     explicit Builder();
 
     static void buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPortrait );
-    static void buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas );
+    static void buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas, bool bPortrait );
     static void buildAltTape( QPixmap *pAltTape, Canvas *pCanvas );
     static void buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas );
     static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait );

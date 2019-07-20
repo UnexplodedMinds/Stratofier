@@ -247,7 +247,7 @@ void Builder::buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPort
 
 
 // Build the round heading indicator
-void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
+void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas, bool bPortrait )
 {
     Q_UNUSED( pCanvas )
 
@@ -332,7 +332,7 @@ void Builder::buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas )
         }
         headRect = headMetrics.boundingRect( qsHead );
 #if defined( Q_OS_ANDROID )
-        ahrs.drawText( dW2 - (headRect.width() / 2.0), headRect.height() + c.dH40, qsHead );
+        ahrs.drawText( dW2 - (headRect.width() / 2.0) - c.dW80, headRect.height() + (bPortrait ? c.dH40 : c.dH20), qsHead );
 #else
         ahrs.drawText( dW2 - (headRect.width() / 2.0), headRect.height() + c.dH80, qsHead );
 #endif

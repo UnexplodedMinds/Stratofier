@@ -24,16 +24,17 @@ Keypad::Keypad( QWidget *pParent, const QString &qsTitle, bool bTimeMode )
     QObjectList  kids = children();
     QObject     *pKid;
     QPushButton *pButton;
-    QWidget     *pWidget;
 
     foreach( pKid, kids )
     {
         pButton = qobject_cast<QPushButton *>( pKid );
-        if( pButton != nullptr )
+        if( pButton != Q_NULLPTR )
             connect( pButton, SIGNAL( clicked() ), this, SLOT( keypadClick() ) );
 #if defined( Q_OS_ANDROID )
+        QWidget *pWidget;
+
         pWidget = qobject_cast<QWidget *>( pKid );
-        if( pWidget != nullptr )
+        if( pWidget != Q_NULLPTR )
             pWidget->setFont( large );
 #endif
     }
@@ -140,6 +141,8 @@ void Keypad::keypadClick()
         else
             qsValue.append( "9" );
     }
+    else if( (qsObjName == "m_pDecimal") && (!m_bTimeMode) )
+        qsValue.append( "." );
     else if( (qsObjName == "m_pBack") && (!m_bTimeMode) )
     {
         if( !qsValue.isEmpty() )
@@ -178,9 +181,9 @@ void Keypad::keypadClick()
 }
 
 
-int Keypad::value()
+double Keypad::value()
 {
-    return m_pValueLabel->text().toInt();
+    return m_pValueLabel->text().toDouble();
 }
 
 

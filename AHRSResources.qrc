@@ -1,30 +1,21 @@
 <RCC>
-    <qresource prefix="/icons">
-        <file>resources/Settings.png</file>
-        <file>resources/HeadingIndicator.png</file>
-        <file>resources/Airport.png</file>
-        <file>resources/Reset.png</file>
-        <file>resources/Timer.png</file>
-        <file>resources/Traffic.png</file>
-        <file>resources/GForce.png</file>
-        <file>resources/StratuxLogo.png</file>
-        <file>resources/Cancel.png</file>
-        <file>resources/Level.png</file>
-        <file>resources/Backspace.png</file>
-        <file>resources/HeadingIcon.png</file>
-        <file>resources/WindIcon.png</file>
-        <file>resources/OK.png</file>
-        <file>resources/Stratofier.png</file>
-        <file>resources/Upgrade.png</file>
-    </qresource>
-    <qresource prefix="/fonts">
-        <file>resources/piboto_bold.ttf</file>
-        <file>resources/piboto_reg.ttf</file>
-    </qresource>
-    <qresource prefix="/graphics">
-        <file>resources/Plane.png</file>
-        <file>resources/ZoomIn.png</file>
-        <file>resources/ZoomOut.png</file>
-    </qresource>
-    <qresource prefix="/"/>
+  <qresource prefix="/icons">
+    <file>resources/Reset.png</file>
+    <file>resources/StratuxLogo.png</file>
+    <file>resources/Backspace.png</file>
+    <file>resources/HeadingIcon.png</file>
+    <file>resources/WindIcon.png</file>
+    <file>resources/OK.png</file>
+    <file>resources/Stratofier.png</file>
+  </qresource>
+  <qresource prefix="/fonts">
+    <file>resources/piboto_bold.ttf</file>
+    <file>resources/piboto_reg.ttf</file>
+  </qresource>
+  <qresource prefix="/graphics">
+    <file>resources/Plane.png</file>
+    <file>resources/ZoomIn.png</file>
+    <file>resources/ZoomOut.png</file>
+  </qresource>
+  <qresource prefix="/"/>
 </RCC>

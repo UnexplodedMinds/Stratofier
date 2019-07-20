@@ -100,16 +100,15 @@
   <property name="styleSheet">
    <string notr="true">QPushButton
 {
-     border: none;
-     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue );
-     margin: 2px;
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
+	margin: 0px;
 }
-
 QPushButton::pressed
 {
-     border: none;
-     background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 CornflowerBlue, stop:1 white );
-     margin: 2px;
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	margin: 0px;
 }
 </string>
   </property>
@@ -152,9 +151,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -181,9 +180,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -201,18 +200,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -222,7 +221,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -231,7 +230,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>RT REMAIN:</string>
+      <string>RT REM :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -446,9 +445,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -475,9 +474,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -495,18 +494,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -516,7 +515,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -558,9 +557,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -587,9 +586,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -607,18 +606,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -628,7 +627,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -637,7 +636,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>CLIMB RATE:</string>
+      <string>CLIMB :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -758,9 +757,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -778,9 +777,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -789,23 +788,28 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
        </disabled>
       </palette>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
      </property>
      <property name="autoFillBackground">
       <bool>true</bool>
@@ -847,9 +851,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -876,9 +880,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -896,18 +900,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -917,7 +921,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -926,7 +930,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>TAXI RATE:</string>
+      <string>TAXI :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -959,9 +963,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -988,9 +992,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1008,18 +1012,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1029,7 +1033,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1038,7 +1042,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>DESC RATE:</string>
+      <string>DESCENT :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -1071,9 +1075,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1100,9 +1104,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1120,18 +1124,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1141,7 +1145,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1183,9 +1187,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1212,9 +1216,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1232,18 +1236,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1253,7 +1257,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1295,9 +1299,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1324,9 +1328,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1344,18 +1348,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1365,7 +1369,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1407,9 +1411,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1436,9 +1440,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1456,18 +1460,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1477,7 +1481,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1486,7 +1490,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>RT CAP:</string>
+      <string>RT CAP :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -1519,9 +1523,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1548,9 +1552,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1568,18 +1572,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1589,7 +1593,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -1598,7 +1602,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>LEFT CAP:</string>
+      <string>LEFT CAP :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -1631,9 +1635,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1660,9 +1664,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1680,18 +1684,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -1701,7 +1705,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -2016,9 +2020,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2045,9 +2049,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2065,18 +2069,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2086,7 +2090,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -2095,7 +2099,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>CRUISE RATE:</string>
+      <string>CRUISE :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -2128,9 +2132,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2157,9 +2161,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2177,18 +2181,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2198,7 +2202,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -2207,7 +2211,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>SWITCH INT:</string>
+      <string>SWITCH :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -2504,7 +2508,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -2550,9 +2554,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2579,9 +2583,9 @@ QPushButton::pressed
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2599,18 +2603,18 @@ QPushButton::pressed
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>103</red>
-           <green>129</green>
-           <blue>184</blue>
+           <red>60</red>
+           <green>80</green>
+           <blue>130</blue>
           </color>
          </brush>
         </colorrole>
@@ -2620,7 +2624,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -2629,7 +2633,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>LEFT REMAIN:</string>
+      <string>LEFT REM :</string>
      </property>
      <property name="margin">
       <number>5</number>
@@ -2649,25 +2653,10 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>14</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGreen );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkGreen, stop:1 white );
-	margin: 2px;
-}
-</string>
        </property>
        <property name="text">
         <string>START L</string>
@@ -2703,25 +2692,10 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>14</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 Brown );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 Brown, stop:1 white );
-	margin: 2px;
-}
-</string>
        </property>
        <property name="text">
         <string>STOP</string>
@@ -2757,25 +2731,10 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>14</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 GoldenRod );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 GoldenRod, stop:1 white );
-	margin: 2px;
-}
-</string>
        </property>
        <property name="text">
         <string>RESET</string>
@@ -2799,25 +2758,10 @@ QPushButton::pressed
        <property name="font">
         <font>
          <family>Piboto</family>
-         <pointsize>14</pointsize>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGreen );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkGreen, stop:1 white );
-	margin: 2px;
-}
-</string>
        </property>
        <property name="text">
         <string>START R</string>

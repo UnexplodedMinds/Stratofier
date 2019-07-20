@@ -27,7 +27,7 @@ public:
     explicit AHRSMainWin( const QString &qsIP, bool bPortrait );
     ~AHRSMainWin();
 
-    bool        menuActive() { return (m_pMenuDialog != 0); }
+    bool        menuActive() { return (m_pMenuDialog != nullptr); }
     void        restartTimer();
     void        stopTimer();
     AHRSCanvas *disp() { return m_pAHRSDisp; }
@@ -53,7 +53,6 @@ private:
     bool          m_bTimerActive;
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
-    QPushButton  *m_pMenuButton;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -63,7 +62,6 @@ private slots:
     void shutdownStratux();
     void shutdownStratofier();
     void trafficToggled( bool bAll );
-    void inOutToggled( bool bOut );
     void showAirports( Canvas::ShowAirports eShow );
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );

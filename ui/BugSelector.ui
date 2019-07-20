@@ -94,9 +94,17 @@
   <property name="styleSheet">
    <string notr="true">QPushButton
 {
-	 border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue ); margin: 2px;
-}</string>
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	margin: 2px;
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -125,7 +133,7 @@
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -133,12 +141,23 @@
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGoldenrod );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	margin: 2px;
+}
+</string>
+     </property>
      <property name="text">
       <string>HEADING</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/HeadingIcon.png</normaloff>:/icons/resources/HeadingIcon.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -165,17 +184,28 @@
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
-     <property name="text">
-      <string>WIND      </string>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue );
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	margin: 2px;
+}
+</string>
      </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/WindIcon.png</normaloff>:/icons/resources/WindIcon.png</iconset>
+     <property name="text">
+      <string>WIND</string>
      </property>
      <property name="iconSize">
       <size>
@@ -199,17 +229,13 @@
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>CLEAR   </string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Backspace.png</normaloff>:/icons/resources/Backspace.png</iconset>
+      <string>CLEAR</string>
      </property>
      <property name="iconSize">
       <size>
@@ -233,17 +259,13 @@
      <property name="font">
       <font>
        <family>Piboto</family>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
       <string>CANCEL</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../AHRSResources.qrc">
-       <normaloff>:/icons/resources/Cancel.png</normaloff>:/icons/resources/Cancel.png</iconset>
      </property>
      <property name="iconSize">
       <size>
