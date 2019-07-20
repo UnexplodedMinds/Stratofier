@@ -58,7 +58,11 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
+#if defined( Q_OS_ANDROID )
+    m_pUpgradeButton->hide();
+#else
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
+#endif
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
