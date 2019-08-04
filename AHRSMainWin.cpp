@@ -15,6 +15,10 @@ Stratofier Stratux AHRS Display
 #include <QSettings>
 #include <QPushButton>
 #include <QSpacerItem>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QEventLoop>
+#include <QByteArray>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -173,15 +177,30 @@ void AHRSMainWin::menu()
 
 void AHRSMainWin::resetLevel()
 {
-    system( QString( "wget -q --post-data=\"\" http://%1/cageAHRS >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
-    delete m_pMenuDialog;
-    m_pMenuDialog = nullptr;
+    emptyHttpPost( "cageAHRS" );
 }
 
 
 void AHRSMainWin::resetGMeter()
 {
-    system( QString( "wget -q --post-data=\"\" http://%1/resetGMeter >/dev/null 2>&1" ).arg( m_qsIP ).toLatin1().data() );
+    emptyHttpPost( "resetGMeter" );
+}
+
+
+void AHRSMainWin::emptyHttpPost( const QString &qsToken )
+{
+    QNetworkAccessManager manager;
+
+    manager.post( QNetworkRequest( QUrl( QString( "http://%1/%2" ).arg( m_qsIP ).arg( qsToken ) ) ), QByteArray() );
+
+    QNetworkReply        *pResp = manager.get( QNetworkRequest( QUrl( QString( "http://%1/cageAHRS" ).arg( m_qsIP ) ) ) );
+    QEventLoop            eventloop;
+
+    connect( pResp, SIGNAL( finished() ), &eventloop, SLOT( quit() ) );
+    eventloop.exec();
+
+    QString throwaway = pResp->readAll();
+
     delete m_pMenuDialog;
     m_pMenuDialog = nullptr;
 }
@@ -264,13 +283,9 @@ void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
 
 void AHRSMainWin::changeTimer()
 {
-    Keypad          keypad( this, "TIMER", true );
-    CanvasConstants c = m_pAHRSDisp->canvas()->constants();
+    Keypad keypad( this, "TIMER", true );
 
-    keypad.setGeometry( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - (m_bPortrait ? c.dWa * 0.4167 : c.dWa * 0.25),
-                        c.dH - (m_pAHRSDisp->m_pHeadIndicator->height() / 2) - 10 - static_cast<int>( m_bPortrait ? c.dH * 0.2 : c.dH * 0.3333 ),
-                        m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
-    keypad.setMinimumSize( m_bPortrait ? c.dH2 : c.dH * 0.8333, m_bPortrait ? c.dH * 0.4 : c.dH * 0.6667 );
+    m_pAHRSDisp->canvas()->setKeypadGeometry( &keypad );
 
     delete m_pMenuDialog;
     m_pMenuDialog = nullptr;

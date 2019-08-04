@@ -9,12 +9,13 @@ Stratofier Stratux AHRS Display
 #include "FuelTanksDialog.h"
 #include "ClickLabel.h"
 #include "Keypad.h"
+#include "AHRSCanvas.h"
 
 
 extern QSettings *g_pSet;
 
 
-FuelTanksDialog::FuelTanksDialog( QWidget *pParent )
+FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
 {
     setupUi( this );
@@ -41,6 +42,14 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent )
     connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
     connect( m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
+
+    ClickLabel         *pCL;
+    QList<ClickLabel *> kids = findChildren<ClickLabel *>();
+
+    foreach( pCL, kids )
+    {
+        pCL->setCanvas( pCanvas );
+    }
 }
 
 
@@ -127,7 +136,7 @@ void FuelTanksDialog::resetFuel()
     Keypad keypadL( this, "RESET LEFT" );
     int    iGalR = 0, iGalL = 0;
 
-    keypadL.setGeometry( 0, 0, 400, 350 );
+    static_cast<AHRSCanvas *>( parentWidget() )->canvas()->setKeypadGeometry( &keypadL );
     keypadL.exec();
 
     iGalL = static_cast<int>( keypadL.value() );
@@ -136,7 +145,7 @@ void FuelTanksDialog::resetFuel()
     {
         Keypad keypadR( this, "RESET RIGHT" );
 
-        keypadR.setGeometry( 0, 0, 400, 350 );
+        static_cast<AHRSCanvas *>( parentWidget() )->canvas()->setKeypadGeometry( &keypadR );
         keypadR.exec();
 
         iGalR = static_cast<int>( keypadR.value() );

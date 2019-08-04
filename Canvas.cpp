@@ -9,6 +9,7 @@ Stratofier Stratux AHRS Display
 #include <QSettings>
 
 #include "Canvas.h"
+#include "Keypad.h"
 
 
 extern QFont wee;
@@ -45,6 +46,7 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.dH4 = dHeight / 4.0;
     m_preCalc.dH5 = dHeight / 5.0;
     m_preCalc.dH7 = dHeight / 7.0;
+    m_preCalc.dH8 = dHeight / 8.0;
     m_preCalc.dH10 = dHeight / 10.0;
     m_preCalc.dH20 = dHeight / 20.0;
 	m_preCalc.dH30 = dHeight / 30.0;
@@ -62,6 +64,9 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
 	m_preCalc.dW30 = dWidth / 30.0;
 	m_preCalc.dW40 = dWidth / 40.0;
     m_preCalc.dW80 = dWidth / 80.0;
+
+    m_preCalc.dHNum = dHeight * 0.03;
+    m_preCalc.dWNum = dWidth * 0.0381;
 
 	m_preCalc.iWeeFontHeight = weeRect.height();
 	m_preCalc.iTinyFontHeight = tinyRect.height();
@@ -132,4 +137,27 @@ int Canvas::medWidth(const QString &qsText)
 	QRect        medRect( medMetrics.boundingRect( qsText ) );
 
     return medRect.width();
+}
+
+
+void Canvas::setKeypadGeometry( Keypad *pKeypad )
+{
+    double dW, dH, dX, dY;
+
+    if( m_preCalc.bPortrait )
+    {
+        dW = m_preCalc.dW - m_preCalc.dW10;
+        dH = m_preCalc.dW * 0.75;
+        dX = m_preCalc.dW20;
+        dY = m_preCalc.dH2 - (dH / 2.0);
+    }
+    else
+    {
+        dH = m_preCalc.dH - m_preCalc.dH10;
+        dW = dH * 1.25;
+        dX = m_preCalc.dW - (dW / 2.0);
+        dY = m_preCalc.dH20;
+    }
+    pKeypad->setGeometry( dX, dY, dW, dH );
+    pKeypad->setMinimumSize( dW, dH );
 }

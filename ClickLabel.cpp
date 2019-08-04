@@ -5,13 +5,14 @@ Stratofier Stratux AHRS Display
 
 #include "ClickLabel.h"
 #include "Keypad.h"
+#include "Canvas.h"
 
 
 void ClickLabel::mousePressEvent( QMouseEvent *pEvent )
 {
     Keypad keypad( this, m_qsTitle );
 
-    keypad.setGeometry( 0, 0, 400, 350 );
+    m_pCanvas->setKeypadGeometry( &keypad );
     keypad.exec();
 
     setText( QString::number( keypad.value() ) );

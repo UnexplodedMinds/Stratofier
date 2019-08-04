@@ -6,8 +6,11 @@ Stratofier Stratux AHRS Display
 #ifndef __BUILDER_H__
 #define __BUILDER_H__
 
+#include <Canvas.h>
+#include <QString>
 
-class Canvas;
+
+class QPixmap;
 
 
 class Builder
@@ -15,11 +18,9 @@ class Builder
 public:
     explicit Builder();
 
-    static void buildRollIndicator( QPixmap *pRollInd, Canvas *pCanvas, bool bPortrait );
-    static void buildHeadingIndicator( QPixmap *pHeadInd, Canvas *pCanvas, bool bPortrait );
-    static void buildAltTape( QPixmap *pAltTape, Canvas *pCanvas );
-    static void buildSpeedTape( QPixmap *pSpeedTape, Canvas *pCanvas );
-    static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait );
+//  static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait );
+    static void buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int iFieldWidth );
+    static void buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &qsNum );
 };
 
 #endif // __BUILDER_H__

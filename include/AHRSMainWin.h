@@ -42,6 +42,8 @@ protected:
     void timerEvent( QTimerEvent *pEvent );
 
 private:
+    void emptyHttpPost( const QString &qsToken );
+
     StreamReader *m_pStratuxStream;
     bool          m_bStartup;
     QDateTime     m_lastStatusUpdate;

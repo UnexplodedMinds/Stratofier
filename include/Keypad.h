@@ -24,6 +24,9 @@ public:
     void    clear();
     void    setTitle( const QString &qsTitle );
 
+protected:
+    void resizeEvent( QResizeEvent* );
+
 private:
     bool    m_bTimeMode;
     int     m_iTimePos;

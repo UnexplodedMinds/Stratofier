@@ -40,8 +40,7 @@ public:
 #endif
     int     magDev() { return m_iMagDev; }
 
-    QPixmap *m_pHeadIndicator;
-    bool     m_bFuelFlowStarted;
+    bool    m_bFuelFlowStarted;
 
 public slots:
     void init();
@@ -83,10 +82,6 @@ private:
     int       m_iHeadBugAngle;
     int       m_iWindBugAngle;
     int       m_iWindBugSpeed;
-    QPixmap  *m_pRollIndicator;
-    QPixmap  *m_pAltTape;
-    QPixmap  *m_pSpeedTape;
-    QPixmap  *m_pVertSpeedTape;
     QPixmap  *m_pMagHeadOffLessPixmap;
     QPixmap  *m_pMagHeadOffMorePixmap;
     int       m_iDispTimer;
@@ -105,6 +100,14 @@ private:
     bool      m_bDisplayTanksSwitchNotice;
     QPoint    m_SwipeStart;
     int       m_iSwiping;
+
+    QPixmap m_HeadIndicator;
+    QPixmap m_RollIndicator;
+    QPixmap m_Lfuel;
+    QPixmap m_Rfuel;
+    QPixmap m_AltTape;
+    QPixmap m_SpeedTape;
+    QPixmap m_VertSpeedTape;
 
     Canvas::ShowAirports m_eShowAirports;
     QList<Airport>       m_airports;

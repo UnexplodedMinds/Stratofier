@@ -11,6 +11,9 @@ Stratofier Stratux AHRS Display
 #include <QDateTime>
 
 
+class Keypad;
+
+
 struct CanvasConstants
 {
     double dW;
@@ -30,6 +33,7 @@ struct CanvasConstants
     double dH4;
     double dH5;
     double dH7;
+    double dH8;
     double dH10;
     double dH20;
 	double dH30;
@@ -37,6 +41,9 @@ struct CanvasConstants
     double dH80;
     double dH100;
     double dH160;
+
+    double dHNum;
+    double dWNum;
 
     double dAspectP;
     double dAspectL;
@@ -112,6 +119,8 @@ public:
     double          scaledV( double d );    // Same for vertical
     int             largeWidth( const QString &qsText );
 	int             medWidth( const QString &qsText );
+
+    void setKeypadGeometry( Keypad *pKeypad );
 
 private:
     CanvasConstants m_preCalc;

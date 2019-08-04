@@ -60,15 +60,16 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
 #if defined( Q_OS_ANDROID )
     m_pUpgradeButton->hide();
+    m_pDayModeButton->hide();
 #else
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
+    connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
 #endif
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
     connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
     connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
     connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
-    connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
     connect( m_pUnitsKnotsButton, SIGNAL( clicked() ), this, SIGNAL( unitsKnots() ) );
 }
 
@@ -114,7 +115,7 @@ void MenuDialog::airports()
 
 void MenuDialog::fuel()
 {
-    FuelTanksDialog dlg( this );
+    FuelTanksDialog dlg( this, static_cast<AHRSMainWin *>( parent() )->disp()->canvas() );
     QWidget        *pMainWin = parentWidget();
 
     if( m_bPortrait )

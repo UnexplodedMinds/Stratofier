@@ -19,7 +19,7 @@ class FuelTanksDialog : public QDialog, public Ui::FuelTanksDialog
     Q_OBJECT
 
 public:
-    explicit FuelTanksDialog( QWidget *pParent );
+    explicit FuelTanksDialog( QWidget *pParent, Canvas *pCanvas );
     ~FuelTanksDialog();
 
     FuelTanks settings() { return m_tanks; }

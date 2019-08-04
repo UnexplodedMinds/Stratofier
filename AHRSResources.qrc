@@ -13,9 +13,28 @@
     <file>resources/piboto_reg.ttf</file>
   </qresource>
   <qresource prefix="/graphics">
+    <file>resources/vspeedL.png</file>
+    <file>resources/vspeedP.png</file>
+    <file>resources/speedtape.png</file>
+    <file>resources/alttape.png</file>
+    <file>resources/fuel.png</file>
+    <file>resources/roll.png</file>
     <file>resources/Plane.png</file>
+    <file>resources/head.png</file>
     <file>resources/ZoomIn.png</file>
     <file>resources/ZoomOut.png</file>
   </qresource>
-  <qresource prefix="/"/>
+  <qresource prefix="/num">
+    <file>resources/colon.png</file>
+    <file>resources/0.png</file>
+    <file>resources/1.png</file>
+    <file>resources/2.png</file>
+    <file>resources/3.png</file>
+    <file>resources/4.png</file>
+    <file>resources/5.png</file>
+    <file>resources/6.png</file>
+    <file>resources/7.png</file>
+    <file>resources/8.png</file>
+    <file>resources/9.png</file>
+  </qresource>
 </RCC>
