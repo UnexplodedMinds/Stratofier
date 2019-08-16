@@ -22,43 +22,6 @@ Builder::Builder()
 }
 
 
-// Build the vertical speed tape pixmap
-/*
-void Builder::buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait )
-{
-    QPainter        ahrs( pVertTape );
-    int             iVert, iV = 1, iY;
-    CanvasConstants c = pCanvas->constants();
-    double          dLineHeight;
-    QString         qsVSpeed;
-    QFont           tinyBold( "Piboto", 36, QFont::Bold );
-
-    if( bPortrait )
-        dLineHeight = ((c.dH2 * 4.0) - 120.0) / 40.0;
-    else
-        dLineHeight = ((c.dH * 4.0) - 120.0) / 40.0;
-
-    ahrs.setFont( tinyBold );
-	for( iVert = 10; iVert >= -10; iVert-- )
-    {
-        iY = static_cast<int>( static_cast<double>( iV ) * dLineHeight * 2.0 );
-        if( (iVert % 2) == 0 )
-        {
-            qsVSpeed = QString::number( abs( iVert * 2 ) );
-            ahrs.setPen( Qt::black );
-            ahrs.drawText( c.dW20 + c.dW80 + 1, iY + 1, qsVSpeed );
-            ahrs.setPen( Qt::white );
-            ahrs.drawText( c.dW20 + c.dW80, iY, qsVSpeed );
-        }
-        iY -= 3;
-        ahrs.setPen( QPen( Qt::white, c.dH160 ) );
-        ahrs.drawLine( 5, iY - 12, c.dW20, iY - 12 );
-        iV++;
-    }
-}
-*/
-
-
 void Builder::buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int iFieldWidth )
 {
     pNumber->fill( Qt::transparent );

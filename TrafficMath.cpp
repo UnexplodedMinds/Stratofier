@@ -80,6 +80,7 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist,
         {
             bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
             ap.bd = bd;
+            ap.bd.dBearing += 90.0;
             pAirports->append( ap );
         }
     }
@@ -157,6 +158,7 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist,
                 if( bd.dDistance <= (dDist * 2) )
                 {
                     ap.bd = bd;
+                    ap.bd.dBearing += 90.0;
                     pAirports->append( ap );
                     g_airportCache.append( ap );
                 }

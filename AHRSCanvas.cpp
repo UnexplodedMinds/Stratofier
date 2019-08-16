@@ -49,7 +49,7 @@ extern QSettings *g_pSet;
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 
-QString g_qsStratofierVersion( "1.3.1" );
+QString g_qsStratofierVersion( "1.3.2" );
 
 
 /*
@@ -316,14 +316,14 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dTrafficDist ) );
 
 			    // Traffic angle in reference to you (which clock position they're at)
-			    ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+                ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 90.0 );
 
 			    // Draw the black part of the track line
                 planePen.setWidth( static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) ) );
                 planePen.setColor( Qt::black );
 			    track.setP1( ball.p2() );
                 track.setP2( QPointF( ball.p2().x(), ball.p2().y() + iCourseLineLength ) );
-                track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
+                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 90.0 );
                 pAhrs->setPen( planePen );
 			    pAhrs->drawLine( track );
 
@@ -341,7 +341,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 planePen.setColor( Qt::green );
                 track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
                 track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + iCourseLineLength - 2 ) );
-                track.setAngle( -(traffic.dTrack - g_situation.dAHRSGyroHeading) + 90.0 );
+                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 90.0 );
                 pAhrs->setPen( planePen );
                 pAhrs->drawLine( track );
 
@@ -574,7 +574,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     else if( magHeadLessRect.contains( pressPt ) )
     {
         m_iMagDev--;
-        if( m_iMagDev < -30.0 )
+        if( m_iMagDev < -40.0 )
             m_iMagDev++;
         g_pSet->setValue( "MagDev", m_iMagDev );
         g_pSet->sync();
@@ -582,7 +582,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     else if( magHeadMoreRect.contains( pressPt ) )
     {
         m_iMagDev++;
-        if( m_iMagDev > 30.0 )
+        if( m_iMagDev > 40.0 )
             m_iMagDev--;
         g_pSet->setValue( "MagDev", m_iMagDev );
         g_pSet->sync();
@@ -927,14 +927,14 @@ void AHRSCanvas::paintPortrait()
     ahrs.resetTransform();
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW2 - c.dW10, c.dH - 10.0 - c.dW2 - c.dW10, c.dW5, c.dW5, m_planeIcon );
+    ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 10.0 - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the heading bug
     if( m_iHeadBugAngle >= 0 )
     {
-        ahrs.translate( c.dW2, c.dH - 10.0 - c.dW2 );
+        ahrs.translate( c.dW2, c.dH - 20.0 - c.dW2 );
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - 10.0 - c.dW2) );
+        ahrs.translate( -c.dW2, -(c.dH - 20.0 - c.dW2) );
         ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_headIcon );
 
         // If long press triggered crosswind component display and the wind bug is set
@@ -952,9 +952,9 @@ void AHRSCanvas::paintPortrait()
     // Draw the wind bug
     if( m_iWindBugAngle >= 0 )
     {
-        ahrs.translate( c.dW2, c.dH - c.dW2 - 10.0 );
+        ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 10.0) );
+        ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
@@ -1068,9 +1068,9 @@ void AHRSCanvas::paintPortrait()
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( c.dW10 + c.dW40 + c.dW80 + 1, c.dH4 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH4 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW10 + c.dW40 + c.dW80, c.dH4, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH4, g_bUnitsKnots ? "KTS" : "MPH"  );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1374,14 +1374,14 @@ void AHRSCanvas::paintLandscape()
     ahrs.resetTransform();
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW + c.dW2 - c.dW10, c.dH - c.dW2 - c.dW10, c.dW5, c.dW5, m_planeIcon );
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW20, c.dH - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the heading bug
     if( m_iHeadBugAngle >= 0 )
     {
-        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
+        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
         ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
+        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_headIcon );
 
         // If long press triggered crosswind component display and the wind bug is set
@@ -1399,9 +1399,9 @@ void AHRSCanvas::paintLandscape()
     // Draw the wind bug
     if( m_iWindBugAngle >= 0 )
     {
-        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
+        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
         ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
+        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
@@ -1511,9 +1511,9 @@ void AHRSCanvas::paintLandscape()
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( c.dW10 + c.dW40 + c.dW80 + 1, c.dH2 + c.dH80 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH2 + c.dH80 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW10 + c.dW40 + c.dW80, c.dH2 + c.dH80, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH2 + c.dH80, g_bUnitsKnots ? "KTS" : "MPH"  );
 
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
@@ -1671,18 +1671,11 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     QLineF       runwayLine;
     int          iRunway, iAPRunway;
     double       dAirportDiam = c->dWa * (m_bPortrait ? 0.03125 : 0.01875);
-#if defined( Q_OS_ANDROID )
-    QFontMetrics itsyMetrics( wee );
-#else
-    QFontMetrics itsyMetrics( itsy );
-#endif
-    QRect        itsyRect = itsyMetrics.boundingRect( "00" );
-    QString      qsRunway;
     QPainterPath maskPath;
 
-    maskPath.addEllipse( 10.0 + (m_bPortrait ? 0 : c->dW),
+    maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : c->dW),
                          c->dH - c->dW,
-                         c->dW - 20.0, c->dW - 20.0 );
+                         c->dW - 40.0, c->dW - 40.0 );
     pAhrs->setClipPath( maskPath );
 
     apPen.setWidth( c->iThinPen );
@@ -1723,22 +1716,18 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                 iAPRunway = ap.runways.at( iRunway );
                 runwayLine.setP1( QPointF( ball.p2().x(), ball.p2().y() ) );
                 runwayLine.setP2( QPointF( ball.p2().x(), ball.p2().y() + (dAirportDiam * 2.0) ) );
-                runwayLine.setAngle( -(iAPRunway - g_situation.dAHRSGyroHeading) + 90.0 );
+                runwayLine.setAngle( 270.0 - static_cast<double>( iAPRunway ) );
                 apPen.setColor( Qt::magenta );
                 apPen.setWidth( c->iThickPen );
                 pAhrs->setPen( apPen );
                 pAhrs->drawLine( runwayLine );
-#if defined( Q_OS_ANDROID )
-                pAhrs->setFont( wee );
-#else
-                pAhrs->setFont( itsy );
-#endif
-                runwayLine.setLength( runwayLine.length() + 5 );
                 if( ((iAPRunway - g_situation.dAHRSGyroHeading) > 90) && ((iAPRunway - g_situation.dAHRSGyroHeading) < 270) )
-                    runwayLine.setLength( runwayLine.length() + itsyRect.height() - 5 );
-                qsRunway = QString::number( iAPRunway );
-                qsRunway.chop( 1 );
-                pAhrs->drawText( runwayLine.p2().x() - (itsyRect.width() / 2), runwayLine.p2().y(), qsRunway );
+                    runwayLine.setLength( runwayLine.length() + c->dW80 );
+                QPixmap num( 128, 84 ); // It would need to be resized back anyway so creating a new one each time is faster
+                num.fill( Qt::transparent );
+                Builder::buildNumber( &num, c, iAPRunway / 10, 2 );
+                num = num.scaledToWidth( c->dW20, Qt::SmoothTransformation );
+                pAhrs->drawPixmap( runwayLine.p2(), num );
             }
         }
 #if defined( Q_OS_ANDROID )

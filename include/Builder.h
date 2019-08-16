@@ -18,7 +18,6 @@ class Builder
 public:
     explicit Builder();
 
-//  static void buildVertSpeedTape( QPixmap *pVertTape, Canvas *pCanvas, bool bPortrait );
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int iFieldWidth );
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &qsNum );
 };
