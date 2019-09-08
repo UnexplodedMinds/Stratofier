@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QTimer>
@@ -32,23 +32,16 @@ extern QSettings *g_pSet;
 
 
 // Standard fonts used throughout the app
-#if defined( Q_OS_ANDROID )
-QFont itsy(  "Piboto", 8, QFont::Normal  );
-QFont wee(   "Piboto", 10, QFont::Normal  );
-QFont tiny(  "Piboto", 14, QFont::Normal );
-#else
-QFont itsy(  "Piboto", 6, QFont::Normal  );
-QFont wee(   "Piboto", 8, QFont::Normal  );
-QFont tiny(  "Piboto", 12, QFont::Normal );
-#endif
-QFont small( "Piboto", 16, QFont::Normal );
-QFont med(   "Piboto", 18, QFont::Bold   );
-QFont large( "Piboto", 24, QFont::Bold   );
+QFont itsy(  "Droid Sans", 8, QFont::Normal  );
+QFont wee(   "Droid Sans", 10, QFont::Normal  );
+QFont tiny(  "Droid Sans", 14, QFont::Normal );
+QFont small( "Droid Sans", 16, QFont::Normal );
+QFont med(   "Droid Sans", 18, QFont::Bold   );
+QFont large( "Droid Sans", 24, QFont::Bold   );
 
 
 bool g_bUnitsKnots = true;
 bool g_bDayMode = true;
-bool g_bTablet = false;
 
 
 // Setup minimal UI elements and make the connections
@@ -104,9 +97,6 @@ void AHRSMainWin::init()
     else
         dWorH = physicalSize.height();
 
-    if( (pScreen->logicalDotsPerInch() > 140) && (dWorH > 177) )
-        g_bTablet = true;
-
     m_pAHRSDisp->orient( m_bPortrait );
 #endif
 
@@ -128,8 +118,8 @@ AHRSMainWin::~AHRSMainWin()
 // Status stream is received here instead of the canvas since here is where the indicators are
 void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic )
 {
-    QString qsOn( "QLabel { border: 2px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 green ); }" );
-    QString qsOff( "QLabel { border: 2px solid black; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 red ); }" );
+    QString qsOn( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
+    QString qsOff( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
 
     m_pStatusIndicator->setStyleSheet( bStratux ? qsOn : qsOff );
     m_pAHRSIndicator->setStyleSheet( bAHRS ? qsOn : qsOff );
@@ -150,9 +140,8 @@ void AHRSMainWin::menu()
         m_pMenuDialog = new MenuDialog( this, m_bPortrait );
 
         // Scale the menu dialog according to screen resolution
-        m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW2 ) );
-        m_pMenuDialog->setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH - c.dH5 ) );
-        m_pMenuDialog->setGeometry( x() + c.dW - c.dW2, y(), static_cast<int>( c.dW2 ), static_cast<int>( c.dH ) );
+        m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW4 ) );
+        m_pMenuDialog->setGeometry( c.dW - c.dW4, 0.0, static_cast<int>( c.dW4 ), static_cast<int>( c.dH ) );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -161,6 +150,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( shutdownStratofier() ), this, SLOT( shutdownStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
+        connect( m_pMenuDialog, SIGNAL( showRunways( bool ) ), this, SLOT( showRunways( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
@@ -278,6 +268,12 @@ void AHRSMainWin::trafficToggled( bool bAll )
 void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
 {
     m_pAHRSDisp->showAirports( eShow );
+}
+
+
+void AHRSMainWin::showRunways( bool bShow )
+{
+    m_pAHRSDisp->showRunways( bShow );
 }
 
 

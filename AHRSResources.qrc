@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>resources/AltBug.png</file>
+    <file>resources/Cancel.png</file>
     <file>resources/Reset.png</file>
     <file>resources/StratuxLogo.png</file>
     <file>resources/Backspace.png</file>
@@ -8,11 +10,8 @@
     <file>resources/OK.png</file>
     <file>resources/Stratofier.png</file>
   </qresource>
-  <qresource prefix="/fonts">
-    <file>resources/piboto_bold.ttf</file>
-    <file>resources/piboto_reg.ttf</file>
-  </qresource>
   <qresource prefix="/graphics">
+    <file>resources/DirectTo.png</file>
     <file>resources/vspeedL.png</file>
     <file>resources/vspeedP.png</file>
     <file>resources/speedtape.png</file>

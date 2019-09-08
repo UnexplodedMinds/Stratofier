@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __FUELTANKSDIALOG_H__
@@ -31,7 +31,6 @@ private:
 
 private slots:
     void saveSettings();
-    void switchable();
     void resetFuel();
 };
 

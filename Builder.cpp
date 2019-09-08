@@ -1,10 +1,13 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QPixmap>
 #include <QPainter>
+#include <QProcess>
+#include <QtDebug>
+#include <QDir>
 
 #include "Builder.h"
 #include "Canvas.h"
@@ -59,5 +62,33 @@ void Builder::buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &
         numPainter.drawPixmap( iX, 0, c->dWNum, c->dHNum, num );
         iX += static_cast<int>( c->dWNum );
     }
+}
+
+
+void Builder::getStorage( QString *pInternal, QString *pExternal )
+{
+#if defined( Q_OS_ANDROID )
+    // Get the locations for internal and external storage
+    QStringList systemEnvironment = QProcess::systemEnvironment();
+    QStringList env;
+    QString     qsVar;
+
+    foreach( qsVar, systemEnvironment )
+    {
+        env = qsVar.split( '=' );
+        if( qsVar.contains( "EXTERNAL_STORAGE" ) )
+        {
+            *pExternal = env.last();
+            QDir d( *pExternal );
+            d.mkdir( "data" );
+            qDebug() << d.entryList();
+        }
+        else if( qsVar.contains( "ANDROID_DATA" ) )
+            *pInternal = env.last();
+    }
+#else
+    *pInternal = QDir::homePath() + "/stratofier_data";
+    *pExternal = QString();
+#endif
 }
 

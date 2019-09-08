@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QSettings>
@@ -11,6 +11,8 @@ Stratofier Stratux AHRS Display
 #include "AHRSCanvas.h"
 #include "Canvas.h"
 #include "FuelTanksDialog.h"
+#include "SettingsDialog.h"
+#include "StreamReader.h"
 
 #include "ui_MenuDialog.h"
 
@@ -23,7 +25,6 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_bPortrait( bPortrait )
 {
-    bool                bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     CanvasConstants     c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
     int                 iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
 
@@ -35,27 +36,10 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     foreach( pKid, kids )
         pKid->setIconSize( QSize( iIconSize, iIconSize ) );
 
-    m_pTrafficFilterButton->blockSignals( true );
-    m_pTrafficFilterButton->setChecked( bShowAllTraffic );
-    m_pTrafficFilterButton->blockSignals( false );
-    traffic( bShowAllTraffic );
-
-    m_eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 1 ).toInt() );
-
-    // Set the enum so the inital cycling handler works out to the correct value
-    if( m_eShowAirports == Canvas::ShowNoAirports )
-        m_eShowAirports = Canvas::ShowAllAirports;
-    else if( m_eShowAirports == Canvas::ShowPublicAirports )
-        m_eShowAirports = Canvas::ShowNoAirports;
-    else
-        m_eShowAirports = Canvas::ShowPublicAirports;
-    // Call the cycler to update and initialize the stored airport show selection
-    airports();
-
     m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratux() ) );
-    connect( m_pExitRoscoButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
+    connect( m_pExitStratofierButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
 #if defined( Q_OS_ANDROID )
@@ -65,51 +49,16 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
     connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
 #endif
-    connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
-    connect( m_pTrafficFilterButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
-    connect( m_pAirportButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
     connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
     connect( m_pUnitsKnotsButton, SIGNAL( clicked() ), this, SIGNAL( unitsKnots() ) );
+
+    connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
 }
 
 
 MenuDialog::~MenuDialog()
 {
-}
-
-
-void MenuDialog::traffic( bool bAll )
-{
-    if( bAll )
-        m_pTrafficFilterButton->setText( "ALL TRAFFIC" );
-    else
-        m_pTrafficFilterButton->setText( "CLOSE TRAFFIC" );
-}
-
-
-void MenuDialog::airports()
-{
-    if( m_eShowAirports == Canvas::ShowNoAirports )
-    {
-        m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 goldenrod, stop:1 white ); margin: 2px }" );
-        m_eShowAirports = Canvas::ShowPublicAirports;
-        m_pAirportButton->setText( "PUB AIRPORTS" );
-    }
-    else if( m_eShowAirports == Canvas::ShowPublicAirports )
-    {
-        m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 green, stop:1 white ); margin: 2px }" );
-        m_eShowAirports = Canvas::ShowAllAirports;
-        m_pAirportButton->setText( "ALL AIRPORTS" );
-    }
-    else
-    {
-        m_pAirportButton->setStyleSheet( "QPushButton { border: none; background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 #641200, stop:1 white ); margin: 2px }" );
-        m_eShowAirports = Canvas::ShowNoAirports;
-        m_pAirportButton->setText( "NO AIRPORTS  " );
-    }
-
-    emit showAirports( m_eShowAirports );
 }
 
 
@@ -129,3 +78,27 @@ void MenuDialog::fuel()
         emit stopFuelFlow();
 }
 
+
+void MenuDialog::settings()
+{
+    CanvasConstants c = static_cast<AHRSMainWin *>( parent() )->disp()->canvas()->constants();
+    QString         qsCurrIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
+    SettingsDialog  dlg( this, &c );
+
+    // Scale the menu dialog according to screen resolution
+    dlg.setMinimumWidth( static_cast<int>( c.dW ) );
+    dlg.setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
+    dlg.setGeometry( 0, 0, static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
+
+    connect( &dlg, SIGNAL( trafficToggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
+    connect( &dlg, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SIGNAL( showAirports( Canvas::ShowAirports ) ) );
+    connect( &dlg, SIGNAL( showRunways( bool ) ), this, SIGNAL( showRunways( bool ) ) );
+
+    dlg.exec();
+
+    if( g_pSet->value( "StratuxIP" ).toString() != qsCurrIP )
+    {
+        static_cast<AHRSMainWin *>( parent() )->streamReader()->disconnectStreams();
+        static_cast<AHRSMainWin *>( parent() )->streamReader()->connectStreams();
+    }
+}

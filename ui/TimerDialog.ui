@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>200</height>
+    <height>254</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,12 +17,6 @@
    </sizepolicy>
   </property>
   <property name="minimumSize">
-   <size>
-    <width>220</width>
-    <height>200</height>
-   </size>
-  </property>
-  <property name="maximumSize">
    <size>
     <width>220</width>
     <height>200</height>
@@ -94,7 +88,7 @@
   </property>
   <property name="font">
    <font>
-    <family>Piboto</family>
+    <family>Droid Sans</family>
     <pointsize>12</pointsize>
     <weight>75</weight>
     <bold>true</bold>
@@ -107,13 +101,15 @@
    <string notr="true">QPushButton
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
+	background-color: DimGray;
+	color: white;
 	margin: 2px;
 }
 QPushButton::pressed
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	background-color: LightGray;
+	color: black;
 	margin: 2px;
 }
 </string>
@@ -135,6 +131,42 @@ QPushButton::pressed
     <number>2</number>
    </property>
    <item>
+    <widget class="QLabel" name="m_pTitleLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string>TIMER EXPIRED</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="m_pRestartButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -144,7 +176,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto [Goog]</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -171,7 +203,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto [Goog]</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -202,7 +234,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto [Goog]</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>

@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __AHRSCANVAS_H__
@@ -31,6 +31,7 @@ public:
     void    showAllTraffic( bool bAll );
     void    showOutside( bool bOut );
     void    showAirports( Canvas::ShowAirports eShow );
+    void    showRunways( bool bShow );
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void    setFuelTanks( FuelTanks tanks ) { m_tanks = tanks; }
     void    timerReminder( int iMinutes, int iSeconds );
@@ -82,14 +83,13 @@ private:
     int       m_iHeadBugAngle;
     int       m_iWindBugAngle;
     int       m_iWindBugSpeed;
+    int       m_iAltBug;
     QPixmap  *m_pMagHeadOffLessPixmap;
     QPixmap  *m_pMagHeadOffMorePixmap;
     int       m_iDispTimer;
-    int       m_iUpdateCount;
     bool      m_bUpdated;
     bool      m_bShowGPSDetails;
     double    m_dZoomNM;
-    bool      m_bShowAllTraffic;
     bool      m_bPortrait;
     bool      m_bLongPress;
     QDateTime m_longPressStart;
@@ -100,6 +100,7 @@ private:
     bool      m_bDisplayTanksSwitchNotice;
     QPoint    m_SwipeStart;
     int       m_iSwiping;
+    Airport   m_directAP;
 
     QPixmap m_HeadIndicator;
     QPixmap m_RollIndicator;
@@ -108,10 +109,12 @@ private:
     QPixmap m_AltTape;
     QPixmap m_SpeedTape;
     QPixmap m_VertSpeedTape;
+    QPixmap m_DirectTo;
+    QPixmap m_AltBug;
 
-    Canvas::ShowAirports m_eShowAirports;
-    QList<Airport>       m_airports;
-    FuelTanks            m_tanks;
+    StratofierSettings m_settings;
+    QList<Airport>     m_airports;
+    FuelTanks          m_tanks;
 };
 
 #endif // __AHRSCANVAS_H__

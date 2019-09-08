@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QKeyEvent>
@@ -30,13 +30,6 @@ Keypad::Keypad( QWidget *pParent, const QString &qsTitle, bool bTimeMode )
         pButton = qobject_cast<QPushButton *>( pKid );
         if( pButton != Q_NULLPTR )
             connect( pButton, SIGNAL( clicked() ), this, SLOT( keypadClick() ) );
-#if defined( Q_OS_ANDROID )
-        QWidget *pWidget;
-
-        pWidget = qobject_cast<QWidget *>( pKid );
-        if( pWidget != Q_NULLPTR )
-            pWidget->setFont( large );
-#endif
     }
 
     m_pTitleLabel->setText( qsTitle );

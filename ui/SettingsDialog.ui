@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Keypad</class>
- <widget class="QDialog" name="Keypad">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>564</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>300</height>
+    <height>480</height>
    </size>
   </property>
   <property name="palette">
@@ -89,13 +89,13 @@
   <property name="font">
    <font>
     <family>Piboto</family>
-    <pointsize>18</pointsize>
+    <pointsize>12</pointsize>
     <weight>75</weight>
     <bold>true</bold>
    </font>
   </property>
   <property name="windowTitle">
-   <string>KEYPAD</string>
+   <string>SETTINGS</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QPushButton
@@ -112,9 +112,14 @@ QPushButton::pressed
 	color: black;
 	margin: 2px;
 }
+QComboBox
+{
+	background-color: DimGray;
+	color: black;
+}
 </string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowminimumheight="34,0,0,0,0,0">
+  <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>5</number>
    </property>
@@ -128,10 +133,10 @@ QPushButton::pressed
     <number>5</number>
    </property>
    <property name="spacing">
-    <number>0</number>
+    <number>5</number>
    </property>
-   <item row="0" column="0" colspan="4">
-    <widget class="QLabel" name="m_pTitleLabel">
+   <item row="9" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pCloseButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -141,7 +146,331 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Droid Sans</family>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>BACK TO MENU</string>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QComboBox" name="m_pDataSetCombo">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>18</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <item>
+      <property name="text">
+       <string>  UNITED STATES</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>  CANADA</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QLineEdit" name="m_pIPEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>24</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>192.168.10.1</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pSwitchableButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>SWITCHABLE TANKS</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/OK.png</normaloff>:/icons/resources/OK.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -152,75 +481,18 @@ QPushButton::pressed
      <property name="styleSheet">
       <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
      <property name="text">
-      <string>HEADING</string>
+      <string>STRATUX IP :</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="margin">
+      <number>5</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="QPushButton" name="m_p3">
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>3</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QPushButton" name="m_p8">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>8</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3">
-    <widget class="QPushButton" name="m_pSet">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -231,63 +503,63 @@ QPushButton::pressed
         <colorrole role="WindowText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Button">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Text">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="ButtonText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="PlaceholderText">
          <brush brushstyle="NoBrush">
           <color alpha="128">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -296,63 +568,63 @@ QPushButton::pressed
         <colorrole role="WindowText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Button">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Text">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="ButtonText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="PlaceholderText">
          <brush brushstyle="NoBrush">
           <color alpha="128">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -361,63 +633,63 @@ QPushButton::pressed
         <colorrole role="WindowText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Button">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Text">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="ButtonText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Base">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="Window">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
+           <red>211</red>
+           <green>211</green>
+           <blue>211</blue>
           </color>
          </brush>
         </colorrole>
         <colorrole role="PlaceholderText">
          <brush brushstyle="NoBrush">
           <color alpha="128">
-           <red>50</red>
-           <green>205</green>
-           <blue>50</blue>
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -427,370 +699,7 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Droid Sans</family>
-       <pointsize>18</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: 2px solid white;
-	background-color: #191919;
-	color: LimeGreen;
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: 2px solid white;
-	background-color: LightGray;
-	color: black;
-	margin: 2px;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>SET</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3">
-    <widget class="QPushButton" name="m_p9">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>9</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QPushButton" name="m_p4">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>4</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QPushButton" name="m_p7">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>7</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="m_p2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>2</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="m_pClear">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="PlaceholderText">
-         <brush brushstyle="NoBrush">
-          <color alpha="128">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="PlaceholderText">
-         <brush brushstyle="NoBrush">
-          <color alpha="128">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>25</red>
-           <green>25</green>
-           <blue>25</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="PlaceholderText">
-         <brush brushstyle="NoBrush">
-          <color alpha="128">
-           <red>240</red>
-           <green>128</green>
-           <blue>128</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>18</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -799,24 +708,38 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: 2px solid white;
-	background-color: #191919;
-	color: LightCoral;
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: 2px solid white;
-	background-color: LightGray;
-	color: black;
-	margin: 2px;
-}
-</string>
+      <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
      </property>
      <property name="text">
-      <string>CANCEL</string>
+      <string>DATA SET :  </string>
+     </property>
+     <property name="margin">
+      <number>5</number>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QPushButton" name="m_pGetDataButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>GET</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/Cancel.png</normaloff>:/icons/resources/Cancel.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -824,13 +747,19 @@ QPushButton::pressed
        <height>32</height>
       </size>
      </property>
-     <property name="flat">
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="autoDefault">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
-    <widget class="QPushButton" name="m_p6">
+   <item row="7" column="2">
+    <widget class="QProgressBar" name="m_pDataProgress">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -840,13 +769,34 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Droid Sans</family>
-       <pointsize>24</pointsize>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pAirportsButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>6</string>
+      <string>ALL AIRPORTS</string>
      </property>
      <property name="iconSize">
       <size>
@@ -854,10 +804,13 @@ QPushButton::pressed
        <height>32</height>
       </size>
      </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="m_p1">
+   <item row="3" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pStorageButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -867,40 +820,13 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QPushButton" name="m_p5">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>5</string>
+      <string>INTERNAL STORAGE</string>
      </property>
      <property name="iconSize">
       <size>
@@ -908,104 +834,19 @@ QPushButton::pressed
        <height>32</height>
       </size>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="3">
-    <widget class="QLabel" name="m_pValueLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>24</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
+     <property name="checkable">
       <bool>true</bool>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
+     <property name="checked">
+      <bool>false</bool>
      </property>
-     <property name="lineWidth">
-      <number>2</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QPushButton" name="m_p0">
+   <item row="2" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pTrafficButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -1015,13 +856,13 @@ QPushButton::pressed
      <property name="font">
       <font>
        <family>Droid Sans</family>
-       <pointsize>24</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>CLOSE TRAFFIC</string>
      </property>
      <property name="iconSize">
       <size>
@@ -1029,69 +870,50 @@ QPushButton::pressed
        <height>32</height>
       </size>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="2">
-    <layout class="QHBoxLayout" name="m_pSplitBackDecimalHLayout">
-     <property name="spacing">
-      <number>1</number>
+   <item row="1" column="0" colspan="3">
+    <widget class="QPushButton" name="m_pShowRunwaysButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <item>
-      <widget class="QPushButton" name="m_pBack">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>Piboto</family>
-         <pointsize>18</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="icon">
-        <iconset resource="../AHRSResources.qrc">
-         <normaloff>:/icons/resources/Backspace.png</normaloff>:/icons/resources/Backspace.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="m_pDecimal">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>Droid Sans</family>
-         <pointsize>24</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>.</string>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>SHOW RUNWAYS</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../AHRSResources.qrc">
+       <normaloff>:/icons/resources/OK.png</normaloff>:/icons/resources/OK.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -1100,34 +922,18 @@ QPushButton::pressed
  </resources>
  <connections>
   <connection>
-   <sender>m_pSet</sender>
+   <sender>m_pCloseButton</sender>
    <signal>clicked()</signal>
-   <receiver>Keypad</receiver>
+   <receiver>SettingsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>394</x>
-     <y>314</y>
+     <x>247</x>
+     <y>374</y>
     </hint>
     <hint type="destinationlabel">
-     <x>399</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_pClear</sender>
-   <signal>clicked()</signal>
-   <receiver>Keypad</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>28</x>
-     <y>21</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>2</x>
-     <y>73</y>
+     <x>3</x>
+     <y>16</y>
     </hint>
    </hints>
   </connection>

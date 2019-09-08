@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>200</width>
+    <width>220</width>
     <height>200</height>
    </rect>
   </property>
@@ -15,6 +15,12 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>220</width>
+    <height>200</height>
+   </size>
   </property>
   <property name="palette">
    <palette>
@@ -95,13 +101,15 @@
    <string notr="true">QPushButton
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
+	color: white;
+	background-color: DimGray;
 	margin: 2px;
 }
 QPushButton::pressed
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	color: black;
+	background-color: LightGray;
 	margin: 2px;
 }
 </string>
@@ -132,7 +140,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -145,13 +153,15 @@ QPushButton::pressed
       <string notr="true">QPushButton
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkGoldenrod );
+	color: black;
+	background-color: DarkGoldenrod;
 	margin: 2px;
 }
 QPushButton::pressed
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	color: black;
+	background-color: LightGray;
 	margin: 2px;
 }
 </string>
@@ -183,7 +193,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -193,13 +203,15 @@ QPushButton::pressed
       <string notr="true">QPushButton
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 CornflowerBlue );
+	color: black;
+	background-color: CornflowerBlue;
 	margin: 2px;
 }
 QPushButton::pressed
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	color: black;
+	background-color: LightGray;
 	margin: 2px;
 }
 </string>
@@ -228,7 +240,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -258,7 +270,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>

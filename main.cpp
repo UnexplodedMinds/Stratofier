@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QApplication>
@@ -27,7 +27,7 @@ int main( int argc, char *argv[] )
     QString      qsArg;
     QString      qsToken, qsVal;
 	bool         bMax = true;
-    QString      qsIP = "192.168.10.1";
+    QString      qsIP;
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
     QString      qsCurrWorkPath( "/home/pi/Stratofier" );  // If you put Stratofier anywhere else, specify home=<whatever> as an argument when running
@@ -70,16 +70,18 @@ int main( int argc, char *argv[] )
     QDir::setCurrent( qsCurrWorkPath );
 #endif
 
-    QCoreApplication::setOrganizationName( "Unexploded Minds" );
+    QCoreApplication::setOrganizationName( "Sky Fun" );
     QCoreApplication::setOrganizationDomain( "unexplodedminds.com" );
     QCoreApplication::setApplicationName( "Stratofier" );
     QGuiApplication::setApplicationDisplayName( "Stratofier" );
 
-#ifndef ANDROID
+#if !defined( Q_OS_ANDROID )
     g_pSet = new QSettings( "./config.ini", QSettings::IniFormat );
 #else
     g_pSet = new QSettings;
 #endif
+
+    qsIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
 
     qInfo() << "Starting Stratofier";
     pMainWin = new AHRSMainWin( qsIP, bPortrait );

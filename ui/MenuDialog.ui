@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>157</width>
+    <width>126</width>
     <height>800</height>
    </rect>
   </property>
@@ -95,13 +95,15 @@
    <string notr="true">QPushButton
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
+	color: white;
+	background-color: DimGray;
 	margin: 2px;
 }
 QPushButton::pressed
 {
 	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
+	color: black;
+	background-color: LightGray;
 	margin: 2px;
 }
 </string>
@@ -122,7 +124,7 @@ QPushButton::pressed
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="12" column="1" colspan="2">
+   <item row="11" column="1" colspan="2">
     <widget class="QPushButton" name="m_pUpgradeButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -132,7 +134,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -143,12 +145,6 @@ QPushButton::pressed
      </property>
      <property name="text">
       <string>UPGRADE</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
@@ -165,237 +161,18 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
-	margin: 2px;
-}
-</string>
      </property>
      <property name="text">
       <string>KNOTS</string>
      </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QPushButton" name="m_pResetLevelButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>RESET LEVEL</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pAirportButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>ALL AIRPORTS</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QPushButton" name="m_pTimerButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>TIMER</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pFuelButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>FUEL</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pTrafficFilterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>ALL TRAFFIC</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QPushButton" name="m_pResetGMeterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Piboto</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>RESET G</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1" colspan="2">
+   <item row="12" column="1" colspan="2">
     <widget class="QPushButton" name="m_pExitButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -405,7 +182,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -417,11 +194,62 @@ QPushButton::pressed
      <property name="text">
       <string>SHUTDOWN</string>
      </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QPushButton" name="m_pSettingsButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>SETTINGS</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QPushButton" name="m_pFuelButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>FUEL</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
@@ -438,40 +266,19 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 white, stop:1 DarkSlateGray );
-	margin: 2px;
-}
-QPushButton::pressed
-{
-	border: none;
-	background-color: qlineargradient( x1:0, y1:0, x2:0, y2:1, stop: 0 DarkSlateGray, stop:1 white );
-	margin: 2px;
-}
-</string>
-     </property>
      <property name="text">
       <string>DAY MODE</string>
      </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
     </widget>
    </item>
-   <item row="14" column="1">
-    <widget class="QPushButton" name="m_pExitRoscoButton">
+   <item row="13" column="1">
+    <widget class="QPushButton" name="m_pExitStratofierButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -480,7 +287,7 @@ QPushButton::pressed
      </property>
      <property name="font">
       <font>
-       <family>Piboto</family>
+       <family>Droid Sans</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -492,11 +299,80 @@ QPushButton::pressed
      <property name="text">
       <string>EXIT</string>
      </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="m_pResetLevelButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>RESET LEVEL</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QPushButton" name="m_pTimerButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>TIMER</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QPushButton" name="m_pResetGMeterButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>RESET G</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>

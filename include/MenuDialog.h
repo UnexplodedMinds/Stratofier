@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __MENUDIALOG_H__
@@ -25,9 +25,8 @@ private:
     bool                 m_bPortrait;
 
 private slots:
-    void traffic( bool bAll );
-    void airports();
     void fuel();
+    void settings();
 
 signals:
     void resetLevel();
@@ -37,6 +36,7 @@ signals:
     void shutdownStratofier();
     void trafficToggled( bool );
     void showAirports( Canvas::ShowAirports );
+    void showRunways( bool );
     void timer();
     void fuelTanks( FuelTanks );
     void stopFuelFlow();

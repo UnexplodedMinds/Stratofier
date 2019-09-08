@@ -1,19 +1,25 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QtDebug>
 #include <QFile>
+#include <QSettings>
+#include <QDomDocument>
+#include <QDomElement>
+#include <QDomNode>
 
 #include <math.h>
 
 #include "StratofierDefs.h"
 #include "TrafficMath.h"
 #include "StratuxStreams.h"
+#include "Builder.h"
 
 
 extern StratuxSituation g_situation;
+extern QSettings       *g_pSet;
 
 
 // This was implemented to cut down on the airport lookup by lat/long that takes long enough to be noticeable on the display (it's threaded but you can see it filling back in)
@@ -61,109 +67,167 @@ double TrafficMath::degHeading( double dAng )
 }
 
 
-void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist, bool bUseCache )
+// Get every airport in the cache that's within twice the distance of the current heading indicator radius
+void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist )
 {
-// Not ideal but for local testing, good enough
-#if defined( Q_OS_ANDROID )
-    QFile faaDatabase( "assets:/Airports.csv" );
-#else
-    QFile faaDatabase( "./android/assets/Airports.csv"  );
-#endif
+    Airport ap;
 
-    if( bUseCache && (g_airportCache.count() > 0) )
+    pAirports->clear();
+    dDist *= 2;
+    foreach( ap, g_airportCache )
     {
-        Airport     ap;
-        BearingDist bd;
+        ap.bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
+        ap.bd.dBearing += 90.0;
 
-        pAirports->clear();
-        foreach( ap, g_airportCache )
-        {
-            bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
-            ap.bd = bd;
-            ap.bd.dBearing += 90.0;
+        if( ap.bd.dDistance <= dDist )
             pAirports->append( ap );
-        }
-    }
-    else
-    {
-        if( !faaDatabase.open( QIODevice::ReadOnly ) )
-            return;
-
-        QString     qsLine;
-        QStringList qsl;
-        int         iCount;
-        Airport     ap;
-        int         iFound = 0;
-        BearingDist bd;
-
-        g_airportCache.clear();
-        pAirports->clear();
-        while( !faaDatabase.atEnd() )
-        {
-            qsLine = faaDatabase.readLine();
-            qsLine = qsLine.trimmed();
-            qsl = qsLine.split( ',' );
-            iCount = qsl.count();
-            iFound = 0;
-            ap.runways.clear();
-            if( iCount > 0 )
-            {
-                ap.qsID = qsl.first();
-                iFound++;
-            }
-            if( iCount > 1 )
-            {
-                ap.qsName = qsl.at( 1 );
-                iFound++;
-            }
-            if( iCount > 2 )
-            {
-                ap.bMilitary = (qsl.at( 2 ) == "MA");
-                iFound++;
-            }
-            if( iCount > 3 )
-            {
-                ap.bPublic = (qsl.at( 3 ) == "PU");
-                iFound++;
-            }
-            if( iCount > 4 )
-            {
-                QString qsLat = qsl.at( 4 );
-                double  dPosNeg = (qsLat.right( 1 ) == "N" ? 1.0 : -1.0 );  // South is negative latitude (all US airports are North latitude)
-
-                qsLat.chop( 1 );
-                ap.dLat = qsLat.toDouble() / 3600.0 * dPosNeg;
-                iFound++;
-            }
-            if( iCount > 5 )
-            {
-                QString qsLong = qsl.at( 5 );
-                double  dPosNeg = (qsLong.right( 1 ) == "E" ? 1.0 : -1.0 );  // West is negative longitude (all US airports are West longitude)
-
-                qsLong.chop( 1 );
-                ap.dLong = qsLong.toDouble() / 3600.0 * dPosNeg;
-                iFound++;
-            }
-            // Add all the available runways
-            if( iCount > 9 )
-            {
-                for( int i = 9; i < iCount; i++ )
-                    ap.runways.append( qsl.at( i ).toInt() );
-            }
-
-            if( iFound == 6 )
-            {
-                bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
-                // Double the radius of allowed airports so the cache has a healthy buffer between the routine updates and full relookups
-                if( bd.dDistance <= (dDist * 2) )
-                {
-                    ap.bd = bd;
-                    ap.bd.dBearing += 90.0;
-                    pAirports->append( ap );
-                    g_airportCache.append( ap );
-                }
-            }
-        }
     }
 }
 
+
+void TrafficMath::updateAirport( Airport *pAirport )
+{
+    pAirport->bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, pAirport->dLat, pAirport->dLong );
+    pAirport->bd.dBearing += 90.0;
+}
+
+
+void TrafficMath::cacheAirports()
+{
+    bool    bExternalStorage = g_pSet->value( "ExternalStorage", false ).toBool();
+    int     iDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
+    QString qsInternal, qsExternal;
+    QFile   aipDatabase;
+
+    Builder::getStorage( &qsInternal, &qsExternal );
+
+    if( iDataSet == 0 )
+    {
+        qsInternal.append( "/data/space.skyfun.stratofier/airports_us.aip" );
+        qsExternal.append( "/data/space.skyfun.stratofier/airports_us.aip" );
+    }
+    else
+    {
+        qsInternal.append( "/data/space.skyfun.stratofier/airports_ca.aip" );
+        qsExternal.append( "/data/space.skyfun.stratofier/airports_ca.aip" );
+    }
+
+    if( bExternalStorage )
+        aipDatabase.setFileName( qsExternal );
+    else
+        aipDatabase.setFileName( qsInternal );
+
+    if( !aipDatabase.open( QIODevice::ReadOnly ) )
+        return;
+
+    QDomDocument aipDoc( "XML_OpenAIP" );
+    QDomElement  xRoot, xAirportElem, xChildElem, xSubChildElem, xWayPtElem;
+    QDomNode     xAirportNode, xChildNode, xSubChildNode, xWayPtNode;
+    QString      qsTemp, qsErrMsg;
+    Airport      ap;
+    int          iErrLine, iErrCol;
+
+    if( !aipDoc.setContent( &aipDatabase, &qsErrMsg, &iErrLine, &iErrCol ) )
+    {
+        qDebug() << qsErrMsg << iErrLine << iErrCol;
+        aipDatabase.close();
+        return;
+    }
+    aipDatabase.close();
+
+    xRoot = aipDoc.documentElement();
+
+    // Don't proceed if this isn't an OpenAIP file
+    if( xRoot.tagName() != "OPENAIP" )
+        return;
+
+    // Total test points in test results file
+    xWayPtNode = xRoot.firstChild();
+
+    g_airportCache.clear();
+    while( !xWayPtNode.isNull() )
+    {
+        xWayPtElem = xWayPtNode.toElement();
+        if( xWayPtElem.tagName() == "WAYPOINTS" )
+        {
+            xAirportNode = xWayPtNode.firstChild();
+            while( !xAirportNode.isNull() )
+            {
+                xAirportElem = xAirportNode.toElement();
+                if( (xAirportElem.tagName() == "AIRPORT") && (xAirportElem.attribute( "TYPE" ) != "HELI_CIVIL") )
+                {
+                    ap.bd.dBearing = 0.0;
+                    ap.bd.dDistance = 0.0;
+                    ap.dLat = 0.0;
+                    ap.dLong = 0.0;
+                    ap.dElev = 0.0;
+                    ap.bGrass = false;
+                    ap.qsID.clear();
+                    ap.runways.clear();
+
+                    xChildNode = xAirportNode.firstChild();
+                    while( !xChildNode.isNull() )
+                    {
+                        xChildElem = xChildNode.toElement();
+                        if( xChildElem.tagName() == "ICAO" )
+                            ap.qsID = xChildElem.text();
+                        else if( xChildElem.tagName() == "NAME" )
+                        {
+                            ap.qsName = xChildElem.text();
+                            // Clean up really long names
+                            ap.qsName.replace( "REGIONAL", "RGNL" );
+                            ap.qsName.replace( "EXECUTIVE", "EXEC" );
+                            ap.qsName.replace( "INTERNATIONAL", "INTL" );
+                            ap.qsName.replace( "AERODROME", "AERO" );
+                            ap.qsName.replace( "BALLOONPORT", "BALLOON" );
+                            ap.qsName.remove( "AIRPORT" );
+                            ap.qsName.remove( "FIELD" );
+                        }
+                        else if( xChildElem.tagName() == "GEOLOCATION" )
+                        {
+                            xSubChildNode = xChildNode.firstChild();
+                            while( !xSubChildNode.isNull() )
+                            {
+                                xSubChildElem = xSubChildNode.toElement();
+                                if( xSubChildElem.tagName() == "LAT" )
+                                    ap.dLat = xSubChildElem.text().toDouble();
+                                else if( xSubChildElem.tagName() == "LON" )
+                                    ap.dLong = xSubChildElem.text().toDouble();
+                                else if( xSubChildElem.tagName() == "ELEV" )
+                                {
+                                    if( xSubChildElem.attribute( "UNIT" ).contains( "M", Qt::CaseInsensitive ) )
+                                        ap.dElev = xSubChildElem.text().toDouble() * MetersToFeet;
+                                    else
+                                        ap.dElev = xSubChildElem.text().toDouble();
+                                }
+                                xSubChildNode = xSubChildNode.nextSibling();
+                            }
+                        }
+                        else if( xChildElem.tagName() == "RWY" )
+                        {
+                            xSubChildNode = xChildNode.firstChild();
+                            while( !xSubChildNode.isNull() )
+                            {
+                                xSubChildElem = xSubChildNode.toElement();
+                                if( xSubChildElem.tagName() == "SFC" )
+                                {
+                                    if( xSubChildElem.text() == "GRAS" )
+                                        ap.bGrass = true;
+                                }
+                                else if( xSubChildElem.tagName() == "DIRECTION" )
+                                    ap.runways.append( xSubChildElem.attribute( "TC" ).toInt() );
+                                xSubChildNode = xSubChildNode.nextSibling();
+                            }
+                        }
+                        xChildNode = xChildNode.nextSibling();
+                    }
+                    if( ap.qsID.isEmpty() )
+                        ap.qsID = "R";
+                    g_airportCache.append( ap );    // Note the cache has no haversine transforms to get the bearing and distance since that's handled by updateNearbyAirports
+                }
+                xAirportNode = xAirportNode.nextSibling();
+            }
+        }
+        xWayPtNode = xWayPtNode.nextSibling();
+    }
+}

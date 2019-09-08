@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __AHRSMAINWIN_H__
@@ -27,10 +27,11 @@ public:
     explicit AHRSMainWin( const QString &qsIP, bool bPortrait );
     ~AHRSMainWin();
 
-    bool        menuActive() { return (m_pMenuDialog != nullptr); }
-    void        restartTimer();
-    void        stopTimer();
-    AHRSCanvas *disp() { return m_pAHRSDisp; }
+    bool          menuActive() { return (m_pMenuDialog != nullptr); }
+    void          restartTimer();
+    void          stopTimer();
+    AHRSCanvas   *disp() { return m_pAHRSDisp; }
+    StreamReader *streamReader() { return m_pStratuxStream; }
 
 public slots:
     void menu();
@@ -65,6 +66,7 @@ private slots:
     void shutdownStratofier();
     void trafficToggled( bool bAll );
     void showAirports( Canvas::ShowAirports eShow );
+    void showRunways( bool bShow );
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();

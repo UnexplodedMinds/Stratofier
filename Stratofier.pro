@@ -1,11 +1,11 @@
 #-------------------------------------------------
 #
 # Stratofier
-# Copyright 2019 Unexploded Minds
+# Copyright 2019 Sky Fun
 #
 #-------------------------------------------------
 
-QT += core gui websockets widgets network concurrent
+QT += core gui websockets widgets network concurrent xml
 
 VPATH += ./include \
          ../include \
@@ -18,10 +18,10 @@ CONFIG += mobility
 VPATH += $$PWD/android
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-airports.path = /assets
-airports.files = Airports.csv
+# airports.path = /assets
+# airports.files = Airports.csv
 
-INSTALLS += airports
+# INSTALLS += airports
 
 DISTFILES += AndroidManifest.xml \
              gradle/wrapper/gradle-wrapper.jar \
@@ -69,7 +69,9 @@ SOURCES += main.cpp \
            Builder.cpp \
            TimerDialog.cpp \
            FuelTanksDialog.cpp \
-           ClickLabel.cpp
+           ClickLabel.cpp \
+           SettingsDialog.cpp \
+           AirportDialog.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -85,13 +87,17 @@ HEADERS += StratuxStreams.h \
            TimerDialog.h \
            ScreenLocker.h \
            FuelTanksDialog.h \
-           ClickLabel.h
+           ClickLabel.h \
+           SettingsDialog.h \
+           AirportDialog.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
          Keypad.ui \
          MenuDialog.ui \
          TimerDialog.ui \
-         FuelTanksDialog.ui
+         FuelTanksDialog.ui \
+         SettingsDialog.ui \
+         AirportDialog.ui
 
 RESOURCES += AHRSResources.qrc

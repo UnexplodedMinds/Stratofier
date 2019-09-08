@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #include <QSettings>
@@ -32,15 +32,9 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
     m_pTaxiRateLabel->setTitle( "TAXI RATE" );
     m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
 
-#ifdef Q_OS_ANDROID
-    m_pSwitchableButton->setMaximumHeight( 60 );
-    m_pStopButton->setMaximumWidth( 300 );
-#endif
-
     connect( m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
     connect( m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
 
     ClickLabel         *pCL;
@@ -50,6 +44,22 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
     {
         pCL->setCanvas( pCanvas );
     }
+
+    g_pSet->beginGroup( "FuelTanks" );
+    if( !g_pSet->value( "DualTanks" ).toBool() )
+    {
+        m_pStartLeftButton->setText( "START" );
+        m_pStartRightButton->hide();
+        m_pRRemLabel->hide();
+        m_pRCapLabel->hide();
+        m_pRightRemainLabel->hide();
+        m_pRightCapLabel->hide();
+        m_pRightRemUnitsLabel->hide();
+        m_pRightCapUnitsLabel->hide();
+        m_pLRemLabel->setText( "REM :" );
+        m_pLCapLabel->setText( "CAP :" );
+    }
+    g_pSet->endGroup();
 }
 
 
@@ -72,8 +82,7 @@ void FuelTanksDialog::loadSettings()
     m_pTaxiRateLabel->setText( QString::number( g_pSet->value( "TaxiRate", 4.0 ).toDouble(), 'f', 2 ) );
     m_pSwitchIntLabel->setText( QString::number( g_pSet->value( "SwitchInterval", 15 ).toInt() ) );
 
-    m_tanks.bDualTanks = (!g_pSet->value( "DualTanks", true ).toBool());
-    switchable();
+    m_tanks.bDualTanks = g_pSet->value( "DualTanks", true ).toBool();
 
     g_pSet->endGroup();
 }
@@ -101,7 +110,6 @@ void FuelTanksDialog::saveSettings()
     g_pSet->setValue( "DescentRate", m_tanks.dFuelRateDescent );
     g_pSet->setValue( "TaxiRate", m_tanks.dFuelRateTaxi );
     g_pSet->setValue( "SwitchInterval", m_tanks.iSwitchIntervalMins );
-    g_pSet->setValue( "DualTanks", m_tanks.bDualTanks );
     g_pSet->endGroup();
     g_pSet->sync();
 
@@ -109,25 +117,6 @@ void FuelTanksDialog::saveSettings()
     m_tanks.lastSwitch = QDateTime::currentDateTime();
 
     accept();
-}
-
-
-void FuelTanksDialog::switchable()
-{
-    m_tanks.bDualTanks = (!m_tanks.bDualTanks);
-
-    g_pSet->beginGroup( "FuelTanks" );
-    g_pSet->setValue( "DualTanks", m_tanks.bDualTanks );
-    g_pSet->endGroup();
-    g_pSet->sync();
-
-    m_pRRemLabel->setEnabled( m_tanks.bDualTanks );
-    m_pRCapLabel->setEnabled( m_tanks.bDualTanks );
-    m_pRightRemainLabel->setEnabled( m_tanks.bDualTanks );
-    m_pRightCapLabel->setEnabled( m_tanks.bDualTanks );
-    m_pStartRightButton->setEnabled( m_tanks.bDualTanks );
-
-    m_pSwitchableButton->setIcon( m_tanks.bDualTanks ? QIcon( ":/icons/resources/OK.png" ) : QIcon() );
 }
 
 

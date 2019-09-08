@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __CANVAS_H__
@@ -78,8 +78,8 @@ struct Airport
     QString     qsName;
     double      dLat;
     double      dLong;
-    bool        bMilitary;
-    bool        bPublic;
+    double      dElev;
+    bool        bGrass;
     BearingDist bd;
     QList<int>  runways;
 };
@@ -108,7 +108,8 @@ public:
     enum ShowAirports
     {
         ShowNoAirports,
-        ShowPublicAirports,
+        ShowGrassAirports,
+        ShowPavedAirports,
         ShowAllAirports
     };
 
@@ -124,6 +125,18 @@ public:
 
 private:
     CanvasConstants m_preCalc;
+};
+
+
+struct StratofierSettings
+{
+    Canvas::ShowAirports eShowAirports;
+    bool                 bShowAllTraffic;
+    bool                 bExternalStorage;
+    int                  iCurrDataSet;
+    bool                 bSwitchableTanks;
+    QString              qsStratuxIP;
+    bool                 bShowRunways;
 };
 
 

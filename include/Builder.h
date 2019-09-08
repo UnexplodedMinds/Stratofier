@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __BUILDER_H__
@@ -20,6 +20,8 @@ public:
 
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int iFieldWidth );
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &qsNum );
+
+    static void getStorage( QString *pInternal, QString *pExternal );
 };
 
 #endif // __BUILDER_H__

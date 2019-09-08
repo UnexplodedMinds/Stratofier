@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef TRAFFICMATH_H
@@ -18,7 +18,9 @@ public:
     static double      radiansRel( double dAng );
     static double      degHeading( double dAng );
 
-    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist, bool bUseCache );
+    static void cacheAirports();
+    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist );
+    static void updateAirport( Airport *pAirport );
 };
 
 #endif // TRAFFICMATH_H

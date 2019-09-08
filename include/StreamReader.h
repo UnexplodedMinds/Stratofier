@@ -1,6 +1,6 @@
 /*
 Stratofier Stratux AHRS Display
-(c) 2018 Allen K. Lair, Unexploded Minds
+(c) 2018 Allen K. Lair, Sky Fun
 */
 
 #ifndef __STREAMREADER_H__
@@ -30,6 +30,8 @@ public:
     static void initTraffic( StratuxTraffic &traffic );
     static void initSituation( StratuxSituation &situation );
     static void initStatus( StratuxStatus &status );
+
+    void setIP( const QString &qsIP );
 
 private:
     bool       m_bHaveMyPos;
