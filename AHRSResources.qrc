@@ -11,6 +11,7 @@
     <file>resources/Stratofier.png</file>
   </qresource>
   <qresource prefix="/graphics">
+    <file>resources/FromTo.png</file>
     <file>resources/DirectTo.png</file>
     <file>resources/vspeedL.png</file>
     <file>resources/vspeedP.png</file>

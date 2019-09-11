@@ -34,7 +34,8 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     m_pDataSetCombo->setMinimumHeight( pC->dH20 );
 
     loadSettings();
-    traffic( m_settings.bShowAllTraffic );
+    m_settings.bShowAllTraffic = (!m_settings.bShowAllTraffic);
+    traffic();
     m_settings.bShowRunways = (!m_settings.bShowRunways);
     runways();
 
@@ -49,9 +50,8 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
 
     connect( m_pDataSetCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( dataSet( int ) ) );
 
-    connect( m_pStorageButton, SIGNAL( toggled( bool ) ), this, SLOT( storage( bool ) ) );
     connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
-    connect( m_pTrafficButton, SIGNAL( toggled( bool ) ), this, SLOT( traffic( bool ) ) );
+    connect( m_pTrafficButton, SIGNAL( clicked() ), this, SLOT( traffic() ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
 
@@ -66,7 +66,6 @@ SettingsDialog::~SettingsDialog()
     g_pSet->setValue( "ShowAllTraffic", m_settings.bShowAllTraffic );
     g_pSet->setValue( "ShowAirports", static_cast<int>( m_settings.eShowAirports ) );
     g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
-    g_pSet->setValue( "ExternalStorage", m_settings.bExternalStorage );
     g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
 
     g_pSet->setValue( "StratuxIP", m_pIPEdit->text() );
@@ -85,7 +84,6 @@ void SettingsDialog::loadSettings()
     m_settings.bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
-    m_settings.bExternalStorage = g_pSet->value( "ExternalStorage", false ).toBool();
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     g_pSet->beginGroup( "FuelTanks" );
@@ -96,20 +94,17 @@ void SettingsDialog::loadSettings()
     m_pDataSetCombo->setCurrentIndex( m_settings.iCurrDataSet );
     m_pIPEdit->setText( m_settings.qsStratuxIP );
 
-    // This will fire the signal to set the button text correctly
-    m_pStorageButton->setChecked( m_settings.bExternalStorage );
+    Builder::getStorage( &m_qsInternalStoragePath );
 
-    Builder::getStorage( &m_qsInternalStoragePath, &m_qsExternalStoragePath );
-
-    storage( m_settings.bExternalStorage );
+    storage();
 }
 
 
-void SettingsDialog::traffic( bool bAll )
+void SettingsDialog::traffic()
 {
-    m_settings.bShowAllTraffic = bAll;
+    m_settings.bShowAllTraffic = (!m_settings.bShowAllTraffic);
 
-    if( bAll )
+    if( m_settings.bShowAllTraffic )
         m_pTrafficButton->setText( "ALL TRAFFIC" );
     else
         m_pTrafficButton->setText( "CLOSE TRAFFIC" );
@@ -180,14 +175,8 @@ void SettingsDialog::getMapData()
 }
 
 
-void SettingsDialog::storage( bool bExternal )
+void SettingsDialog::storage()
 {
-    m_settings.bExternalStorage = bExternal;
-    if( bExternal )
-        m_pStorageButton->setText( "EXTERNAL STORAGE" );
-    else
-        m_pStorageButton->setText( "INTERNAL STORAGE" );
-
     // Set the getter icons according to whether the data has been downloaded
     if( QFile::exists( settingsRoot() + "/space.skyfun.stratofier/airports_us.aip" ) &&
         QFile::exists( settingsRoot() + "/space.skyfun.stratofier/airports_us.aip" ) )
@@ -216,7 +205,7 @@ void SettingsDialog::updateDownloadProgress( qint64 bytesRead, qint64 totalBytes
     {
         m_pDataProgress->setMaximum( static_cast<int>( totalBytes / 2 ) );
         m_pDataProgress->setValue( static_cast<int>( bytesRead / 2 ) );
-        m_iTally = totalBytes;
+        m_iTally = static_cast<int>( totalBytes );
     }
     else
     {
@@ -280,7 +269,7 @@ void SettingsDialog::startRequest( QUrl url )
 const QString SettingsDialog::settingsRoot()
 {
 #if defined( Q_OS_ANDROID )
-    return (m_settings.bExternalStorage ? m_qsExternalStoragePath : m_qsInternalStoragePath) + "/data";
+    return m_qsInternalStoragePath + "/data";
 #else
     QString qsHomeStratofier = QDir::homePath() + "/stratofier_data/data";
     QDir    data( qsHomeStratofier );

@@ -94,28 +94,18 @@ void TrafficMath::updateAirport( Airport *pAirport )
 
 void TrafficMath::cacheAirports()
 {
-    bool    bExternalStorage = g_pSet->value( "ExternalStorage", false ).toBool();
     int     iDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
-    QString qsInternal, qsExternal;
+    QString qsInternal;
     QFile   aipDatabase;
 
-    Builder::getStorage( &qsInternal, &qsExternal );
+    Builder::getStorage( &qsInternal );
 
     if( iDataSet == 0 )
-    {
         qsInternal.append( "/data/space.skyfun.stratofier/airports_us.aip" );
-        qsExternal.append( "/data/space.skyfun.stratofier/airports_us.aip" );
-    }
     else
-    {
         qsInternal.append( "/data/space.skyfun.stratofier/airports_ca.aip" );
-        qsExternal.append( "/data/space.skyfun.stratofier/airports_ca.aip" );
-    }
 
-    if( bExternalStorage )
-        aipDatabase.setFileName( qsExternal );
-    else
-        aipDatabase.setFileName( qsInternal );
+    aipDatabase.setFileName( qsInternal );
 
     if( !aipDatabase.open( QIODevice::ReadOnly ) )
         return;

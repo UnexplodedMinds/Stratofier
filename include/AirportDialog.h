@@ -19,7 +19,7 @@ class AirportDialog : public QDialog, public Ui::AirportDialog
     Q_OBJECT
 
 public:
-    explicit AirportDialog( QWidget *pParent, CanvasConstants *pC );
+    explicit AirportDialog( QWidget *pParent, CanvasConstants *pC, const QString &qsTitle );
     ~AirportDialog();
 
     QString selectedAirport() { return m_qsSel; } // Airport name (ID isn't always reliable)

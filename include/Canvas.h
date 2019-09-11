@@ -132,7 +132,6 @@ struct StratofierSettings
 {
     Canvas::ShowAirports eShowAirports;
     bool                 bShowAllTraffic;
-    bool                 bExternalStorage;
     int                  iCurrDataSet;
     bool                 bSwitchableTanks;
     QString              qsStratuxIP;

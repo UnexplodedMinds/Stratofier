@@ -16,12 +16,13 @@ extern QList<Airport>   g_airportCache;
 extern StratuxSituation g_situation;
 
 
-AirportDialog::AirportDialog( QWidget *pParent, CanvasConstants *pC )
+AirportDialog::AirportDialog( QWidget *pParent, CanvasConstants *pC, const QString &qsTitle )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_pC( pC ),
       m_bAllAirports( true )
 {
     setupUi( this );
+    m_pTitleLabel->setText( qsTitle );
 
     QScroller::grabGesture( m_pAirportsTable, QScroller::LeftMouseButtonGesture );
 

@@ -64,7 +64,7 @@ MenuDialog::~MenuDialog()
 
 void MenuDialog::fuel()
 {
-    FuelTanksDialog dlg( this, static_cast<AHRSMainWin *>( parent() )->disp()->canvas() );
+    FuelTanksDialog dlg( this, static_cast<AHRSCanvas *>( static_cast<AHRSMainWin *>( parent() )->disp() ), static_cast<AHRSMainWin *>( parent() )->disp()->canvas() );
     QWidget        *pMainWin = parentWidget();
 
     if( m_bPortrait )
@@ -75,7 +75,10 @@ void MenuDialog::fuel()
     if( dlg.exec() == QDialog::Accepted )
         emit fuelTanks( dlg.settings() );
     else
+    {
+        emit setSwitchableTanks( dlg.settings().bDualTanks );
         emit stopFuelFlow();
+    }
 }
 
 
@@ -101,4 +104,6 @@ void MenuDialog::settings()
         static_cast<AHRSMainWin *>( parent() )->streamReader()->disconnectStreams();
         static_cast<AHRSMainWin *>( parent() )->streamReader()->connectStreams();
     }
+
+    emit setSwitchableTanks( g_pSet->value( "DualTanks" ).toBool() );
 }

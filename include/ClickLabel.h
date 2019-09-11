@@ -17,12 +17,15 @@ class ClickLabel : public QLabel
     Q_OBJECT
 
 public:
-    ClickLabel( QWidget *pParent = Q_NULLPTR ) : QLabel( pParent )
+    ClickLabel( QWidget *pParent = Q_NULLPTR )
+        : QLabel( pParent ),
+          m_iDecimals( 2 )
     {
     }
 
     void setTitle( const QString &qsTitle ) { m_qsTitle = qsTitle; }
     void setCanvas( Canvas *pCanvas ) { m_pCanvas = pCanvas; }
+    void setDecimals( int iDec ) { m_iDecimals = iDec; }
 
 protected:
     void mousePressEvent( QMouseEvent *pEvent );
@@ -30,6 +33,7 @@ protected:
 private:
     QString m_qsTitle;
     Canvas *m_pCanvas;
+    int     m_iDecimals;
 };
 
 #endif // __CLICKLABEL_H__

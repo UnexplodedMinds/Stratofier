@@ -15,8 +15,9 @@ Stratofier Stratux AHRS Display
 extern QSettings *g_pSet;
 
 
-FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
-    : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint )
+FuelTanksDialog::FuelTanksDialog( QWidget *pParent, AHRSCanvas *pAHRS, Canvas *pCanvas )
+    : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
+      m_pAHRSDisp( pAHRS )
 {
     setupUi( this );
 
@@ -31,6 +32,7 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
     m_pDescRateLabel->setTitle( "DESCENT RATE" );
     m_pTaxiRateLabel->setTitle( "TAXI RATE" );
     m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
+    m_pSwitchIntLabel->setDecimals( 0 );
 
     connect( m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
     connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
@@ -58,6 +60,9 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, Canvas *pCanvas )
         m_pRightCapUnitsLabel->hide();
         m_pLRemLabel->setText( "REM :" );
         m_pLCapLabel->setText( "CAP :" );
+        m_pSwitchIntLabel->hide();
+        m_pSwitchIntLabelLbl->hide();
+        m_pSwitchIntUnitsLabel->hide();
     }
     g_pSet->endGroup();
 }
@@ -98,7 +103,7 @@ void FuelTanksDialog::saveSettings()
     m_tanks.dFuelRateClimb = m_pClimbRateLabel->text().toDouble();
     m_tanks.dFuelRateDescent = m_pDescRateLabel->text().toDouble();
     m_tanks.dFuelRateTaxi = m_pTaxiRateLabel->text().toDouble();
-    m_tanks.iSwitchIntervalMins = m_pSwitchIntLabel->text().toInt();
+    m_tanks.iSwitchIntervalMins = static_cast<int>( m_pSwitchIntLabel->text().toDouble() );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "LeftCapacity", m_tanks.dLeftCapacity );
@@ -125,7 +130,7 @@ void FuelTanksDialog::resetFuel()
     Keypad keypadL( this, "RESET LEFT" );
     int    iGalR = 0, iGalL = 0;
 
-    static_cast<AHRSCanvas *>( parentWidget() )->canvas()->setKeypadGeometry( &keypadL );
+    m_pAHRSDisp->canvas()->setKeypadGeometry( &keypadL );
     keypadL.exec();
 
     iGalL = static_cast<int>( keypadL.value() );
@@ -134,7 +139,7 @@ void FuelTanksDialog::resetFuel()
     {
         Keypad keypadR( this, "RESET RIGHT" );
 
-        static_cast<AHRSCanvas *>( parentWidget() )->canvas()->setKeypadGeometry( &keypadR );
+        m_pAHRSDisp->canvas()->setKeypadGeometry( &keypadR );
         keypadR.exec();
 
         iGalR = static_cast<int>( keypadR.value() );

@@ -51,7 +51,7 @@ extern QSettings *g_pSet;
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 
-QString g_qsStratofierVersion( "1.4.1.0" );
+QString g_qsStratofierVersion( "1.4.1.1" );
 
 
 /*
@@ -90,6 +90,10 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
+    m_fromAP.qsID = "NULL";
+    m_fromAP.qsName = "NULL";
+    m_toAP.qsID = "NULL";
+    m_toAP.qsName = "NULL";
 
     // Initialize AHRS settings
     // No need to init the traffic because it starts out as an empty QMap.
@@ -100,6 +104,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_headIcon.load( ":/icons/resources/HeadingIcon.png" );
     m_windIcon.load( ":/icons/resources/WindIcon.png" );
     m_DirectTo.load( ":/graphics/resources/DirectTo.png" );
+    m_FromTo.load( ":/graphics/resources/FromTo.png" );
     m_AltBug.load( ":/icons/resources/AltBug.png" );
 
     loadSettings();
@@ -229,10 +234,10 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
     {
         double dInterval = 0.00416666666667;   // 15 seconds / 3600 seconds (1 hour); 15 seconds is the interval of the one and only timer
 
-        // If the aircraft is moving and there is virtually no vertical movement then we are taxiing
-        if( (g_situation.dGPSGroundSpeed > 5.0) && (g_situation.dBaroVertSpeed < 5.0) )
+        // If the aircraft is moving slowly and there is virtually no vertical movement then we are taxiing
+        if( (g_situation.dGPSGroundSpeed > 5.0) && (g_situation.dGPSGroundSpeed < 20.0) && (fabs( g_situation.dBaroVertSpeed ) < 5.0) )
         {
-            if( m_tanks.bOnLeftTank )
+            if( m_tanks.bOnLeftTank || (!m_tanks.bDualTanks) )
                 m_tanks.dLeftRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
             else
                 m_tanks.dRightRemaining -= (m_tanks.dFuelRateTaxi * dInterval);
@@ -240,7 +245,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         // If we're moving faster than 35 knots and we're at least anemically climbing, then use the climb rate
         else if( (g_situation.dGPSGroundSpeed > 35.0) && (g_situation.dBaroVertSpeed > 50.0) )
         {
-            if( m_tanks.bOnLeftTank )
+            if( m_tanks.bOnLeftTank || (!m_tanks.bDualTanks) )
                 m_tanks.dLeftRemaining -= (m_tanks.dFuelRateClimb * dInterval);
             else
                 m_tanks.dRightRemaining -= (m_tanks.dFuelRateClimb * dInterval);
@@ -248,7 +253,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         // If we're at least at an anemic airspeed and reasonbly acceptable altitude control, then use the cruise rate
         else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < 100.0) )
         {
-            if( m_tanks.bOnLeftTank )
+            if( m_tanks.bOnLeftTank || (!m_tanks.bDualTanks) )
                 m_tanks.dLeftRemaining -= (m_tanks.dFuelRateCruise * dInterval);
             else
                 m_tanks.dRightRemaining -= (m_tanks.dFuelRateCruise * dInterval);
@@ -256,7 +261,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
         // If we're in at least a slow descent, use the descent rate
         else if( (g_situation.dGPSGroundSpeed > 70.0) && (g_situation.dBaroVertSpeed < -250.0) )
         {
-            if( m_tanks.bOnLeftTank )
+            if( m_tanks.bOnLeftTank || (!m_tanks.bDualTanks) )
                 m_tanks.dLeftRemaining -= (m_tanks.dFuelRateDescent * dInterval);
             else
                 m_tanks.dRightRemaining -= (m_tanks.dFuelRateDescent * dInterval);
@@ -389,7 +394,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     double  dInfoH = (smallMetrics.boundingRect( qsZoom ).height() / 2.0) + 4.0;
 
     if( m_iMagDev < 0 )
-        qsMagDev.prepend( "   -" );
+        qsMagDev.prepend( "   " );  // There will already be a negative symbol
     else if( m_iMagDev > 0 )
         qsMagDev.prepend( "   +" );
     else
@@ -399,11 +404,11 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     pAhrs->setFont( tiny );
     pAhrs->setPen( Qt::black );
     pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 - (m_bPortrait ? c->dW20 + c->dW80 : c->dW10) + 2,
-                     c->dH - 15.0 - (dInfoH * 2.0) + 2.0 - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
+                     c->dH - 20.0 - (dInfoH * 2.0) + 2.0 - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
                      qsZoom );
     pAhrs->setPen( QColor( 80, 255, 80 ) );
     pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 - (m_bPortrait ? c->dW20 + c->dW80 : c->dW10),
-                     c->dH - 15.0 - (dInfoH * 2.0) - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
+                     c->dH - 20.0 - (dInfoH * 2.0) - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
                      qsZoom );
 
     // Draw the magnetic deviation
@@ -551,7 +556,20 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     CanvasConstants c = m_pCanvas->constants();
     QRect           headRect( (m_bPortrait ? c.dW2 : c.dW + c.dW2) - c.dW4, c.dH - 10.0 - c.dW2 - c.dW4, c.dW2, c.dW2 );
     QRect           gpsRect( (m_bPortrait ? c.dW : c.dWa) - c.dW5, c.dH - (c.iLargeFontHeight * 2.0), c.dW5, c.iLargeFontHeight * 2.0 );
-    QRect           directRect( m_bPortrait ? 0.0 : c.dW, c.dH - c.dH10, c.dH10, c.dH10 );
+    QRect           directRect;
+    QRect           fromtoRect;
+
+    if( m_bPortrait )
+    {
+        directRect.setRect( c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20 );
+        fromtoRect.setRect( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20 );
+    }
+    else
+    {
+        directRect.setRect( c.dW + c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20 );
+        fromtoRect.setRect( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20 );
+    }
+
     QRectF          magHeadLessRect;
     QRectF          magHeadMoreRect;
     QRectF          altRect;
@@ -678,7 +696,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     }
     else if( directRect.contains( pressPt ) )
     {
-        AirportDialog dlg( this, &c );
+        AirportDialog dlg( this, &c, "DIRECT TO AIRPORT" );
 
         // This geometry works for both orientations
         dlg.setGeometry( 0, 0, c.dW, c.dH );
@@ -695,6 +713,58 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
                     m_directAP = ap;
                     break;
                 }
+            }
+            // Invalidate from-to in favor of direct-to
+            m_fromAP.qsID = "NULL";
+            m_fromAP.qsName = "NULL";
+            m_toAP.qsID = "NULL";
+            m_toAP.qsName = "NULL";
+        }
+        else
+        {
+            m_directAP.qsID = "NULL";
+            m_directAP.qsName = "NULL";
+        }
+    }
+    else if( fromtoRect.contains( pressPt ) )
+    {
+        AirportDialog dlgFrom( this, &c, "FROM AIRPORT" );
+
+        // This geometry works for both orientations
+        dlgFrom.setGeometry( 0, 0, c.dW, c.dH );
+        // If the dialog wasn't cancelled then find the lat/long of the airport selected
+        if( dlgFrom.exec() != QDialog::Rejected )
+        {
+            Airport ap;
+            QString qsName = dlgFrom.selectedAirport();
+
+            foreach( ap, g_airportCache )
+            {
+                if( ap.qsName == qsName )
+                {
+                    m_fromAP = ap;
+                    break;
+                }
+            }
+
+            AirportDialog dlgTo( this, &c, "TO AIRPORT" );
+
+            dlgTo.setGeometry( 0, 0, c.dW, c.dH );
+            if( dlgTo.exec() != QDialog::Rejected )
+            {
+                qsName = dlgTo.selectedAirport();
+
+                foreach( ap, g_airportCache )
+                {
+                    if( ap.qsName == qsName )
+                    {
+                        m_toAP = ap;
+                        break;
+                    }
+                }
+                // Invalidate direct-to in favor of from-to
+                m_directAP.qsID = "NULL";
+                m_directAP.qsName = "NULL";
             }
         }
         else
@@ -916,23 +986,27 @@ void AHRSCanvas::paintPortrait()
                    c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)),
                    c.dW40,
                    c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dLeftCapacity - m_tanks.dLeftRemaining) / m_tanks.dLeftCapacity)) );
-    // Right Tank indicators background
-    ahrs.drawPixmap( c.dW - c.dW20 - 1, c.dH2 + c.dH40, c.dW20, c.dH2 - c.dH5, m_Rfuel );
-    // Right Tank indicators level
-    levelPen.setColor( Qt::black );
-    levelPen.setWidth( c.dH40 + 4 );
-    ahrs.setPen( levelPen );
-    ahrs.drawLine( c.dW,
-                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
-                   c.dW - c.dW40 - 1,
-                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
-    levelPen.setWidth( c.dH40 );
-    levelPen.setColor( QColor( 255, 150, 255 ) );
-    ahrs.setPen( levelPen );
-    ahrs.drawLine( c.dW,
-                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
-                   c.dW - c.dW40 - 1,
-                   c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
+
+    if( m_tanks.bDualTanks )
+    {
+        // Right Tank indicators background
+        ahrs.drawPixmap( c.dW - c.dW20 - 1, c.dH2 + c.dH40, c.dW20, c.dH2 - c.dH5, m_Rfuel );
+        // Right Tank indicators level
+        levelPen.setColor( Qt::black );
+        levelPen.setWidth( c.dH40 + 4 );
+        ahrs.setPen( levelPen );
+        ahrs.drawLine( c.dW,
+                       c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
+                       c.dW - c.dW40 - 1,
+                       c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
+        levelPen.setWidth( c.dH40 );
+        levelPen.setColor( QColor( 255, 150, 255 ) );
+        ahrs.setPen( levelPen );
+        ahrs.drawLine( c.dW,
+                       c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)),
+                       c.dW - c.dW40 - 1,
+                       c.dH2 + c.dH40 + ((c.dH2 - c.dH5) * ((m_tanks.dRightCapacity - m_tanks.dRightRemaining) / m_tanks.dRightCapacity)) );
+    }
 
     // Tank indicator active indicators
     ahrs.setFont( large );
@@ -942,18 +1016,10 @@ void AHRSCanvas::paintPortrait()
 
         ahrs.setPen( fuelPen );
 
-        if( !m_tanks.bDualTanks )
-        {
+        if( m_tanks.bOnLeftTank || (!m_tanks.bDualTanks) )
             ahrs.drawLine( 0, c.dH2 + c.dH40 - 15, c.dW10 - 2, c.dH2 + c.dH40 - 15 );
-            ahrs.drawLine( c.dW - c.dW10 + 2, c.dH2 + c.dH40 - 5, c.dW, c.dH2 + c.dH40 - 5 );
-        }
         else
-        {
-            if( m_tanks.bOnLeftTank )
-                ahrs.drawLine( 0, c.dH2 + c.dH40 - 15, c.dW10 - 2, c.dH2 + c.dH40 - 15 );
-            else
-                ahrs.drawLine( c.dW - c.dW10 + 2, c.dH2 + c.dH40 - 15, c.dW, c.dH2 + c.dH40 - 15 );
-        }
+            ahrs.drawLine( c.dW - c.dW10 + 2, c.dH2 + c.dH40 - 15, c.dW, c.dH2 + c.dH40 - 15 );
     }
 
     // Arrow for heading position above heading dial
@@ -991,26 +1057,10 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPixmap( 10, c.dH - c.dW - 10.0, c.dW - 20, c.dW - 20,  m_HeadIndicator );
     ahrs.resetTransform();
 
-    if( m_directAP.qsID != "NULL" )
-    {
-        double dPxPerNM = static_cast<double>( c.dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
-        QLineF ball;
-
-        TrafficMath::updateAirport( &m_directAP );
-        ball.setP1( QPointF( c.dW2, c.dH - c.dW2 - 30.0 ) );
-        ball.setP2( QPointF( c.dW2, c.dH - c.dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
-        if( ball.length() > (c.dW2 - 30.0) )
-            ball.setLength( c.dW2 - 30.0 );
-
-        // Traffic angle in reference to you (which clock position they're at)
-        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
-
-        ahrs.setPen( QPen( Qt::yellow, 6 ) );
-        ahrs.drawLine( ball );
-    }
+    drawDirectOrFromTo( &ahrs, &c );
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 10.0 - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
+    ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 20.0 - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the heading bug
     if( m_iHeadBugAngle >= 0 )
@@ -1203,12 +1253,7 @@ void AHRSCanvas::paintPortrait()
         paintTimer( &ahrs, &c );
 
     ahrs.drawPixmap( c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
-    if( m_directAP.qsID != "NULL" )
-    {
-        ahrs.setFont( tiny );
-        ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW40, c.dH - c.dH10, m_directAP.qsID );
-    }
+    ahrs.drawPixmap( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     drawDayMode( &ahrs, &c );
 }
@@ -1474,26 +1519,10 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPixmap( c.dW + 10, c.dH - c.dW, c.dW - 20, c.dW - 20,  m_HeadIndicator );
     ahrs.resetTransform();
 
-    if( m_directAP.qsID != "NULL" )
-    {
-        double dPxPerNM = static_cast<double>( c.dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
-        QLineF ball;
-
-        TrafficMath::updateAirport( &m_directAP );
-        ball.setP1( QPointF( c.dW + c.dW2, c.dH - c.dW2 - 30.0 ) );
-        ball.setP2( QPointF( c.dW + c.dW2, c.dH - c.dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
-        if( ball.length() > (c.dW2 - 30.0) )
-            ball.setLength( c.dW2 - 30.0 );
-
-        // Traffic angle in reference to you (which clock position they're at)
-        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
-
-        ahrs.setPen( QPen( Qt::yellow, 6 ) );
-        ahrs.drawLine( ball );
-    }
+    drawDirectOrFromTo( &ahrs, &c );
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW + c.dW2 - c.dW20, c.dH - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW20, c.dH - c.dW2 - c.dW20 - 20.0, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the heading bug
     if( m_iHeadBugAngle >= 0 )
@@ -1759,12 +1788,7 @@ void AHRSCanvas::paintLandscape()
         paintTimer( &ahrs, &c );
 
     ahrs.drawPixmap( c.dW + c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
-    if( m_directAP.qsID != "NULL" )
-    {
-        ahrs.setFont( tiny );
-        ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW + c.dW40, c.dH - c.dH10, m_directAP.qsID );
-    }
+    ahrs.drawPixmap( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     drawDayMode( &ahrs, &c );
 }
@@ -1940,3 +1964,91 @@ void AHRSCanvas::swipeDown()
     update();
 }
 
+
+void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
+{
+    QPen coursePen( Qt::yellow, 12, Qt::SolidLine, Qt::RoundCap );
+
+    if( m_directAP.qsID != "NULL" )
+    {
+        double dPxPerNM = static_cast<double>( pC->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
+        QLineF ball;
+
+        TrafficMath::updateAirport( &m_directAP );
+
+        if( m_bPortrait )
+        {
+            ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
+        }
+        else
+        {
+            ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
+        }
+        if( ball.length() > (pC->dW2 - 30.0) )
+            ball.setLength( pC->dW2 - 30.0 );
+
+        // Traffic angle in reference to you (which clock position they're at)
+        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+
+        pAhrs->setPen( coursePen );
+        pAhrs->drawLine( ball );
+    }
+    else if( m_fromAP.qsID != "NULL" )
+    {
+        double  dPxPerNM = static_cast<double>( pC->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
+        QLineF  ball;
+        QPointF fromPt, toPt;
+
+        TrafficMath::updateAirport( &m_fromAP );
+        TrafficMath::updateAirport( &m_toAP );
+
+        if( m_bPortrait )
+        {
+            ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_fromAP.bd.dDistance * dPxPerNM) ) );
+        }
+        else
+        {
+            ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_fromAP.bd.dDistance * dPxPerNM) ) );
+        }
+        ball.setAngle( -(m_fromAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        fromPt = ball.p2();
+        if( m_bPortrait )
+        {
+            ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_toAP.bd.dDistance * dPxPerNM) ) );
+        }
+        else
+        {
+            ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_toAP.bd.dDistance * dPxPerNM) ) );
+        }
+        ball.setAngle( -(m_toAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        toPt = ball.p2();
+        ball.setP1( fromPt );
+        ball.setP2( toPt );
+
+        pAhrs->setPen( coursePen );
+        QPainterPath maskPath;
+        maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : pC->dW),
+                             pC->dH - pC->dW,
+                             pC->dW - 40.0, pC->dW - 40.0 );
+        pAhrs->setClipPath( maskPath );
+        pAhrs->drawLine( ball );
+        pAhrs->setClipping( false );
+    }
+}
+
+
+void AHRSCanvas::setSwitchableTanks( bool bSwitchable )
+{
+    m_tanks.bDualTanks = bSwitchable;
+    if( !bSwitchable )
+    {
+        m_tanks.dRightCapacity = 0.0;
+        m_tanks.dRightRemaining = 0.0;
+    }
+}

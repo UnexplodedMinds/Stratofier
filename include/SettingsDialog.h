@@ -54,10 +54,10 @@ private:
     CanvasConstants       *m_pC;
 
 private slots:
-    void traffic( bool bAll );
+    void traffic();
     void airports();
     void getMapData();
-    void storage( bool bExternal );
+    void storage();
     void dataSet( int iSet );
     void switchable();
     void runways();

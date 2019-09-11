@@ -156,6 +156,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
         connect( m_pMenuDialog, SIGNAL( unitsKnots() ), this, SLOT( unitsKnots() ) );
         connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
+        connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
     }
     else
     {
@@ -328,6 +329,11 @@ void AHRSMainWin::orient( Qt::ScreenOrientation o )
 
 void AHRSMainWin::fuelTanks( FuelTanks tanks )
 {
+    if( !tanks.bDualTanks )
+    {
+        tanks.dRightCapacity = 0.0;
+        tanks.dRightRemaining = 0.0;
+    }
     m_pAHRSDisp->setFuelTanks( tanks );
     m_pAHRSDisp->m_bFuelFlowStarted = true;
     QTimer::singleShot( 10, this, SLOT( fuelTanks2() ) );
@@ -367,4 +373,10 @@ void AHRSMainWin::dayMode()
     g_bDayMode = (!g_bDayMode);
     pDlg->m_pDayModeButton->setText( g_bDayMode ? "DAY MODE" : "NIGHT MODE" );
     m_pAHRSDisp->update();
+}
+
+
+void AHRSMainWin::setSwitchableTanks( bool bSwitchable )
+{
+    m_pAHRSDisp->setSwitchableTanks( bSwitchable );
 }

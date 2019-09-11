@@ -65,10 +65,11 @@ void Builder::buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &
 }
 
 
-void Builder::getStorage( QString *pInternal, QString *pExternal )
+void Builder::getStorage( QString *pInternal )
 {
 #if defined( Q_OS_ANDROID )
-    // Get the locations for internal and external storage
+    // Get the location for internal storage depending on OS
+    // Note this used to attempt to get the external path but there is a bug and the files aren't that big anyway.
     QStringList systemEnvironment = QProcess::systemEnvironment();
     QStringList env;
     QString     qsVar;
@@ -76,19 +77,14 @@ void Builder::getStorage( QString *pInternal, QString *pExternal )
     foreach( qsVar, systemEnvironment )
     {
         env = qsVar.split( '=' );
-        if( qsVar.contains( "EXTERNAL_STORAGE" ) )
+        if( qsVar.contains( "ANDROID_DATA" ) )
         {
-            *pExternal = env.last();
-            QDir d( *pExternal );
-            d.mkdir( "data" );
-            qDebug() << d.entryList();
-        }
-        else if( qsVar.contains( "ANDROID_DATA" ) )
             *pInternal = env.last();
+            break;
+        }
     }
 #else
     *pInternal = QDir::homePath() + "/stratofier_data";
-    *pExternal = QString();
 #endif
 }
 

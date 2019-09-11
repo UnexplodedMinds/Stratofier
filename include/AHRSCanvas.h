@@ -40,6 +40,7 @@ public:
     void    orient( bool bPortrait );
 #endif
     int     magDev() { return m_iMagDev; }
+    void    setSwitchableTanks( bool bSwitchable );
 
     bool    m_bFuelFlowStarted;
 
@@ -69,12 +70,13 @@ private:
     void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
     void drawDayMode( QPainter *pArs, CanvasConstants *c );
+    void drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC );
     void swipeLeft();
     void swipeRight();
     void swipeUp();
     void swipeDown();
 
-    Canvas *m_pCanvas;
+    Canvas   *m_pCanvas;
 
     bool      m_bInitialized;
     QPixmap   m_planeIcon;
@@ -101,6 +103,8 @@ private:
     QPoint    m_SwipeStart;
     int       m_iSwiping;
     Airport   m_directAP;
+    Airport   m_fromAP;
+    Airport   m_toAP;
 
     QPixmap m_HeadIndicator;
     QPixmap m_RollIndicator;
@@ -111,6 +115,7 @@ private:
     QPixmap m_VertSpeedTape;
     QPixmap m_DirectTo;
     QPixmap m_AltBug;
+    QPixmap m_FromTo;
 
     StratofierSettings m_settings;
     QList<Airport>     m_airports;

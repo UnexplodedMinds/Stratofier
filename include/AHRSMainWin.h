@@ -73,6 +73,7 @@ private slots:
     void stopFuelFlow();
     void unitsKnots();
     void dayMode();
+    void setSwitchableTanks( bool bSwitchable );
 };
 
 #endif // __AHRSMAINWIN_H__

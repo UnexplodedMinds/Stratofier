@@ -42,6 +42,7 @@ signals:
     void stopFuelFlow();
     void unitsKnots();
     void dayMode();
+    void setSwitchableTanks( bool );
 };
 
 #endif // __MENUDIALOG_H__
