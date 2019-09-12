@@ -18,11 +18,6 @@ CONFIG += mobility
 VPATH += $$PWD/android
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-# airports.path = /assets
-# airports.files = Airports.csv
-
-# INSTALLS += airports
-
 DISTFILES += AndroidManifest.xml \
              gradle/wrapper/gradle-wrapper.jar \
              gradlew \

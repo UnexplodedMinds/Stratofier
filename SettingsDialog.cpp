@@ -27,10 +27,6 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
 {
     setupUi( this );
 
-#if !defined( Q_OS_ANDROID )
-    m_pStorageButton->hide();
-#endif
-
     m_pDataSetCombo->setMinimumHeight( pC->dH20 );
 
     loadSettings();
