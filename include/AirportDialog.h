@@ -12,8 +12,6 @@ Stratofier Stratux AHRS Display
 #include "Canvas.h"
 
 
-// NOTE: The reason this is called settings instead of Fuel or something similar is that the expectation that other non-fuel related settings
-//       will go here or possibly be moved here from the menu.
 class AirportDialog : public QDialog, public Ui::AirportDialog
 {
     Q_OBJECT

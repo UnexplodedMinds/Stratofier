@@ -8,6 +8,8 @@ Stratofier Stratux AHRS Display
 
 #include <QMainWindow>
 #include <QDateTime>
+#include <QBluetoothDeviceInfo>
+//#include <QBluetoothDeviceDiscoveryAgent>
 
 #include "ui_AHRSMainWin.h"
 #include "Canvas.h"
@@ -57,11 +59,13 @@ private:
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
 
+//  QBluetoothDeviceDiscoveryAgent *m_pBluetoothAgent;
+
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
     void resetLevel();
     void resetGMeter();
-    void upgradeRosco();
+    void upgradeStratofier();
     void shutdownStratux();
     void shutdownStratofier();
     void trafficToggled( bool bAll );
@@ -71,9 +75,14 @@ private slots:
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();
     void stopFuelFlow();
-    void unitsKnots();
+    void unitsAirspeed();
     void dayMode();
     void setSwitchableTanks( bool bSwitchable );
+/*
+    void deviceDiscovered( const QBluetoothDeviceInfo &device );
+    void deviceDiscoveryCompleted();
+    void deviceDiscoveryError( QBluetoothDeviceDiscoveryAgent::Error error );
+*/
 };
 
 #endif // __AHRSMAINWIN_H__

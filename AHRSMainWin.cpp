@@ -32,16 +32,16 @@ extern QSettings *g_pSet;
 
 
 // Standard fonts used throughout the app
-QFont itsy(  "Droid Sans", 8, QFont::Normal  );
-QFont wee(   "Droid Sans", 10, QFont::Normal  );
+QFont itsy(  "Droid Sans", 8,  QFont::Normal );
+QFont wee(   "Droid Sans", 10, QFont::Normal );
 QFont tiny(  "Droid Sans", 14, QFont::Normal );
 QFont small( "Droid Sans", 16, QFont::Normal );
 QFont med(   "Droid Sans", 18, QFont::Bold   );
 QFont large( "Droid Sans", 24, QFont::Bold   );
 
 
-bool g_bUnitsKnots = true;
-bool g_bDayMode = true;
+Canvas::Units g_eUnitsAirspeed = Canvas::Knots;
+bool          g_bDayMode = true;
 
 
 // Setup minimal UI elements and make the connections
@@ -56,7 +56,10 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
       m_iTimerTimer( -1 )
+//    m_pBluetoothAgent( nullptr )
 {
+    m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
+
     itsy.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     wee.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
     tiny.setLetterSpacing( QFont::PercentageSpacing, 120.0 );
@@ -82,8 +85,37 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( pScreen, SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
+
+    // Create a discovery agent and connect to its signals
+/*
+    m_pBluetoothAgent = new QBluetoothDeviceDiscoveryAgent( this );
+    connect( m_pBluetoothAgent, SIGNAL( deviceDiscovered( const QBluetoothDeviceInfo& ) ), this, SLOT( deviceDiscovered( const QBluetoothDeviceInfo& ) ) );
+    connect( m_pBluetoothAgent, SIGNAL( finished() ), this, SLOT( deviceDiscoveryCompleted() ) );
+    connect( m_pBluetoothAgent, SIGNAL( deviceDiscoveryError( QBluetoothDeviceDiscoveryAgent::Error ) ), this, SLOT( discoveryError( QBluetoothDeviceDiscoveryAgent::Error ) ) );
+
+    // Start a discovery
+    m_pBluetoothAgent->start();
+*/
 }
 
+/*
+void AHRSMainWin::deviceDiscovered( const QBluetoothDeviceInfo &device )
+{
+    qDebug() << "NEW DEVICE:" << device.name() << '(' << device.address().toString() << ')';
+}
+
+void AHRSMainWin::deviceDiscoveryError( QBluetoothDeviceDiscoveryAgent::Error error )
+{
+    qDebug() << "DEVICE DISCOVERY ERROR:" << error;
+    deviceDiscoveryCompleted();
+}
+
+void AHRSMainWin::deviceDiscoveryCompleted()
+{
+    delete m_pBluetoothAgent;
+    m_pBluetoothAgent = nullptr;
+}
+*/
 
 void AHRSMainWin::init()
 {
@@ -145,7 +177,7 @@ void AHRSMainWin::menu()
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
-        connect( m_pMenuDialog, SIGNAL( upgradeRosco() ), this, SLOT( upgradeRosco() ) );
+        connect( m_pMenuDialog, SIGNAL( upgradeStratofier() ), this, SLOT( upgradeStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratofier() ), this, SLOT( shutdownStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
@@ -154,7 +186,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
-        connect( m_pMenuDialog, SIGNAL( unitsKnots() ), this, SLOT( unitsKnots() ) );
+        connect( m_pMenuDialog, SIGNAL( unitsAirspeed() ), this, SLOT( unitsAirspeed() ) );
         connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
     }
@@ -197,7 +229,7 @@ void AHRSMainWin::emptyHttpPost( const QString &qsToken )
 }
 
 
-void AHRSMainWin::upgradeRosco()
+void AHRSMainWin::upgradeStratofier()
 {
     delete m_pMenuDialog;
     m_pMenuDialog = nullptr;
@@ -205,7 +237,8 @@ void AHRSMainWin::upgradeRosco()
                                                 "Select 'Yes' to download and install the latest Stratofier version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
-        system( "/home/pi/Stratofier/upgrade.sh > /dev/null 2>&1 &" );
+        if( system( "/home/pi/Stratofier/upgrade.sh > /dev/null 2>&1 &" ) != 0 )
+            qDebug() << "Error executing upgrade script.";
         QApplication::processEvents();
         qApp->closeAllWindows();
     }
@@ -221,7 +254,8 @@ void AHRSMainWin::shutdownStratofier()
 void AHRSMainWin::shutdownStratux()
 {
     qApp->exit( 0 );
-    system( "sudo shutdown -h now" );
+    if( system( "sudo shutdown -h now" ) != 0 )
+        qDebug() << "Error shutting down.";
 }
 
 
@@ -354,13 +388,25 @@ void AHRSMainWin::stopFuelFlow()
 }
 
 
-void AHRSMainWin::unitsKnots()
+void AHRSMainWin::unitsAirspeed()
 {
     MenuDialog *pDlg = static_cast<MenuDialog *>( sender() );
+    int         i = static_cast<int>( g_eUnitsAirspeed );
 
-    g_bUnitsKnots = (!g_bUnitsKnots);
-    pDlg->m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
-    g_pSet->setValue( "UnitsKnots", g_bUnitsKnots );
+    i++;
+    if( i > static_cast<int>( Canvas::KPH ) )
+        i = static_cast<int>( Canvas::MPH );
+    g_eUnitsAirspeed = static_cast<Canvas::Units>( i );
+    if( pDlg != nullptr )
+    {
+        if( g_eUnitsAirspeed == Canvas::MPH )
+            pDlg->m_pUnitsAirspeedButton->setText( "MPH" );
+        else if( g_eUnitsAirspeed == Canvas::Knots )
+            pDlg->m_pUnitsAirspeedButton->setText( "KNOTS" );
+        else
+            pDlg->m_pUnitsAirspeedButton->setText( "KPH" );
+    }
+    g_pSet->setValue( "UnitsAirspeed", static_cast<int>( g_eUnitsAirspeed ) );
     g_pSet->sync();
     m_pAHRSDisp->update();
 }

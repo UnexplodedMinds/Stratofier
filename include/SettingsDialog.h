@@ -30,15 +30,11 @@ public:
     StratofierSettings settings() { return m_settings; }
 
 private:
-    enum Getter
-    {
-        US,
-        CA
-    };
-
     void          loadSettings();
     void          startRequest( QUrl url );
     const QString settingsRoot();
+    void          populateUrlMap();
+    void          nextCountry();
 
     StratofierSettings m_settings;
     QString            m_qsInternalStoragePath;
@@ -49,18 +45,20 @@ private:
     QFile                 *m_pFile;
     qint64                 m_fileSize;
     QUrl                   m_url;
-    Getter                 m_eGetter;
     int                    m_iTally;
     CanvasConstants       *m_pC;
+
+    QMap<Canvas::CountryCode, QString> m_mapUrls;
+    QMapIterator<Canvas::CountryCode, QString> m_mapIt;
 
 private slots:
     void traffic();
     void airports();
     void getMapData();
     void storage();
-    void dataSet( int iSet );
     void switchable();
     void runways();
+    void selCountries();
 
     // Download slots
     void httpReadyRead();

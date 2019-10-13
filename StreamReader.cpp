@@ -15,9 +15,7 @@ Stratofier Stratux AHRS Display
 
 #include "StreamReader.h"
 #include "TrafficMath.h"
-
-
-extern bool g_bUnitsKnots;
+#include "StratofierDefs.h"
 
 
 StreamReader::StreamReader( QObject *parent, const QString &qsIP )
@@ -27,7 +25,8 @@ StreamReader::StreamReader( QObject *parent, const QString &qsIP )
       m_bStratuxStatus( false ),
       m_bGPSStatus( false ),
       m_bConnected( false ),
-      m_qsIP( qsIP )
+      m_qsIP( qsIP ),
+      m_eUnits( Canvas::Knots )
 {
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
@@ -128,7 +127,7 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         else if( qsTag == "GPSTurnRate" )
             situation.dGPSTurnRate = dVal;
         else if( qsTag == "GPSGroundSpeed" )
-            situation.dGPSGroundSpeed = dVal * (g_bUnitsKnots ? 1.0 : 1.15078);
+            situation.dGPSGroundSpeed = dVal * unitsMult();
         else if( qsTag == "GPSLastGroundTrackTime" )
             situation.lastGPSGroundTrackTime.fromString( qsVal, Qt::ISODate );
         else if( qsTag == "GPSTime" )
@@ -245,7 +244,7 @@ void StreamReader::trafficUpdate( const QString &qsMessage )
         else if( qsTag == "Track" )
             traffic.dTrack = dVal;
         else if( qsTag == "Speed" )
-            traffic.dSpeed = dVal * (g_bUnitsKnots ? 1.0 : 1.15078);
+            traffic.dSpeed = dVal * unitsMult();
         else if( qsTag == "Vvel" )
             traffic.dVertSpeed = dVal;
         else if( qsTag == "Tail" )
@@ -429,5 +428,26 @@ void StreamReader::stratuxDisconnected()
 {
     emit newStatus( false, false, false, false );
     m_bConnected = false;
+}
+
+
+double StreamReader::unitsMult()
+{
+    double dUnitsMult = 1.0;
+
+    switch( m_eUnits )
+    {
+        case Canvas::MPH:
+            dUnitsMult = KnotsToMPH;
+            break;
+        case Canvas::Knots:
+            dUnitsMult = 1.0;
+            break;
+        case Canvas::KPH:
+            dUnitsMult = KnotsToKPH;
+            break;
+    }
+
+    return dUnitsMult;
 }
 

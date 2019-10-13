@@ -11,5 +11,7 @@ Stratofier Stratux AHRS Display
 #define ToDeg        57.29577951308232088
 #define MetersToNM   0.000539957
 #define MetersToFeet 3.28084
+#define KnotsToMPH   1.15078
+#define KnotsToKPH   1.852001
 
 #endif // __StratofierDEFS_H__

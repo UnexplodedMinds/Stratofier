@@ -17,16 +17,16 @@ Stratofier Stratux AHRS Display
 #include "ui_MenuDialog.h"
 
 
-extern QSettings *g_pSet;
-extern bool       g_bUnitsKnots;
+extern QSettings    *g_pSet;
+extern Canvas::Units g_eUnitsAirspeed;
 
 
 MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_bPortrait( bPortrait )
 {
-    CanvasConstants     c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
-    int                 iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
+    CanvasConstants c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
+    int             iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
 
     setupUi( this );
 
@@ -36,7 +36,12 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     foreach( pKid, kids )
         pKid->setIconSize( QSize( iIconSize, iIconSize ) );
 
-    m_pUnitsKnotsButton->setText( g_bUnitsKnots ? "KNOTS" : "MPH" );
+    if( g_eUnitsAirspeed == Canvas::MPH )
+        m_pUnitsAirspeedButton->setText( "MPH" );
+    else if( g_eUnitsAirspeed == Canvas::Knots )
+        m_pUnitsAirspeedButton->setText( "KNOTS" );
+    else
+        m_pUnitsAirspeedButton->setText( "KPH" );
 
     connect( m_pExitButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratux() ) );
     connect( m_pExitStratofierButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
@@ -46,12 +51,12 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     m_pUpgradeButton->hide();
     m_pDayModeButton->hide();
 #else
-    connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeRosco() ) );
+    connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeStratofier() ) );
     connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
 #endif
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
     connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
-    connect( m_pUnitsKnotsButton, SIGNAL( clicked() ), this, SIGNAL( unitsKnots() ) );
+    connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
 
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
 }

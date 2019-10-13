@@ -89,11 +89,11 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>RoscoPi</string>
+   <string>StratofierPi</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/icons/resources/Rosco.png</normaloff>:/icons/resources/Rosco.png</iconset>
+    <normaloff>:/icons/resources/Stratofier.png</normaloff>:/icons/resources/Stratofier.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QLabel

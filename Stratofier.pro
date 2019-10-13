@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui websockets widgets network concurrent xml
+QT += core gui websockets widgets network concurrent xml bluetooth
 
 VPATH += ./include \
          ../include \
@@ -66,7 +66,8 @@ SOURCES += main.cpp \
            FuelTanksDialog.cpp \
            ClickLabel.cpp \
            SettingsDialog.cpp \
-           AirportDialog.cpp
+           AirportDialog.cpp \
+           CountryDialog.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -84,7 +85,8 @@ HEADERS += StratuxStreams.h \
            FuelTanksDialog.h \
            ClickLabel.h \
            SettingsDialog.h \
-           AirportDialog.h
+           AirportDialog.h \
+           CountryDialog.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
@@ -93,6 +95,7 @@ FORMS += AHRSMainWin.ui \
          TimerDialog.ui \
          FuelTanksDialog.ui \
          SettingsDialog.ui \
-         AirportDialog.ui
+         AirportDialog.ui \
+         CountryDialog.ui
 
 RESOURCES += AHRSResources.qrc

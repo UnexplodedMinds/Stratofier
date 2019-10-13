@@ -10,6 +10,7 @@ Stratofier Stratux AHRS Display
 #include <QWebSocket>
 
 #include "StratuxStreams.h"
+#include "Canvas.h"
 
 
 class QCoreApplication;
@@ -33,20 +34,25 @@ public:
 
     void setIP( const QString &qsIP );
 
+    void setUnits( Canvas::Units eUnits ) { m_eUnits = eUnits; }
+
 private:
-    bool       m_bHaveMyPos;
-    bool       m_bAHRSStatus;
-    bool       m_bStratuxStatus;
-    bool       m_bGPSStatus;
-    bool       m_bTrafficStatus;
-    QWebSocket m_stratuxSituation;
-    QWebSocket m_stratuxTraffic;
-    QWebSocket m_stratuxStatus;
-    QWebSocket m_stratuxWeather;
-    double     m_dMyLat;
-    double     m_dMyLong;
-    bool       m_bConnected;
-    QString    m_qsIP;
+    double unitsMult();
+
+    bool          m_bHaveMyPos;
+    bool          m_bAHRSStatus;
+    bool          m_bStratuxStatus;
+    bool          m_bGPSStatus;
+    bool          m_bTrafficStatus;
+    QWebSocket    m_stratuxSituation;
+    QWebSocket    m_stratuxTraffic;
+    QWebSocket    m_stratuxStatus;
+    QWebSocket    m_stratuxWeather;
+    double        m_dMyLat;
+    double        m_dMyLong;
+    bool          m_bConnected;
+    QString       m_qsIP;
+    Canvas::Units m_eUnits;
 
 private slots:
     void situationUpdate( const QString &qsMessage );

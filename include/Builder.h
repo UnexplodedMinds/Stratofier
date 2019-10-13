@@ -8,6 +8,7 @@ Stratofier Stratux AHRS Display
 
 #include <Canvas.h>
 #include <QString>
+#include <QMap>
 
 
 class QPixmap;
@@ -22,6 +23,8 @@ public:
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &qsNum );
 
     static void getStorage( QString *pInternal );
+
+    static void populateUrlMap( QMap<Canvas::CountryCode, QString> *pMap );
 };
 
 #endif // __BUILDER_H__

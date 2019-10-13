@@ -105,12 +105,45 @@ struct FuelTanks
 class Canvas
 {
 public:
+    enum CountryCode
+    {
+        US,
+        CA,
+        AU,
+        AT,
+        BE,
+        BR,
+        CL,
+        CN,
+        CZ,
+        HU,
+        IS,
+        IN,
+        IL,
+        KE,
+        KR,
+        NZ,
+        NE,
+        PT,
+        PR,
+        RU,
+        SE,
+        UA
+    };
+
     enum ShowAirports
     {
         ShowNoAirports,
         ShowGrassAirports,
         ShowPavedAirports,
         ShowAllAirports
+    };
+
+    enum Units
+    {
+        MPH,
+        Knots,
+        KPH
     };
 
     Canvas( double dWidth, double dHeight, bool bPortrait );
@@ -130,12 +163,14 @@ private:
 
 struct StratofierSettings
 {
-    Canvas::ShowAirports eShowAirports;
-    bool                 bShowAllTraffic;
-    int                  iCurrDataSet;
-    bool                 bSwitchableTanks;
-    QString              qsStratuxIP;
-    bool                 bShowRunways;
+    Canvas::ShowAirports  eShowAirports;
+    bool                  bShowAllTraffic;
+    int                   iCurrDataSet;
+    bool                  bSwitchableTanks;
+    QString               qsStratuxIP;
+    bool                  bShowRunways;
+    Canvas::Units         eUnits;
+    QList<Canvas::CountryCode> listCountries;
 };
 
 

@@ -41,7 +41,6 @@ extern QFont small;
 extern QFont med;
 extern QFont large;
 
-extern bool g_bUnitsKnots;
 extern bool g_bDayMode;
 
 extern QList<Airport> g_airportCache;
@@ -51,7 +50,9 @@ extern QSettings *g_pSet;
 StratuxSituation          g_situation;
 QMap<int, StratuxTraffic> g_trafficMap;
 
-QString g_qsStratofierVersion( "1.4.1.1" );
+extern Canvas::Units g_eUnitsAirspeed;
+
+QString g_qsStratofierVersion( "1.5.0.0" );
 
 
 /*
@@ -196,7 +197,7 @@ void AHRSCanvas::loadSettings()
     m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
-    g_bUnitsKnots = g_pSet->value( "UnitsKnots", true ).toBool();
+    m_settings.eUnits = static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed", true ).toInt() );
 
     g_pSet->beginGroup( "FuelTanks" );
     m_tanks.dLeftCapacity = g_pSet->value( "LeftCapacity", 24.0 ).toDouble();
@@ -1211,9 +1212,22 @@ void AHRSCanvas::paintPortrait()
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH4 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
+    QString qsUnits;
+    switch( g_eUnitsAirspeed )
+    {
+        case Canvas::MPH:
+            qsUnits = "MPH";
+            break;
+        case Canvas::Knots:
+            qsUnits = "KTS";
+            break;
+        case Canvas::KPH:
+            qsUnits = "KPH";
+            break;
+    }
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH4 + 1, qsUnits );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH4, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH4, qsUnits );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1670,9 +1684,22 @@ void AHRSCanvas::paintLandscape()
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH2 + c.dH80 + 1, g_bUnitsKnots ? "KTS" : "MPH"  );
+    QString qsUnits;
+    switch( m_settings.eUnits )
+    {
+        case Canvas::MPH:
+            qsUnits = "MPH";
+            break;
+        case Canvas::Knots:
+            qsUnits = "KTS";
+            break;
+        case Canvas::KPH:
+            qsUnits = "KPH";
+            break;
+    }
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH2 + c.dH80 + 1, qsUnits );
     ahrs.setPen( Qt::white );
-    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH2 + c.dH80, g_bUnitsKnots ? "KTS" : "MPH"  );
+    ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH2 + c.dH80, qsUnits );
 
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );

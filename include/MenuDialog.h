@@ -31,7 +31,7 @@ private slots:
 signals:
     void resetLevel();
     void resetGMeter();
-    void upgradeRosco();
+    void upgradeStratofier();
     void shutdownStratux();
     void shutdownStratofier();
     void trafficToggled( bool );
@@ -40,7 +40,7 @@ signals:
     void timer();
     void fuelTanks( FuelTanks );
     void stopFuelFlow();
-    void unitsKnots();
+    void unitsAirspeed();
     void dayMode();
     void setSwitchableTanks( bool );
 };

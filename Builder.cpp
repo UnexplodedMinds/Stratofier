@@ -8,6 +8,7 @@ Stratofier Stratux AHRS Display
 #include <QProcess>
 #include <QtDebug>
 #include <QDir>
+#include <QMap>
 
 #include "Builder.h"
 #include "Canvas.h"
@@ -88,3 +89,29 @@ void Builder::getStorage( QString *pInternal )
 #endif
 }
 
+
+void Builder::populateUrlMap( QMap<Canvas::CountryCode, QString> *pMap )
+{
+    pMap->insert( Canvas::AU, "australia_au" );
+    pMap->insert( Canvas::AT, "austria_at" );
+    pMap->insert( Canvas::BE, "belgium_be" );
+    pMap->insert( Canvas::BR, "brazil_br" );
+    pMap->insert( Canvas::CA, "canada_ca" );
+    pMap->insert( Canvas::CL, "chile_cl" );
+    pMap->insert( Canvas::CN, "china_cn" );
+    pMap->insert( Canvas::CZ, "czech_republic_cz" );
+    pMap->insert( Canvas::HU, "hungary_hu" );
+    pMap->insert( Canvas::IS, "iceland_is" );
+    pMap->insert( Canvas::IN, "india_in" );
+    pMap->insert( Canvas::IL, "israel_il" );
+    pMap->insert( Canvas::KE, "kenya_ke" );
+    pMap->insert( Canvas::KR, "korea_kr" );
+    pMap->insert( Canvas::NZ, "new_zealand_nz" );
+    pMap->insert( Canvas::NE, "niger_ne" );
+    pMap->insert( Canvas::PT, "portugal_pt" );
+    pMap->insert( Canvas::PR, "rico_pr" );
+    pMap->insert( Canvas::RU, "russian_federation_ru" );
+    pMap->insert( Canvas::SE, "sweden_se" );
+    pMap->insert( Canvas::UA, "ukraine_ua" );
+    pMap->insert( Canvas::US, "united_states_us" );
+}

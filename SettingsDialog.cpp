@@ -14,6 +14,7 @@ Stratofier Stratux AHRS Display
 #include "SettingsDialog.h"
 #include "Builder.h"
 #include "TrafficMath.h"
+#include "CountryDialog.h"
 
 
 extern QSettings *g_pSet;
@@ -21,13 +22,13 @@ extern QSettings *g_pSet;
 
 SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
-      m_eGetter( SettingsDialog::US ),
       m_iTally( 0 ),
-      m_pC( pC )
+      m_pC( pC ),
+      m_mapIt( m_mapUrls )
 {
     setupUi( this );
 
-    m_pDataSetCombo->setMinimumHeight( pC->dH20 );
+    Builder::populateUrlMap( &m_mapUrls );
 
     loadSettings();
     m_settings.bShowAllTraffic = (!m_settings.bShowAllTraffic);
@@ -44,8 +45,6 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
         m_settings.eShowAirports = Canvas::ShowGrassAirports;
     airports();     // Call the cycler to update and initialize the stored airport show selection
 
-    connect( m_pDataSetCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( dataSet( int ) ) );
-
     connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pTrafficButton, SIGNAL( clicked() ), this, SLOT( traffic() ) );
 
@@ -54,6 +53,10 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     connect( m_pShowRunwaysButton, SIGNAL( clicked() ), this, SLOT( runways() ) );
 
     connect( m_pGetDataButton, SIGNAL( clicked() ), this, SLOT( getMapData() ) );
+
+    connect( m_pSelCountriesButton, SIGNAL( clicked() ), this, SLOT( selCountries() ) );
+
+    m_pDataProgress->hide();
 }
 
 
@@ -76,18 +79,24 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::loadSettings()
 {
+    QVariantList countries;
+    QVariant     country;
+
     // Persistent settings
     m_settings.bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
+    countries = g_pSet->value( "CountryAirports", countries ).toList();
+    m_settings.listCountries.clear();
+    foreach( country, countries )
+        m_settings.listCountries.append( static_cast<Canvas::CountryCode>( country.toInt() ) );
     g_pSet->beginGroup( "FuelTanks" );
     m_settings.bSwitchableTanks = (!g_pSet->value( "DualTanks" ).toBool());
     g_pSet->endGroup();
     switchable();
 
-    m_pDataSetCombo->setCurrentIndex( m_settings.iCurrDataSet );
     m_pIPEdit->setText( m_settings.qsStratuxIP );
 
     Builder::getStorage( &m_qsInternalStoragePath );
@@ -147,17 +156,27 @@ void SettingsDialog::getMapData()
     if( pSender == nullptr )
         return;
 
+    if( m_settings.listCountries.count() == 0 )
+        return;
+
     QString qsUrl, qsFile;
 
     m_pManager = new QNetworkAccessManager( this );
 
-    qsUrl = "http://skyfun.space/stratofier/openaip_airports_united_states_us.aip";
-    qsFile = settingsRoot() + "/space.skyfun.stratofier/airports_us.aip";
-    m_eGetter = SettingsDialog::US;
+    m_mapIt = m_mapUrls;
+    nextCountry();
 
+    qsUrl = "http://skyfun.space/stratofier/openaip_airports_" + m_mapIt.value() + ".aip";
+    qsFile = settingsRoot() + "/space.skyfun.stratofier/" + m_mapIt.value() + ".aip";
     m_url = qsUrl;
     m_pFile = new QFile( qsFile );
     m_iTally = 0;
+
+    m_pCountryProgress->setFormat( QString( "%p% [%1]" ).arg( m_mapIt.value().right( 2 ).toUpper() ) );
+    m_pCountryProgress->setMaximum( m_settings.listCountries.count() );
+    m_pCountryProgress->setValue( 0 );
+    m_pDataProgress->setValue( 0 );
+    m_pDataProgress->show();
 
     // Something is wrong with the file path or permissions
     if( !m_pFile->open( QIODevice::WriteOnly) )
@@ -173,16 +192,26 @@ void SettingsDialog::getMapData()
 
 void SettingsDialog::storage()
 {
-    // Set the getter icons according to whether the data has been downloaded
-    if( QFile::exists( settingsRoot() + "/space.skyfun.stratofier/airports_us.aip" ) &&
-        QFile::exists( settingsRoot() + "/space.skyfun.stratofier/airports_us.aip" ) )
+    QDir        storagePath( settingsRoot() + "/space.skyfun.stratofier" );
+    QString     qsFile;
+    QStringList qsFiles = storagePath.entryList();
+    int         iFound = 0;
+
+    foreach( qsFile, qsFiles )
     {
-        m_pDataProgress->setValue( 100 );
+        if( qsFile.endsWith( ".aip" ) )
+            iFound++;
+    }
+
+    // Set the getter icons according to whether the data has been downloaded
+    if( iFound >= m_settings.listCountries.count() )
+    {
+        m_pCountryProgress->setValue( 100 );
         m_pGetDataButton->setIcon( QIcon( ":/icons/resources/OK.png" ) );
     }
     else
     {
-        m_pDataProgress->setValue( 0 );
+        m_pCountryProgress->setValue( 0 );
         m_pGetDataButton->setIcon( QIcon( ":/icons/resources/Cancel.png" ) );
     }
 }
@@ -197,23 +226,19 @@ void SettingsDialog::httpReadyRead()
 
 void SettingsDialog::updateDownloadProgress( qint64 bytesRead, qint64 totalBytes )
 {
-    if( m_eGetter == SettingsDialog::US )
-    {
-        m_pDataProgress->setMaximum( static_cast<int>( totalBytes / 2 ) );
-        m_pDataProgress->setValue( static_cast<int>( bytesRead / 2 ) );
-        m_iTally = static_cast<int>( totalBytes );
-    }
-    else
-    {
-        m_pDataProgress->setMaximum( static_cast<int>( m_iTally + totalBytes ) );
-        m_pDataProgress->setValue( static_cast<int>( m_iTally + bytesRead ) );
-    }
+    m_pDataProgress->setMaximum( static_cast<int>( totalBytes ) );
+    m_pDataProgress->setValue( static_cast<int>( bytesRead ) );
 }
 
 
 // When download finished or canceled, this will be called
 void SettingsDialog::httpDownloadFinished()
 {
+    QString qsRoot( "http://skyfun.space/stratofier/" );
+    QString qsFileRoot = settingsRoot() + "/space.skyfun.stratofier/";
+    QString qsUrl;
+    QString qsFile;
+
     m_pFile->flush();
     m_pFile->close();
 
@@ -221,14 +246,23 @@ void SettingsDialog::httpDownloadFinished()
     m_pReply = nullptr;
     delete m_pFile;
     m_pFile = nullptr;
+    m_iTally++;
+    m_pCountryProgress->setValue( m_iTally );
 
-    if( m_eGetter == SettingsDialog::US )
+    if( !m_mapIt.hasNext() )
     {
-        QString qsUrl = "http://skyfun.space/stratofier/openaip_airports_canada_ca.aip";
-        QString qsFile = settingsRoot() + "/space.skyfun.stratofier/airports_ca.aip";
-
-        m_eGetter = SettingsDialog::CA;
-
+        m_pCountryProgress->setFormat( "%p% [ALL]" );
+        m_pGetDataButton->setIcon( QIcon( ":/icons/resources/OK.png" ) );
+        m_pManager = nullptr;
+        m_pDataProgress->hide();
+    }
+    else
+    {
+        nextCountry();
+        m_pDataProgress->setValue( 0 );
+        m_pCountryProgress->setFormat( QString( "%p% [%1]" ).arg( m_mapIt.value().right( 2 ).toUpper() ) );
+        qsUrl = qsRoot + "openaip_airports_" + m_mapIt.value() + ".aip";
+        qsFile = qsFileRoot + m_mapIt.value() + ".aip";
         m_url = qsUrl;
         m_pFile = new QFile( qsFile );
 
@@ -241,11 +275,6 @@ void SettingsDialog::httpDownloadFinished()
         }
         else
             startRequest( m_url );
-    }
-    else
-    {
-        m_pGetDataButton->setIcon( QIcon( ":/icons/resources/OK.png" ) );
-        m_pManager = nullptr;
     }
 }
 
@@ -277,14 +306,6 @@ const QString SettingsDialog::settingsRoot()
 }
 
 
-void SettingsDialog::dataSet( int iSet )
-{
-    m_settings.iCurrDataSet = iSet;
-    g_pSet->setValue( "CurrDataSet", iSet );
-    TrafficMath::cacheAirports();
-}
-
-
 void SettingsDialog::switchable()
 {
     m_settings.bSwitchableTanks = (!m_settings.bSwitchableTanks);
@@ -310,3 +331,53 @@ void SettingsDialog::runways()
     emit showRunways( m_settings.bShowRunways );
 }
 
+
+void SettingsDialog::selCountries()
+{
+    CountryDialog  dlg( this, m_pC );
+
+    // This geometry works for both orientations since dW is actually half width in landscape
+    dlg.setGeometry( 0, 0, static_cast<int>( m_pC->dW ), static_cast<int>( m_pC->dH ) );
+    if( dlg.exec() == QDialog::Accepted )
+    {
+        Canvas::CountryCode        country;
+        QVariantList          countries;
+        QList<Canvas::CountryCode> deleteCountries;
+        QString               qsFile;
+
+        m_settings.listCountries = dlg.countries();
+        deleteCountries = dlg.deleteCountries();
+        foreach( country, m_settings.listCountries )
+            countries.append( static_cast<int>( country ) );
+        foreach( country, deleteCountries )
+        {
+            qsFile = settingsRoot() + "/space.skyfun.stratofier/" + m_mapUrls[country] + ".aip";
+            QFile::remove( qsFile );
+        }
+        g_pSet->setValue( "CountryAirports", countries );
+        g_pSet->sync();
+    }
+}
+
+
+void SettingsDialog::nextCountry()
+{
+    Canvas::CountryCode country;
+    bool           bFound = false;
+
+    // Move the iterator to the next selected country
+    while( m_mapIt.hasNext() )
+    {
+        m_mapIt.next();
+        foreach( country, m_settings.listCountries )
+        {
+            if( m_mapIt.key() == country )
+            {
+                bFound = true;
+                break;
+            }
+        }
+        if( bFound )
+            break;
+    }
+}
