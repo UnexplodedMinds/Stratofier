@@ -163,14 +163,15 @@ private:
 
 struct StratofierSettings
 {
-    Canvas::ShowAirports  eShowAirports;
-    bool                  bShowAllTraffic;
-    int                   iCurrDataSet;
-    bool                  bSwitchableTanks;
-    QString               qsStratuxIP;
-    bool                  bShowRunways;
-    Canvas::Units         eUnits;
+    Canvas::ShowAirports       eShowAirports;
+    bool                       bShowAllTraffic;
+    int                        iCurrDataSet;
+    bool                       bSwitchableTanks;
+    QString                    qsStratuxIP;
+    bool                       bShowRunways;
+    Canvas::Units              eUnits;
     QList<Canvas::CountryCode> listCountries;
+    QString                    qsOwnshipID;
 };
 
 

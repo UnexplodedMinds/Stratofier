@@ -30,14 +30,15 @@ void Builder::buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int i
 {
     pNumber->fill( Qt::transparent );
 
-    QPainter        numPainter( pNumber );
-    QString         qsNum = QString( "%1" ).arg( iNum, iFieldWidth, 10, QChar( '0' ) );
-    QChar           cNum;
-    int             iX = 0;
+    QPainter numPainter( pNumber );
+    QString  qsNum = QString( "%1" ).arg( iNum, iFieldWidth, 10, QChar( '0' ) );
+    QChar    cNum;
+    int      iX = 0;
 
     foreach( cNum, qsNum )
     {
         QPixmap num( QString( ":/num/resources/%1.png" ).arg( cNum ) );
+
         numPainter.drawPixmap( iX, 0, c->dWNum, c->dHNum, num );
         iX += static_cast<int>( c->dWNum );
     }
@@ -62,6 +63,34 @@ void Builder::buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &
         QPixmap num( qsDigit );
         numPainter.drawPixmap( iX, 0, c->dWNum, c->dHNum, num );
         iX += static_cast<int>( c->dWNum );
+    }
+}
+
+
+void Builder::buildNumber(QPixmap *pNumber, CanvasConstants *c, double dNum, int iPrec )
+{
+    pNumber->fill( Qt::transparent );
+
+    QPainter numPainter( pNumber );
+    QString  qsNum = QString::number( dNum, 'f', iPrec );
+    QChar    cNum;
+    int      iX = 0;
+    bool     bMantissa = false;
+    int      iFull = static_cast<int>( c->dWNum );
+    int      iHalf = static_cast<int>( c->dWNum / 1.5 );
+
+    foreach( cNum, qsNum )
+    {
+        if( cNum == '.' )
+        {
+            bMantissa = true;
+            continue;
+        }
+
+        QPixmap num( QString( ":/num/resources/%1b.png" ).arg( cNum ) );
+
+        numPainter.drawPixmap( static_cast<double>( iX ), bMantissa ? (c->dHNum * 0.25) - 1.0 : 0.0, (bMantissa ? c->dWNum / 1.5 : c->dWNum), (bMantissa ? c->dHNum / 1.5 : c->dHNum), num );
+        iX += (bMantissa ? iHalf : iFull);
     }
 }
 

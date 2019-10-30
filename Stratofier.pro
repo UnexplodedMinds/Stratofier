@@ -50,7 +50,7 @@ UI_DIR = ./gen/uic
 MOC_DIR = ./gen/moc
 RCC_DIR = ./gen/rcc
 
-QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+#QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
 SOURCES += main.cpp \
            StreamReader.cpp \

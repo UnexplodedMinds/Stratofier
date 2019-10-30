@@ -168,7 +168,7 @@ QPushButton::pressed
       </font>
      </property>
      <property name="text">
-      <string>KNOTS</string>
+      <string>MPH</string>
      </property>
     </widget>
    </item>

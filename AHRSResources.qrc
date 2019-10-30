@@ -25,6 +25,16 @@
     <file>resources/ZoomOut.png</file>
   </qresource>
   <qresource prefix="/num">
+    <file>resources/0b.png</file>
+    <file>resources/1b.png</file>
+    <file>resources/2b.png</file>
+    <file>resources/3b.png</file>
+    <file>resources/4b.png</file>
+    <file>resources/5b.png</file>
+    <file>resources/6b.png</file>
+    <file>resources/7b.png</file>
+    <file>resources/8b.png</file>
+    <file>resources/9b.png</file>
     <file>resources/colon.png</file>
     <file>resources/0.png</file>
     <file>resources/1.png</file>

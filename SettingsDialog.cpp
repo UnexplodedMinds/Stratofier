@@ -67,7 +67,8 @@ SettingsDialog::~SettingsDialog()
     g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
     g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
 
-    g_pSet->setValue( "StratuxIP", m_pIPEdit->text() );
+    g_pSet->setValue( "StratuxIP", m_pIPEdit->text().simplified().remove( ' ' ) );
+    g_pSet->setValue( "OwnshipID", m_pOwnshipIDEdit->text().simplified().toUpper().remove( ' ' ) );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
@@ -88,6 +89,7 @@ void SettingsDialog::loadSettings()
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
+    m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
     countries = g_pSet->value( "CountryAirports", countries ).toList();
     m_settings.listCountries.clear();
     foreach( country, countries )
@@ -98,6 +100,7 @@ void SettingsDialog::loadSettings()
     switchable();
 
     m_pIPEdit->setText( m_settings.qsStratuxIP );
+    m_pOwnshipIDEdit->setText( m_settings.qsOwnshipID );
 
     Builder::getStorage( &m_qsInternalStoragePath );
 

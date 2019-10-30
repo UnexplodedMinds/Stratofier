@@ -21,6 +21,7 @@ public:
 
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, int iNum, int iFieldWidth );
     static void buildNumber( QPixmap *pNumber, CanvasConstants *c, const QString &qsNum );
+    static void buildNumber( QPixmap *pNumber, CanvasConstants *c, double dNum, int iPrec );
 
     static void getStorage( QString *pInternal );
 

@@ -71,10 +71,14 @@ private:
     void loadSettings();
     void drawDayMode( QPainter *pArs, CanvasConstants *c );
     void drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC );
+    void drawSlipSkid( QPainter *pAhrs, CanvasConstants *pC, double dSlipSkid );
+    void drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
+    void drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
     void swipeLeft();
     void swipeRight();
     void swipeUp();
     void swipeDown();
+    const QString speedUnits();
 
     Canvas   *m_pCanvas;
 

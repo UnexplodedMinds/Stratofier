@@ -52,7 +52,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.5.0.0" );
+QString g_qsStratofierVersion( "1.5.1.0" );
 
 
 /*
@@ -304,6 +304,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     int                   iCourseLinePenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) );
     int                   iCourseLineLength = static_cast<int>( c->dH * (m_bPortrait ? 0.0375 : 0.0625) );
     QPainterPath          maskPath;
+    QColor                closenessColor( Qt::green );
 
     maskPath.addEllipse( 10.0 + (m_bPortrait ? 0 : c->dW),
                          c->dH - c->dW,
@@ -314,13 +315,25 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 	foreach( traffic, trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
-        if( traffic.bHasADSB )
+        if( traffic.bHasADSB && (traffic.qsTail != m_settings.qsOwnshipID) )
         {
 			double dTrafficDist = traffic.dDist * dPxPerNM;
             double dAltDist = traffic.dAlt - g_situation.dBaroPressAlt;
+            double dAltDistAbs = fabs( dAltDist );
 
-            if( m_settings.bShowAllTraffic || (fabs( dAltDist ) < 5000) )
+            if( m_settings.bShowAllTraffic || (dAltDistAbs < 5000) )
             {
+                closenessColor = Qt::green;
+
+                if( traffic.bOnGround )
+                    closenessColor = Qt::cyan;
+                else if( (dAltDistAbs <= 2000) && (dAltDistAbs > 1000) )
+                    closenessColor = Qt::yellow;
+                else if( (dAltDistAbs <= 1000) && (dAltDistAbs > 500) )
+                    closenessColor = QColor( 0xFF, 0xA5, 0x00 );
+                else if( dAltDistAbs <= 500 )
+                    closenessColor = Qt::red;
+
                 ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 ) );
                 ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dTrafficDist ) );
 
@@ -341,13 +354,13 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 planePen.setColor( Qt::black );
                 pAhrs->setPen( planePen );
                 pAhrs->drawPoint( ball.p2() );
-                planePen.setColor( Qt::green );
+                planePen.setColor( closenessColor );
                 pAhrs->setPen( planePen );
                 pAhrs->drawPoint( ball.p2().x() - 2, ball.p2().y() - 2 );
 
                 // Draw the green part of the track line
                 planePen.setWidth( iCourseLinePenWidth );
-                planePen.setColor( Qt::green );
+                planePen.setColor( closenessColor );
                 track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
                 track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + iCourseLineLength - 2 ) );
                 track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 90.0 );
@@ -371,7 +384,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
                 pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 #endif
-			    pAhrs->setPen( Qt::green );
+                pAhrs->setPen( closenessColor );
                 pAhrs->setFont( wee );
                 pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
                 pAhrs->setFont( tiny );
@@ -859,10 +872,10 @@ void AHRSCanvas::paintPortrait()
 {
     QPainter        ahrs( this );
     CanvasConstants c = m_pCanvas->constants();
-    double          dPitchH = c.dH4 + (g_situation.dAHRSpitch / 22.5 * c.dH4);     // The visible portion is only 1/4 of the 90 deg range
     QPixmap         num( 320, 84 );
     QPolygon        shape;
     QPen            linePen( Qt::black );
+    double          dPitchH = c.dH4 + (g_situation.dAHRSpitch / 22.5 * c.dH4);     // The visible portion is only 1/4 of the 90 deg range
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
     double          dPxPerVSpeed = c.dH2 / 40.0;
     double          dPxPerFt = static_cast<double>( m_AltTape.height() ) / 20000.0 * 0.99;
@@ -922,16 +935,7 @@ void AHRSCanvas::paintPortrait()
     ahrs.setClipping( false );
 
     // Slip/Skid indicator
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW2 - c.dW4, 1, c.dW2, c.dH40 );
-    ahrs.drawRect( c.dW2 - m_pCanvas->scaledH( 15.0 ), 1.0, m_pCanvas->scaledH( 30.0 ), c.dH40 );
-    ahrs.setPen( Qt::NoPen );
-    ahrs.setBrush( Qt::white );
-    ahrs.drawEllipse( dSlipSkid - m_pCanvas->scaledH( 10.0 ),
-                      1.0,
-                      m_pCanvas->scaledV( 20.0 ),
-                      c.dH40 );
+    drawSlipSkid( &ahrs, &c, dSlipSkid );
 
     // Draw the top roll indicator
     ahrs.translate( c.dW2, c.dH20 + ((c.dW - c.dW5) / 2.0) );
@@ -942,9 +946,9 @@ void AHRSCanvas::paintPortrait()
 
     QPolygonF arrow;
 
-    arrow.append( QPointF( c.dW2, c.dH40 + (c.dH * (m_bPortrait ? 0.0625 : 0.104167)) ) );
-    arrow.append( QPointF( c.dW2 + (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
-    arrow.append( QPointF( c.dW2 - (c.dWa * (m_bPortrait ? 0.03125 : 0.01875)), c.dH40 + (c.dH * (m_bPortrait ? 0.08125 : 0.1354167)) ) );
+    arrow.append( QPointF( c.dW2, c.dH40 + (c.dH * 0.0625) ) );
+    arrow.append( QPointF( c.dW2 + (c.dWa * 0.03125), c.dH40 + (c.dH * 0.08125) ) );
+    arrow.append( QPointF( c.dW2 - (c.dWa * 0.03125), c.dH40 + (c.dH * 0.08125) ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
@@ -1190,12 +1194,8 @@ void AHRSCanvas::paintPortrait()
     ahrs.resetTransform();
 
     // Draw the current altitude
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
-    ahrs.drawRect( c.dW - c.dW5 - (c.dW * 0.0125), c.dH4 - (c.dHNum / 2.0) - (c.dH * 0.0075), c.dW5 + (c.dW * 0.025), c.dHNum + (c.dH * 0.015) );
-    ahrs.setPen( Qt::white );
     Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dBaroPressAlt ), 0 );
-    ahrs.drawPixmap( c.dW - c.dW5, c.dH4 - (c.dHNum / 2.0), num );
+    drawCurrAlt( &ahrs, &c, &num );
 
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH2, QColor( 0, 0, 0, 100 ) );
@@ -1204,27 +1204,12 @@ void AHRSCanvas::paintPortrait()
     ahrs.setClipping( false );
 
     // Draw the current speed
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
-    ahrs.drawRect( 0, c.dH4 - (c.dHNum / 2.0) - (c.dH * 0.0075), c.dW5, c.dHNum + (c.dH * 0.015) );
     Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
-    ahrs.drawPixmap( c.dW * 0.0125, c.dH4 - (c.dHNum / 2.0), num );
+    drawCurrSpeed( &ahrs, &c, &num );
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    QString qsUnits;
-    switch( g_eUnitsAirspeed )
-    {
-        case Canvas::MPH:
-            qsUnits = "MPH";
-            break;
-        case Canvas::Knots:
-            qsUnits = "KTS";
-            break;
-        case Canvas::KPH:
-            qsUnits = "KPH";
-            break;
-    }
+    QString qsUnits( speedUnits() );
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH4 + 1, qsUnits );
     ahrs.setPen( Qt::white );
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH4, qsUnits );
@@ -1463,18 +1448,7 @@ void AHRSCanvas::paintLandscape()
     ahrs.translate( -c.dW20, 0.0 );
 
     // Slip/Skid indicator
-    ahrs.setPen( QPen( Qt::white, 2 ) );
-    ahrs.setBrush( Qt::black );
-    ahrs.drawRect( c.dW2 - c.dW4, 1, c.dW2, c.dH40 );
-    ahrs.drawRect( c.dW2 - 15.0, 1.0, 30.0, c.dH40 );
-    ahrs.setPen( Qt::NoPen );
-    ahrs.setBrush( Qt::white );
-    ahrs.drawEllipse( dSlipSkid - 10.0,
-                      1.0,
-                      20.0,
-                      c.dH40 );
-
-    ahrs.translate( c.dW20, 0.0 );
+    drawSlipSkid( &ahrs, &c, dSlipSkid );
 
     // Draw the top roll indicator
     ahrs.translate( c.dW2, c.dH20 + ((c.dW - c.dW5) / 2.0) );
@@ -1664,39 +1638,20 @@ void AHRSCanvas::paintLandscape()
     ahrs.resetTransform();
 
     // Draw the current altitude
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
-    ahrs.drawRect( c.dW - c.dW5 - (c.dW * 0.0125), c.dH2 - (c.dHNum / 2.0) - (c.dH * 0.0075), c.dW5 + (c.dW * 0.025), c.dHNum + (c.dH * 0.015) );
-    ahrs.setPen( Qt::white );
     Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dBaroPressAlt ), 0 );
-    ahrs.drawPixmap( c.dW - c.dW5, c.dH2 - (c.dHNum / 2.0), num );
+    drawCurrAlt( &ahrs, &c, &num );
 
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH, QColor( 0, 0, 0, 100 ) );
     ahrs.drawPixmap( 5, c.dH2 + 5.0 - m_SpeedTape.height() + (g_situation.dGPSGroundSpeed * dPxPerKnot), m_SpeedTape );
 
     // Draw the current speed
-    ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
-    ahrs.setBrush( QColor( 0, 0, 0, 175 ) );
-    ahrs.drawRect( 0, c.dH2 - (c.dHNum / 2.0) - (c.dH * 0.0075), c.dW5, c.dHNum + (c.dH * 0.015) );
     Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
-    ahrs.drawPixmap( c.dW * 0.0125, c.dH2 - (c.dHNum / 2.0), num );
+    drawCurrSpeed( &ahrs, &c, &num );
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
-    QString qsUnits;
-    switch( m_settings.eUnits )
-    {
-        case Canvas::MPH:
-            qsUnits = "MPH";
-            break;
-        case Canvas::Knots:
-            qsUnits = "KTS";
-            break;
-        case Canvas::KPH:
-            qsUnits = "KPH";
-            break;
-    }
+    QString qsUnits( speedUnits() );
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH2 + c.dH80 + 1, qsUnits );
     ahrs.setPen( Qt::white );
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH2 + c.dH80, qsUnits );
@@ -1820,6 +1775,51 @@ void AHRSCanvas::paintLandscape()
     drawDayMode( &ahrs, &c );
 }
 
+
+void AHRSCanvas::drawSlipSkid( QPainter *pAhrs, CanvasConstants *pC, double dSlipSkid )
+{
+    pAhrs->setPen( QPen( Qt::white, 2 ) );
+    pAhrs->setBrush( Qt::black );
+    pAhrs->drawRect( pC->dW2 - pC->dW4, 1, pC->dW2, pC->dH40 );
+    pAhrs->drawRect( pC->dW2 - 15.0, 1.0, 30.0, pC->dH40 );
+    pAhrs->setPen( Qt::NoPen );
+    pAhrs->setBrush( Qt::white );
+    pAhrs->drawEllipse( dSlipSkid - 10.0,
+                      1.0,
+                      20.0,
+                      pC->dH40 );
+}
+
+
+void AHRSCanvas::drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum )
+{
+    if( pC->bPortrait )
+        pAhrs->translate( 0.0, -pC->dH4 );
+
+    pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
+    pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
+    pAhrs->drawRect( pC->dW - pC->dW5 - (pC->dW * 0.0125), pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + (pC->dW * 0.025), pC->dHNum + (pC->dH * 0.015) );
+    pAhrs->setPen( Qt::white );
+    pAhrs->drawPixmap( pC->dW - pC->dW5, pC->dH2 - (pC->dHNum / 2.0), *pNum );
+
+    if( pC->bPortrait )
+        pAhrs->resetTransform();
+}
+
+
+void AHRSCanvas::drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum )
+{
+    if( pC->bPortrait )
+        pAhrs->translate( 0.0, -pC->dH4 );
+
+    pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
+    pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
+    pAhrs->drawRect( 0, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5, pC->dHNum + (pC->dH * 0.015) );
+    pAhrs->drawPixmap( pC->dW * 0.0125, pC->dH2 - (pC->dHNum / 2.0), *pNum );
+
+    if( pC->bPortrait )
+        pAhrs->resetTransform();
+}
 
 void AHRSCanvas::timerReminder( int iMinutes, int iSeconds )
 {
@@ -1994,6 +1994,9 @@ void AHRSCanvas::swipeDown()
 
 void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
 {
+    if( (m_directAP.qsID == "NULL") && (m_fromAP.qsID == "NULL") )
+        return;
+
     QPen coursePen( Qt::yellow, 12, Qt::SolidLine, Qt::RoundCap );
 
     if( m_directAP.qsID != "NULL" )
@@ -2021,6 +2024,17 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
 
         pAhrs->setPen( coursePen );
         pAhrs->drawLine( ball );
+
+        double  dDispBearing = m_directAP.bd.dBearing - 90.0;
+        QPixmap num( 320, 84 );
+
+        if( dDispBearing < 0.0 )
+            dDispBearing += 360.0;
+
+        Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, pC->dW4, pC->dH20, num );
+        Builder::buildNumber( &num, pC, m_directAP.bd.dDistance, 1 );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, pC->dW4, pC->dH20, num );
     }
     else if( m_fromAP.qsID != "NULL" )
     {
@@ -2066,6 +2080,17 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
         pAhrs->setClipPath( maskPath );
         pAhrs->drawLine( ball );
         pAhrs->setClipping( false );
+
+        double dDispBearing = m_toAP.bd.dBearing - 90.0;
+        QPixmap num( 320, 84 );
+
+        if( dDispBearing < 0.0 )
+            dDispBearing += 360.0;
+
+        Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, pC->dW4, pC->dH20, num );
+        Builder::buildNumber( &num, pC, m_toAP.bd.dDistance, 1 );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, pC->dW4, pC->dH20, num );
     }
 }
 
@@ -2078,4 +2103,25 @@ void AHRSCanvas::setSwitchableTanks( bool bSwitchable )
         m_tanks.dRightCapacity = 0.0;
         m_tanks.dRightRemaining = 0.0;
     }
+}
+
+
+const QString AHRSCanvas::speedUnits()
+{
+    QString qsUnits;
+
+    switch( g_eUnitsAirspeed )
+    {
+        case Canvas::MPH:
+            qsUnits = "MPH";
+            break;
+        case Canvas::Knots:
+            qsUnits = "KTS";
+            break;
+        case Canvas::KPH:
+            qsUnits = "KPH";
+            break;
+    }
+
+    return qsUnits;
 }
