@@ -52,7 +52,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.5.1.0" );
+QString g_qsStratofierVersion( "1.5.2.0" );
 
 
 /*
@@ -295,7 +295,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     QList<StratuxTraffic> trafficList = g_trafficMap.values();
     StratuxTraffic        traffic;
     QPen                  planePen( Qt::black, 15, Qt::SolidLine, Qt::RoundCap, Qt::BevelJoin );
-    double				  dPxPerNM = static_cast<double>( c->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    double				  dPxPerNM = static_cast<double>( c->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
 	QLineF				  track, ball;
 	double                dAlt;
 	QString               qsSign;
@@ -338,14 +338,14 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dTrafficDist ) );
 
 			    // Traffic angle in reference to you (which clock position they're at)
-                ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 90.0 );
+                ball.setAngle( -(traffic.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
 
 			    // Draw the black part of the track line
                 planePen.setWidth( static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) ) );
                 planePen.setColor( Qt::black );
 			    track.setP1( ball.p2() );
                 track.setP2( QPointF( ball.p2().x(), ball.p2().y() + iCourseLineLength ) );
-                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 90.0 );
+                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 180.0 );
                 pAhrs->setPen( planePen );
 			    pAhrs->drawLine( track );
 
@@ -363,7 +363,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 planePen.setColor( closenessColor );
                 track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
                 track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + iCourseLineLength - 2 ) );
-                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 90.0 );
+                track.setAngle( -(traffic.dTrack + g_situation.dAHRSGyroHeading) + 180.0 );
                 pAhrs->setPen( planePen );
                 pAhrs->drawLine( track );
 
@@ -375,25 +375,25 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 				    qsSign = "-";
 			    pAhrs->setPen( Qt::black );
                 pAhrs->setFont( wee );
-                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
                 pAhrs->setFont( tiny );
 #if defined( Q_OS_ANDROID )
-                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 20.0 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
+                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 30.0 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 #else
-                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 10.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
+                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 #endif
                 pAhrs->setPen( closenessColor );
                 pAhrs->setFont( wee );
-                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
                 pAhrs->setFont( tiny );
 #if defined( Q_OS_ANDROID )
-                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + 19.0 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
+                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + 29.0 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 #else
-                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 9.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
+                pAhrs->drawText( ball.p2().x() + 14.0, ball.p2().y() + 9.0 + c->iWeeFontHeight, QString::number( static_cast<int>( traffic.dTrack ) ) );
+                pAhrs->drawText( ball.p2().x() + 14.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
 #endif
             }
 		}
@@ -405,7 +405,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
     QString qsZoom = QString( "%1nm" ).arg( static_cast<int>( m_dZoomNM ) );
     QString qsMagDev = QString( "%1%2" ).arg( m_iMagDev ).arg( QChar( 0xB0 ) );
-    double  dInfoH = (smallMetrics.boundingRect( qsZoom ).height() / 2.0) + 4.0;
+    double  dInfoH = smallMetrics.boundingRect( qsZoom ).height();
 
     if( m_iMagDev < 0 )
         qsMagDev.prepend( "   " );  // There will already be a negative symbol
@@ -1854,7 +1854,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 {
     Airport      ap;
     QLineF       ball;
-    double	     dPxPerNM = static_cast<double>( c->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    double	     dPxPerNM = static_cast<double>( c->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
     double       dAPDist;
     QPen         apPen( Qt::magenta );
     QLineF       runwayLine;
@@ -1895,8 +1895,8 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 ) );
         ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dAPDist ) );
 
-        // Traffic angle in reference to you (which clock position they're at)
-        ball.setAngle( -(ap.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        // Airport angle in reference to you (which clock position it's at)
+        ball.setAngle( -(ap.bd.dBearing + g_situation.dAHRSGyroHeading) );
 
         apPen.setWidth( c->iThinPen );
         apPen.setColor( Qt::black );
@@ -2001,7 +2001,7 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
 
     if( m_directAP.qsID != "NULL" )
     {
-        double dPxPerNM = static_cast<double>( pC->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
+        double dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
         QLineF ball;
 
         TrafficMath::updateAirport( &m_directAP );
@@ -2025,7 +2025,7 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
         pAhrs->setPen( coursePen );
         pAhrs->drawLine( ball );
 
-        double  dDispBearing = m_directAP.bd.dBearing - 90.0;
+        double  dDispBearing = m_directAP.bd.dBearing; // - 360.0;
         QPixmap num( 320, 84 );
 
         if( dDispBearing < 0.0 )
@@ -2038,7 +2038,7 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
     }
     else if( m_fromAP.qsID != "NULL" )
     {
-        double  dPxPerNM = static_cast<double>( pC->dW - 20.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
+        double  dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
         QLineF  ball;
         QPointF fromPt, toPt;
 
@@ -2081,7 +2081,7 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
         pAhrs->drawLine( ball );
         pAhrs->setClipping( false );
 
-        double dDispBearing = m_toAP.bd.dBearing - 90.0;
+        double dDispBearing = m_toAP.bd.dBearing; // - 360.0;
         QPixmap num( 320, 84 );
 
         if( dDispBearing < 0.0 )

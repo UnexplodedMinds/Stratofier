@@ -56,7 +56,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
       m_iTimerTimer( -1 )
-//    m_pBluetoothAgent( nullptr )
 {
     m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
 
@@ -85,37 +84,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( pScreen, SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
-
-    // Create a discovery agent and connect to its signals
-/*
-    m_pBluetoothAgent = new QBluetoothDeviceDiscoveryAgent( this );
-    connect( m_pBluetoothAgent, SIGNAL( deviceDiscovered( const QBluetoothDeviceInfo& ) ), this, SLOT( deviceDiscovered( const QBluetoothDeviceInfo& ) ) );
-    connect( m_pBluetoothAgent, SIGNAL( finished() ), this, SLOT( deviceDiscoveryCompleted() ) );
-    connect( m_pBluetoothAgent, SIGNAL( deviceDiscoveryError( QBluetoothDeviceDiscoveryAgent::Error ) ), this, SLOT( discoveryError( QBluetoothDeviceDiscoveryAgent::Error ) ) );
-
-    // Start a discovery
-    m_pBluetoothAgent->start();
-*/
 }
 
-/*
-void AHRSMainWin::deviceDiscovered( const QBluetoothDeviceInfo &device )
-{
-    qDebug() << "NEW DEVICE:" << device.name() << '(' << device.address().toString() << ')';
-}
-
-void AHRSMainWin::deviceDiscoveryError( QBluetoothDeviceDiscoveryAgent::Error error )
-{
-    qDebug() << "DEVICE DISCOVERY ERROR:" << error;
-    deviceDiscoveryCompleted();
-}
-
-void AHRSMainWin::deviceDiscoveryCompleted()
-{
-    delete m_pBluetoothAgent;
-    m_pBluetoothAgent = nullptr;
-}
-*/
 
 void AHRSMainWin::init()
 {

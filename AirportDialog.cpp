@@ -82,7 +82,7 @@ void AirportDialog::updateAirports()
                 m_pAirportsTable->setRowHeight( m_pAirportsTable->rowCount() - 1, iRowHeight );
                 m_pAirportsTable->setItem( m_pAirportsTable->rowCount() - 1, 0, new QTableWidgetItem( ap.qsName ) );
                 m_pAirportsTable->setItem( m_pAirportsTable->rowCount() - 1, 1, new QTableWidgetItem( "  " + ap.qsID ) );
-                m_pAirportsTable->setItem( m_pAirportsTable->rowCount() - 1, 2, new QTableWidgetItem( "  " + QString::number( static_cast<int>( ap.bd.dDistance ) ) ) );
+                m_pAirportsTable->setItem( m_pAirportsTable->rowCount() - 1, 2, new QTableWidgetItem( QString( "  %1" ).arg( static_cast<int>( ap.bd.dDistance ), 3, 10, QChar( '0' ) ) ) );
             }
         }
     }
@@ -91,6 +91,9 @@ void AirportDialog::updateAirports()
         m_pAirportsTable->setColumnWidth( 0, static_cast<int>( m_pC->dW2 + m_pC->dW10 ) );
     else
         m_pAirportsTable->setColumnWidth( 0, static_cast<int>( m_pC->dW2 ) );
+
+    // Sort by distance from you
+    m_pAirportsTable->sortByColumn( 2, Qt::AscendingOrder );
 }
 
 

@@ -82,11 +82,13 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist 
     foreach( ap, g_airportCache )
     {
         ap.bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
-        ap.bd.dBearing += 90.0;
-        while( ap.bd.dBearing > 180 )
-            ap.bd.dBearing -= 360;
-        while( ap.bd.dBearing < -180 )
-            ap.bd.dBearing += 360;
+
+        ap.bd.dBearing -= 180.0;
+        while( ap.bd.dBearing > 360.0 )
+            ap.bd.dBearing -= 360.0;
+        while( ap.bd.dBearing < 0.0 )
+            ap.bd.dBearing += 360.0;
+
 
         if( ap.bd.dDistance <= dDist )
             pAirports->append( ap );
@@ -97,11 +99,6 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist 
 void TrafficMath::updateAirport( Airport *pAirport )
 {
     pAirport->bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, pAirport->dLat, pAirport->dLong );
-    pAirport->bd.dBearing += 90.0;
-    while( pAirport->bd.dBearing > 180 )
-        pAirport->bd.dBearing -= 360;
-    while( pAirport->bd.dBearing < -180 )
-        pAirport->bd.dBearing += 360;
 }
 
 

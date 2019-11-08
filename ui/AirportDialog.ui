@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>434</height>
+    <width>515</width>
+    <height>661</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -262,8 +262,8 @@ QComboBox
      </property>
      <property name="font">
       <font>
-       <family>Piboto [Goog]</family>
-       <pointsize>18</pointsize>
+       <family>Droid Sans</family>
+       <pointsize>36</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
