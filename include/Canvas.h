@@ -9,6 +9,7 @@ Stratofier Stratux AHRS Display
 #include <QList>
 #include <QDataStream>
 #include <QDateTime>
+#include <QPolygonF>
 
 
 class Keypad;
@@ -72,16 +73,24 @@ struct BearingDist
 };
 
 
+struct Frequency
+{
+    QString qsDescription;
+    double  dFreq;
+};
+
+
 struct Airport
 {
-    QString     qsID;
-    QString     qsName;
-    double      dLat;
-    double      dLong;
-    double      dElev;
-    bool        bGrass;
-    BearingDist bd;
-    QList<int>  runways;
+    QString          qsID;
+    QString          qsName;
+    double           dLat;
+    double           dLong;
+    double           dElev;
+    bool             bGrass;
+    BearingDist      bd;
+    QList<int>       runways;
+    QList<Frequency> frequencies;
 };
 
 
@@ -105,9 +114,26 @@ struct FuelTanks
 class Canvas
 {
 public:
+    enum AirspaceType
+    {
+        Airspace_Class_G,
+        Airspace_Class_E,
+        Airspace_Class_D,
+        Airspace_Class_C,
+        Airspace_Class_B,
+        Airspace_TFR,
+        Airspace_SFRA,
+        Airspace_MOA,
+        Airspace_Restricted,
+        Airspace_Prohibited,
+        Airspace_Danger,        // See comment in TrafficMath::cacheAirspaces() about this airspace type
+        Airspace_Unknown
+    };
+
     enum CountryCode
     {
         US,
+        US_Airspace,
         CA,
         AU,
         AT,
@@ -169,11 +195,22 @@ struct StratofierSettings
     bool                       bSwitchableTanks;
     QString                    qsStratuxIP;
     bool                       bShowRunways;
+    bool                       bShowAirspaces;
     Canvas::Units              eUnits;
     QList<Canvas::CountryCode> listCountries;
     QString                    qsOwnshipID;
 };
 
+
+struct Airspace
+{
+    Canvas::AirspaceType eType;
+    QString              qsName;
+    int                  iAltTop;
+    int                  iAltBottom;
+    QPolygonF            shape;
+    QList<BearingDist>   shapeHav;
+};
 
 #endif // __CANVAS_H__
 

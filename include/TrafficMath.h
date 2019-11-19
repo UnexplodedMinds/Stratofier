@@ -19,7 +19,9 @@ public:
     static double      degHeading( double dAng );
 
     static void cacheAirports();
+    static void cacheAirspaces();
     static void updateNearbyAirports( QList<Airport> *pAirports, double dDist );
+    static void updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDist );
     static void updateAirport( Airport *pAirport );
 };
 

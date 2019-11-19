@@ -35,6 +35,8 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     traffic();
     m_settings.bShowRunways = (!m_settings.bShowRunways);
     runways();
+    m_settings.bShowAirspaces = (!m_settings.bShowAirspaces);
+    airspaces();
 
     // Decrement the enum so when we call the cycler it changes to the right setting
     if( m_settings.eShowAirports == Canvas::ShowNoAirports )
@@ -51,6 +53,7 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
 
     connect( m_pShowRunwaysButton, SIGNAL( clicked() ), this, SLOT( runways() ) );
+    connect( m_pShowAirspacesButton, SIGNAL( clicked() ), this, SLOT( airspaces() ) );
 
     connect( m_pGetDataButton, SIGNAL( clicked() ), this, SLOT( getMapData() ) );
 
@@ -65,6 +68,7 @@ SettingsDialog::~SettingsDialog()
     g_pSet->setValue( "ShowAllTraffic", m_settings.bShowAllTraffic );
     g_pSet->setValue( "ShowAirports", static_cast<int>( m_settings.eShowAirports ) );
     g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
+    g_pSet->setValue( "ShowAirspaces", m_settings.bShowAirspaces );
     g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
 
     g_pSet->setValue( "StratuxIP", m_pIPEdit->text().simplified().remove( ' ' ) );
@@ -87,6 +91,7 @@ void SettingsDialog::loadSettings()
     m_settings.bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
+    m_settings.bShowRunways = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
@@ -162,20 +167,26 @@ void SettingsDialog::getMapData()
     if( m_settings.listCountries.count() == 0 )
         return;
 
-    QString qsUrl, qsFile;
+    QString qsUrl, qsFile, qsType, qsValue;
 
     m_pManager = new QNetworkAccessManager( this );
 
     m_mapIt = m_mapUrls;
     nextCountry();
 
-    qsUrl = "http://skyfun.space/stratofier/openaip_airports_" + m_mapIt.value() + ".aip";
+    qsUrl = "http://skyfun.space/stratofier/openaip_" + m_mapIt.value() + ".aip";
+    qsValue = m_mapIt.value();
+    if( qsValue.startsWith( "airports") )
+        qsType = "AP";
+    else
+        qsType = "AS";
+    m_pCountryProgress->setFormat( QString( "%p% [%1 %2]" ).arg( qsValue.right( 2 ).toUpper() ).arg( qsType ) );
+
     qsFile = settingsRoot() + "/space.skyfun.stratofier/" + m_mapIt.value() + ".aip";
     m_url = qsUrl;
     m_pFile = new QFile( qsFile );
     m_iTally = 0;
 
-    m_pCountryProgress->setFormat( QString( "%p% [%1]" ).arg( m_mapIt.value().right( 2 ).toUpper() ) );
     m_pCountryProgress->setMaximum( m_settings.listCountries.count() );
     m_pCountryProgress->setValue( 0 );
     m_pDataProgress->setValue( 0 );
@@ -241,6 +252,7 @@ void SettingsDialog::httpDownloadFinished()
     QString qsFileRoot = settingsRoot() + "/space.skyfun.stratofier/";
     QString qsUrl;
     QString qsFile;
+    QString qsType, qsValue;
 
     m_pFile->flush();
     m_pFile->close();
@@ -263,8 +275,14 @@ void SettingsDialog::httpDownloadFinished()
     {
         nextCountry();
         m_pDataProgress->setValue( 0 );
-        m_pCountryProgress->setFormat( QString( "%p% [%1]" ).arg( m_mapIt.value().right( 2 ).toUpper() ) );
-        qsUrl = qsRoot + "openaip_airports_" + m_mapIt.value() + ".aip";
+
+        qsValue = m_mapIt.value();
+        if( qsValue.startsWith( "airports") )
+            qsType = "AP";
+        else
+            qsType = "AS";
+        m_pCountryProgress->setFormat( QString( "%p% [%1 %2]" ).arg( qsValue.right( 2 ).toUpper() ).arg( qsType ) );
+        qsUrl = qsRoot + "openaip_" + m_mapIt.value() + ".aip";
         qsFile = qsFileRoot + m_mapIt.value() + ".aip";
         m_url = qsUrl;
         m_pFile = new QFile( qsFile );
@@ -318,7 +336,7 @@ void SettingsDialog::switchable()
     g_pSet->endGroup();
     g_pSet->sync();
 
-    m_pSwitchableButton->setIcon( m_settings.bSwitchableTanks ? QIcon( ":/icons/resources/OK.png" ) : QIcon() );
+    m_pSwitchableButton->setIcon( m_settings.bSwitchableTanks ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
 }
 
 
@@ -329,9 +347,22 @@ void SettingsDialog::runways()
     g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
     g_pSet->sync();
 
-    m_pShowRunwaysButton->setIcon( m_settings.bShowRunways ? QIcon( ":/icons/resources/OK.png" ) : QIcon() );
+    m_pShowRunwaysButton->setIcon( m_settings.bShowRunways ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
 
     emit showRunways( m_settings.bShowRunways );
+}
+
+
+void SettingsDialog::airspaces()
+{
+    m_settings.bShowAirspaces = (!m_settings.bShowAirspaces);
+
+    g_pSet->setValue( "ShowAirspaces", m_settings.bShowAirspaces );
+    g_pSet->sync();
+
+    m_pShowAirspacesButton->setIcon( m_settings.bShowAirspaces ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
+
+    emit showAirspaces( m_settings.bShowAirspaces );
 }
 
 

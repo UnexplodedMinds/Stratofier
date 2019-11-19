@@ -101,6 +101,7 @@ void MenuDialog::settings()
     connect( &dlg, SIGNAL( trafficToggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
     connect( &dlg, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SIGNAL( showAirports( Canvas::ShowAirports ) ) );
     connect( &dlg, SIGNAL( showRunways( bool ) ), this, SIGNAL( showRunways( bool ) ) );
+    connect( &dlg, SIGNAL( showAirspaces( bool ) ), this, SIGNAL( showAirspaces( bool ) ) );
 
     dlg.exec();
 

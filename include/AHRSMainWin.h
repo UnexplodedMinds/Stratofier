@@ -67,6 +67,7 @@ private slots:
     void trafficToggled( bool bAll );
     void showAirports( Canvas::ShowAirports eShow );
     void showRunways( bool bShow );
+    void showAirspaces( bool bShow );
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();

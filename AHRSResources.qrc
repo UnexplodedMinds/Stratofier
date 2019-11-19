@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>resources/off.png</file>
+    <file>resources/on.png</file>
     <file>resources/AltBug.png</file>
     <file>resources/Cancel.png</file>
     <file>resources/Reset.png</file>

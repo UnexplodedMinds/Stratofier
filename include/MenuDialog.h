@@ -37,6 +37,7 @@ signals:
     void trafficToggled( bool );
     void showAirports( Canvas::ShowAirports );
     void showRunways( bool );
+    void showAirspaces( bool );
     void timer();
     void fuelTanks( FuelTanks );
     void stopFuelFlow();

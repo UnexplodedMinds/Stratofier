@@ -23,6 +23,12 @@ CountryDialog::CountryDialog( QWidget *pParent, CanvasConstants *pC )
 
     populateCountries();
 
+#if defined( Q_OS_ANDROID )
+    m_pOKButton->setMinimumHeight( 100 );
+#else
+    m_pOKButton->setMinimumHeight( 50 );
+#endif
+
     connect( m_pOKButton, SIGNAL( clicked() ), this, SLOT( ok() ) );
 }
 

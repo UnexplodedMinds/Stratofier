@@ -151,6 +151,12 @@ QComboBox
 	selection-color: white;
 	selection-background-color: black;
 	alternate-background-color: LightSteelBlue;
+}
+
+QListWidget:item:selected
+{
+	background: black;
+	color: white;
 }</string>
      </property>
      <property name="frameShape">
@@ -185,7 +191,12 @@ QComboBox
      </property>
      <item>
       <property name="text">
-       <string>UNITED STATES</string>
+       <string>UNITED STATES AIRPORTS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>UNITED STATES AIRSPACE</string>
       </property>
      </item>
      <item>

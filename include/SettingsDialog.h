@@ -58,6 +58,7 @@ private slots:
     void storage();
     void switchable();
     void runways();
+    void airspaces();
     void selCountries();
 
     // Download slots
@@ -69,6 +70,7 @@ signals:
     void trafficToggled( bool );
     void showAirports( Canvas::ShowAirports );
     void showRunways( bool );
+    void showAirspaces( bool );
 };
 
 #endif // __SETTINGSDIALOG_H__

@@ -19,7 +19,7 @@ extern StratuxSituation g_situation;
 AirportDialog::AirportDialog( QWidget *pParent, CanvasConstants *pC, const QString &qsTitle )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_pC( pC ),
-      m_bAllAirports( true )
+      m_bAllAirports( false )
 {
     setupUi( this );
     m_pTitleLabel->setText( qsTitle );
@@ -102,9 +102,9 @@ void AirportDialog::airportsType()
     m_bAllAirports = (!m_bAllAirports);
 
     if( m_bAllAirports )
-        m_pAirportsButton->setText( "ALL AIRPORTS" );
+        m_pAirportsButton->setText( "ALL" );
     else
-        m_pAirportsButton->setText( "PUBLIC ONLY" );
+        m_pAirportsButton->setText( "PUBLIC" );
 
     updateAirports();
 }

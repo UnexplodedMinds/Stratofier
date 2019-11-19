@@ -153,6 +153,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
         connect( m_pMenuDialog, SIGNAL( showRunways( bool ) ), this, SLOT( showRunways( bool ) ) );
+        connect( m_pMenuDialog, SIGNAL( showAirspaces( bool ) ), this, SLOT( showAirspaces( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
@@ -279,6 +280,12 @@ void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
 void AHRSMainWin::showRunways( bool bShow )
 {
     m_pAHRSDisp->showRunways( bShow );
+}
+
+
+void AHRSMainWin::showAirspaces( bool bShow )
+{
+    m_pAHRSDisp->showAirspaces( bShow );
 }
 
 

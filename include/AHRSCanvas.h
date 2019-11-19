@@ -32,6 +32,7 @@ public:
     void    showOutside( bool bOut );
     void    showAirports( Canvas::ShowAirports eShow );
     void    showRunways( bool bShow );
+    void    showAirspaces( bool bShow );
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void    setFuelTanks( FuelTanks tanks ) { m_tanks = tanks; }
     void    timerReminder( int iMinutes, int iSeconds );
@@ -59,6 +60,7 @@ protected:
 private:
     void updateTraffic( QPainter *pAhrs, CanvasConstants *c );
     void updateAirports( QPainter *pAhrs, CanvasConstants *c );
+    void updateAirspaces( QPainter *pAhrs, CanvasConstants *c );
     void cullTrafficMap();
     void zoomIn();
     void zoomOut();
@@ -123,6 +125,7 @@ private:
 
     StratofierSettings m_settings;
     QList<Airport>     m_airports;
+    QList<Airspace>    m_airspaces;
     FuelTanks          m_tanks;
 };
 

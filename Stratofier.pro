@@ -67,7 +67,8 @@ SOURCES += main.cpp \
            ClickLabel.cpp \
            SettingsDialog.cpp \
            AirportDialog.cpp \
-           CountryDialog.cpp
+           CountryDialog.cpp \
+           DetailsDialog.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -86,7 +87,8 @@ HEADERS += StratuxStreams.h \
            ClickLabel.h \
            SettingsDialog.h \
            AirportDialog.h \
-           CountryDialog.h
+           CountryDialog.h \
+           DetailsDialog.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
@@ -96,6 +98,7 @@ FORMS += AHRSMainWin.ui \
          FuelTanksDialog.ui \
          SettingsDialog.ui \
          AirportDialog.ui \
-         CountryDialog.ui
+         CountryDialog.ui \
+         DetailsDialog.ui
 
 RESOURCES += AHRSResources.qrc

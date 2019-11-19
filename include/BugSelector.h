@@ -20,7 +20,8 @@ public:
 	{
 		HeadingBug = 10,
 		WindBug    = 20,
-        ClearBugs  = 30
+        ClearBugs  = 30,
+        Airports   = 40
 	};
 
     explicit BugSelector( QWidget *pParent );
@@ -30,6 +31,7 @@ private slots:
 	void headingSel();
 	void windSel();
     void clearBugs();
+    void airports();
 };
 
 #endif // __BUGSELECTOR_H__
