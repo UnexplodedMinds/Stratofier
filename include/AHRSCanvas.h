@@ -28,11 +28,6 @@ public:
     explicit AHRSCanvas( QWidget *parent = 0 );
     ~AHRSCanvas();
 
-    void    showAllTraffic( bool bAll );
-    void    showOutside( bool bOut );
-    void    showAirports( Canvas::ShowAirports eShow );
-    void    showRunways( bool bShow );
-    void    showAirspaces( bool bShow );
     void    setPortrait( bool bPortrait ) { m_bPortrait = bPortrait; }
     void    setFuelTanks( FuelTanks tanks ) { m_tanks = tanks; }
     void    timerReminder( int iMinutes, int iSeconds );
@@ -113,6 +108,7 @@ private:
     Airport   m_toAP;
 
     QPixmap m_HeadIndicator;
+    QPixmap m_HeadIndicatorOverlay;
     QPixmap m_RollIndicator;
     QPixmap m_Lfuel;
     QPixmap m_Rfuel;
@@ -127,6 +123,13 @@ private:
     QList<Airport>     m_airports;
     QList<Airspace>    m_airspaces;
     FuelTanks          m_tanks;
+
+public slots:
+    void showAllTraffic( bool bAll );
+    void showAirports( Canvas::ShowAirports eShow );
+    void showRunways( bool bShow );
+    void showAirspaces( bool bShow );
+    void showAltitudes( bool bShow );
 };
 
 #endif // __AHRSCANVAS_H__

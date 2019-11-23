@@ -14,6 +14,7 @@
   </qresource>
   <qresource prefix="/graphics">
     <file>resources/FromTo.png</file>
+    <file>resources/StratofierSplash.png</file>
     <file>resources/DirectTo.png</file>
     <file>resources/vspeedL.png</file>
     <file>resources/vspeedP.png</file>
@@ -22,8 +23,9 @@
     <file>resources/fuel.png</file>
     <file>resources/roll.png</file>
     <file>resources/Plane.png</file>
-    <file>resources/head.png</file>
     <file>resources/ZoomIn.png</file>
+    <file>resources/head.png</file>
+    <file>resources/headBG.png</file>
     <file>resources/ZoomOut.png</file>
   </qresource>
   <qresource prefix="/num">

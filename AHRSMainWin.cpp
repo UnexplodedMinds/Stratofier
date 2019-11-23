@@ -84,6 +84,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( pScreen, SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
+
+    QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
 }
 
 
@@ -114,6 +116,13 @@ AHRSMainWin::~AHRSMainWin()
 
     delete m_pAHRSDisp;
     m_pAHRSDisp = Q_NULLPTR;
+}
+
+
+void AHRSMainWin::splashOff()
+{
+    delete m_pSplashLabel;
+    m_pSplashLabel = nullptr;
 }
 
 
@@ -150,16 +159,13 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( upgradeStratofier() ), this, SLOT( upgradeStratofier() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratux() ), this, SLOT( shutdownStratux() ) );
         connect( m_pMenuDialog, SIGNAL( shutdownStratofier() ), this, SLOT( shutdownStratofier() ) );
-        connect( m_pMenuDialog, SIGNAL( trafficToggled( bool ) ), this, SLOT( trafficToggled( bool ) ) );
-        connect( m_pMenuDialog, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
-        connect( m_pMenuDialog, SIGNAL( showRunways( bool ) ), this, SLOT( showRunways( bool ) ) );
-        connect( m_pMenuDialog, SIGNAL( showAirspaces( bool ) ), this, SLOT( showAirspaces( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( timer() ), this, SLOT( changeTimer() ) );
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
         connect( m_pMenuDialog, SIGNAL( unitsAirspeed() ), this, SLOT( unitsAirspeed() ) );
         connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
+        connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
     }
     else
     {
@@ -262,30 +268,6 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
 
         m_pAHRSDisp->timerReminder( iMinutes, iSeconds );
     }
-}
-
-
-void AHRSMainWin::trafficToggled( bool bAll )
-{
-    m_pAHRSDisp->showAllTraffic( bAll );
-}
-
-
-void AHRSMainWin::showAirports( Canvas::ShowAirports eShow )
-{
-    m_pAHRSDisp->showAirports( eShow );
-}
-
-
-void AHRSMainWin::showRunways( bool bShow )
-{
-    m_pAHRSDisp->showRunways( bShow );
-}
-
-
-void AHRSMainWin::showAirspaces( bool bShow )
-{
-    m_pAHRSDisp->showAirspaces( bShow );
 }
 
 
@@ -402,4 +384,10 @@ void AHRSMainWin::dayMode()
 void AHRSMainWin::setSwitchableTanks( bool bSwitchable )
 {
     m_pAHRSDisp->setSwitchableTanks( bSwitchable );
+}
+
+
+void AHRSMainWin::settingsClosed()
+{
+    QTimer::singleShot( 100, this, SLOT( menu() ) );
 }

@@ -10,6 +10,7 @@ Stratofier Stratux AHRS Display
 #include <QFile>
 #include <QDir>
 #include <QString>
+#include <QTimer>
 
 #include "SettingsDialog.h"
 #include "Builder.h"
@@ -31,44 +32,21 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     Builder::populateUrlMap( &m_mapUrls );
 
     loadSettings();
-    m_settings.bShowAllTraffic = (!m_settings.bShowAllTraffic);
-    traffic();
-    m_settings.bShowRunways = (!m_settings.bShowRunways);
-    runways();
-    m_settings.bShowAirspaces = (!m_settings.bShowAirspaces);
-    airspaces();
-
-    // Decrement the enum so when we call the cycler it changes to the right setting
-    if( m_settings.eShowAirports == Canvas::ShowNoAirports )
-        m_settings.eShowAirports = Canvas::ShowAllAirports;
-    else if( m_settings.eShowAirports == Canvas::ShowGrassAirports )
-        m_settings.eShowAirports = Canvas::ShowNoAirports;
-    else
-        m_settings.eShowAirports = Canvas::ShowGrassAirports;
-    airports();     // Call the cycler to update and initialize the stored airport show selection
-
-    connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
-    connect( m_pTrafficButton, SIGNAL( clicked() ), this, SLOT( traffic() ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
-
-    connect( m_pShowRunwaysButton, SIGNAL( clicked() ), this, SLOT( runways() ) );
-    connect( m_pShowAirspacesButton, SIGNAL( clicked() ), this, SLOT( airspaces() ) );
 
     connect( m_pGetDataButton, SIGNAL( clicked() ), this, SLOT( getMapData() ) );
 
     connect( m_pSelCountriesButton, SIGNAL( clicked() ), this, SLOT( selCountries() ) );
 
     m_pDataProgress->hide();
+
+    QTimer::singleShot( 100, this, SLOT( init() ) );
 }
 
 
 SettingsDialog::~SettingsDialog()
 {
-    g_pSet->setValue( "ShowAllTraffic", m_settings.bShowAllTraffic );
-    g_pSet->setValue( "ShowAirports", static_cast<int>( m_settings.eShowAirports ) );
-    g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
-    g_pSet->setValue( "ShowAirspaces", m_settings.bShowAirspaces );
     g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
 
     g_pSet->setValue( "StratuxIP", m_pIPEdit->text().simplified().remove( ' ' ) );
@@ -82,16 +60,21 @@ SettingsDialog::~SettingsDialog()
 }
 
 
+void SettingsDialog::init()
+{
+    int   iBtnHeight = m_pSwitchableButton->height();    // They're all the same height
+    QSize iconSize( static_cast<int>( static_cast<double>( iBtnHeight ) / 2.0 * 2.3 ), iBtnHeight / 2 );
+
+    m_pSwitchableButton->setIconSize( iconSize );
+}
+
+
 void SettingsDialog::loadSettings()
 {
     QVariantList countries;
     QVariant     country;
 
     // Persistent settings
-    m_settings.bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
-    m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
-    m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
-    m_settings.bShowRunways = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
@@ -110,50 +93,6 @@ void SettingsDialog::loadSettings()
     Builder::getStorage( &m_qsInternalStoragePath );
 
     storage();
-}
-
-
-void SettingsDialog::traffic()
-{
-    m_settings.bShowAllTraffic = (!m_settings.bShowAllTraffic);
-
-    if( m_settings.bShowAllTraffic )
-        m_pTrafficButton->setText( "ALL TRAFFIC" );
-    else
-        m_pTrafficButton->setText( "CLOSE TRAFFIC" );
-
-    emit trafficToggled( m_settings.bShowAllTraffic );
-}
-
-
-void SettingsDialog::airports()
-{
-    if( m_settings.eShowAirports == Canvas::ShowNoAirports )
-    {
-        m_pAirportsButton->setStyleSheet( "QPushButton { border: none; background-color: LimeGreen; color: black; margin: 2px }" );
-        m_settings.eShowAirports = Canvas::ShowGrassAirports;
-        m_pAirportsButton->setText( "GRASS AIRPORTS" );
-    }
-    else if( m_settings.eShowAirports == Canvas::ShowGrassAirports )
-    {
-        m_pAirportsButton->setStyleSheet( "QPushButton { border: none; background-color: CornflowerBlue; color: black; margin: 2px }" );
-        m_settings.eShowAirports = Canvas::ShowPavedAirports;
-        m_pAirportsButton->setText( "PAVED AIRPORTS" );
-    }
-    else if( m_settings.eShowAirports == Canvas::ShowPavedAirports )
-    {
-        m_pAirportsButton->setStyleSheet( "QPushButton { border: none; background-color: Gainsboro; color: black; margin: 2px }" );
-        m_settings.eShowAirports = Canvas::ShowAllAirports;
-        m_pAirportsButton->setText( "ALL AIRPORTS" );
-    }
-    else
-    {
-        m_pAirportsButton->setStyleSheet( "QPushButton { border: none; background-color: LightCoral; color: black; margin: 2px }" );
-        m_settings.eShowAirports = Canvas::ShowNoAirports;
-        m_pAirportsButton->setText( "NO AIRPORTS" );
-    }
-
-    emit showAirports( m_settings.eShowAirports );
 }
 
 
@@ -337,32 +276,6 @@ void SettingsDialog::switchable()
     g_pSet->sync();
 
     m_pSwitchableButton->setIcon( m_settings.bSwitchableTanks ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
-}
-
-
-void SettingsDialog::runways()
-{
-    m_settings.bShowRunways = (!m_settings.bShowRunways);
-
-    g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
-    g_pSet->sync();
-
-    m_pShowRunwaysButton->setIcon( m_settings.bShowRunways ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
-
-    emit showRunways( m_settings.bShowRunways );
-}
-
-
-void SettingsDialog::airspaces()
-{
-    m_settings.bShowAirspaces = (!m_settings.bShowAirspaces);
-
-    g_pSet->setValue( "ShowAirspaces", m_settings.bShowAirspaces );
-    g_pSet->sync();
-
-    m_pShowAirspacesButton->setIcon( m_settings.bShowAirspaces ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
-
-    emit showAirspaces( m_settings.bShowAirspaces );
 }
 
 

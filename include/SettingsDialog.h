@@ -52,25 +52,16 @@ private:
     QMapIterator<Canvas::CountryCode, QString> m_mapIt;
 
 private slots:
-    void traffic();
-    void airports();
+    void init();
     void getMapData();
     void storage();
     void switchable();
-    void runways();
-    void airspaces();
     void selCountries();
 
     // Download slots
     void httpReadyRead();
     void httpDownloadFinished();
     void updateDownloadProgress( qint64, qint64 );
-
-signals:
-    void trafficToggled( bool );
-    void showAirports( Canvas::ShowAirports );
-    void showRunways( bool );
-    void showAirspaces( bool );
 };
 
 #endif // __SETTINGSDIALOG_H__

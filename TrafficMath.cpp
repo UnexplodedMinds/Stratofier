@@ -388,7 +388,7 @@ void TrafficMath::cacheAirspaces()
                             {
                                 xSubChildElem = xSubChildNode.toElement();
                                 if( xSubChildElem.tagName() == "ALT" )
-                                    as.iAltTop = xSubChildElem.text().toInt();  // Assume feet
+                                    as.iAltBottom = xSubChildElem.text().toInt();  // Assume feet
                                 xSubChildNode = xSubChildNode.nextSibling();
                             }
                         }

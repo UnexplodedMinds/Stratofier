@@ -98,11 +98,6 @@ void MenuDialog::settings()
     dlg.setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
     dlg.setGeometry( 0, 0, static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
 
-    connect( &dlg, SIGNAL( trafficToggled( bool ) ), this, SIGNAL( trafficToggled( bool ) ) );
-    connect( &dlg, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SIGNAL( showAirports( Canvas::ShowAirports ) ) );
-    connect( &dlg, SIGNAL( showRunways( bool ) ), this, SIGNAL( showRunways( bool ) ) );
-    connect( &dlg, SIGNAL( showAirspaces( bool ) ), this, SIGNAL( showAirspaces( bool ) ) );
-
     dlg.exec();
 
     if( g_pSet->value( "StratuxIP" ).toString() != qsCurrIP )
@@ -112,4 +107,5 @@ void MenuDialog::settings()
     }
 
     emit setSwitchableTanks( g_pSet->value( "DualTanks" ).toBool() );
+    emit settingsClosed();
 }

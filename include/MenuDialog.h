@@ -34,16 +34,13 @@ signals:
     void upgradeStratofier();
     void shutdownStratux();
     void shutdownStratofier();
-    void trafficToggled( bool );
-    void showAirports( Canvas::ShowAirports );
-    void showRunways( bool );
-    void showAirspaces( bool );
     void timer();
     void fuelTanks( FuelTanks );
     void stopFuelFlow();
     void unitsAirspeed();
     void dayMode();
     void setSwitchableTanks( bool );
+    void settingsClosed();
 };
 
 #endif // __MENUDIALOG_H__

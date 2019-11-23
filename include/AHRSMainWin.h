@@ -37,6 +37,7 @@ public slots:
     void menu();
     void changeTimer();
     void init();
+    void splashOff();
 
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
@@ -64,10 +65,6 @@ private slots:
     void upgradeStratofier();
     void shutdownStratux();
     void shutdownStratofier();
-    void trafficToggled( bool bAll );
-    void showAirports( Canvas::ShowAirports eShow );
-    void showRunways( bool bShow );
-    void showAirspaces( bool bShow );
     void orient( Qt::ScreenOrientation o );
     void fuelTanks( FuelTanks tanks );
     void fuelTanks2();
@@ -75,6 +72,7 @@ private slots:
     void unitsAirspeed();
     void dayMode();
     void setSwitchableTanks( bool bSwitchable );
+    void settingsClosed();
 };
 
 #endif // __AHRSMAINWIN_H__

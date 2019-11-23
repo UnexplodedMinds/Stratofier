@@ -16,6 +16,7 @@ BugSelector::BugSelector( QWidget *pParent )
 	connect( m_pWindButton, SIGNAL( clicked() ), this, SLOT( windSel() ) );
     connect( m_pClearButton, SIGNAL( clicked() ), this, SLOT( clearBugs() ) );
     connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
+    connect( m_pOverlaysButton, SIGNAL( clicked() ), this, SLOT( overlays() ) );
 }
 
 
@@ -45,5 +46,11 @@ void BugSelector::clearBugs()
 void BugSelector::airports()
 {
     done( static_cast<int>( Airports ) );
+}
+
+
+void BugSelector::overlays()
+{
+    done( static_cast<int>( Overlays ) );
 }
 

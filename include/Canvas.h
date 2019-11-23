@@ -196,6 +196,7 @@ struct StratofierSettings
     QString                    qsStratuxIP;
     bool                       bShowRunways;
     bool                       bShowAirspaces;
+    bool                       bShowAltitudes;
     Canvas::Units              eUnits;
     QList<Canvas::CountryCode> listCountries;
     QString                    qsOwnshipID;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>300</height>
+    <height>433</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -130,6 +130,53 @@ QPushButton::pressed
    <property name="bottomMargin">
     <number>2</number>
    </property>
+   <item>
+    <widget class="QPushButton" name="m_pOverlaysButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: greenYellow;
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: forestGreen;
+	margin: 2px;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>OVERLAYS</string>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QPushButton" name="m_pHeadingButton">
      <property name="sizePolicy">
@@ -293,6 +340,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: lightGray;
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: dimGray;
+	margin: 2px;
+}
+</string>
+     </property>
      <property name="text">
       <string>CLEAR</string>
      </property>
@@ -324,7 +388,7 @@ QPushButton::pressed
       </font>
      </property>
      <property name="text">
-      <string>CANCEL</string>
+      <string>DONE</string>
      </property>
      <property name="iconSize">
       <size>
