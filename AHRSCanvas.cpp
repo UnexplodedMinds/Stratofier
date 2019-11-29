@@ -55,7 +55,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.6.0.0" );
+QString g_qsStratofierVersion( "1.6.2.0" );
 
 
 /*

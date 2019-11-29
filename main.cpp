@@ -12,12 +12,15 @@ Stratofier Stratux AHRS Display
 #include <QFontDatabase>
 
 #include "AHRSMainWin.h"
+#include "Keyboard.h"
 #if defined( Q_OS_ANDROID )
 #include "ScreenLocker.h"
 #endif
 
 
-QSettings *g_pSet = Q_NULLPTR;
+QSettings *g_pSet = nullptr;
+Keyboard  *g_pKeyboard = nullptr;
+
 
 
 int main( int argc, char *argv[] )

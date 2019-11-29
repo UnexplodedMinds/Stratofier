@@ -16,6 +16,7 @@ Stratofier Stratux AHRS Display
 #include "Builder.h"
 #include "TrafficMath.h"
 #include "CountryDialog.h"
+#include "ClickLabel.h"
 
 
 extern QSettings *g_pSet;
@@ -28,6 +29,8 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
       m_mapIt( m_mapUrls )
 {
     setupUi( this );
+    m_pIPClickLabel->setFullKeyboard( true );
+    m_pOwnshipClickLabel->setFullKeyboard( true );
 
     Builder::populateUrlMap( &m_mapUrls );
 
@@ -49,8 +52,8 @@ SettingsDialog::~SettingsDialog()
 {
     g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
 
-    g_pSet->setValue( "StratuxIP", m_pIPEdit->text().simplified().remove( ' ' ) );
-    g_pSet->setValue( "OwnshipID", m_pOwnshipIDEdit->text().simplified().toUpper().remove( ' ' ) );
+    g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
+    g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
@@ -87,8 +90,8 @@ void SettingsDialog::loadSettings()
     g_pSet->endGroup();
     switchable();
 
-    m_pIPEdit->setText( m_settings.qsStratuxIP );
-    m_pOwnshipIDEdit->setText( m_settings.qsOwnshipID );
+    m_pIPClickLabel->setText( m_settings.qsStratuxIP );
+    m_pOwnshipClickLabel->setText( m_settings.qsOwnshipID );
 
     Builder::getStorage( &m_qsInternalStoragePath );
 

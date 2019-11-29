@@ -69,7 +69,8 @@ SOURCES += main.cpp \
            AirportDialog.cpp \
            CountryDialog.cpp \
            DetailsDialog.cpp \
-           Overlays.cpp
+           Overlays.cpp \
+           Keyboard.cpp
 
 HEADERS += StratuxStreams.h \
            StreamReader.h \
@@ -90,7 +91,8 @@ HEADERS += StratuxStreams.h \
            AirportDialog.h \
            CountryDialog.h \
            DetailsDialog.h \
-           Overlays.h
+           Overlays.h \
+           Keyboard.h
 
 FORMS += AHRSMainWin.ui \
          BugSelector.ui \
@@ -102,6 +104,7 @@ FORMS += AHRSMainWin.ui \
          AirportDialog.ui \
          CountryDialog.ui \
          DetailsDialog.ui \
-         Overlays.ui
+         Overlays.ui \
+         Keyboard.ui
 
 RESOURCES += AHRSResources.qrc
