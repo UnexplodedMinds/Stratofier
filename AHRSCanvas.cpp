@@ -2308,9 +2308,9 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             dDispBearing += 360.0;
 
         Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + (m_bPortrait ? 0.0 : pC->dH40), num );
         Builder::buildNumber( &num, pC, m_toAP.bd.dDistance, 1 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20 + (m_bPortrait ? 0.0 : pC->dH40), num );
     }
 }
 
