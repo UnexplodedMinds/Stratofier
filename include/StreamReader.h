@@ -8,6 +8,7 @@ Stratofier Stratux AHRS Display
 
 #include <QObject>
 #include <QWebSocket>
+#include <QBluetoothDeviceInfo>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
@@ -60,6 +61,8 @@ private slots:
     void statusUpdate( const QString &qsMessage );
     void stratuxConnected();
     void stratuxDisconnected();
+
+//  void deviceDiscovered( const QBluetoothDeviceInfo &device );
 
 signals:
     void newSituation( StratuxSituation );

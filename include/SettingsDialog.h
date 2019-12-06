@@ -31,10 +31,11 @@ public:
 
 private:
     void          loadSettings();
-    void          startRequest( QUrl url );
+    void          startRequestAirports( QUrl url );
+    void          startRequestAirspace( QUrl url );
     const QString settingsRoot();
-    void          populateUrlMap();
-    void          nextCountry();
+    bool          nextCountryAirport();
+    bool          nextCountryAirspace();
 
     StratofierSettings m_settings;
     QString            m_qsInternalStoragePath;
@@ -48,20 +49,25 @@ private:
     int                    m_iTally;
     CanvasConstants       *m_pC;
 
-    QMap<Canvas::CountryCode, QString> m_mapUrls;
-    QMapIterator<Canvas::CountryCode, QString> m_mapIt;
+    QMap<Canvas::CountryCodeAirports, QString>         m_mapUrlsAirports;
+    QMapIterator<Canvas::CountryCodeAirports, QString> m_mapItAirports;
+    QMap<Canvas::CountryCodeAirspace, QString>         m_mapUrlsAirspaces;
+    QMapIterator<Canvas::CountryCodeAirspace, QString> m_mapItAirspaces;
 
 private slots:
     void init();
-    void getMapData();
+    void getMapDataAirports();
+    void getMapDataAirspace();
     void storage();
     void switchable();
     void selCountries();
 
     // Download slots
     void httpReadyRead();
-    void httpDownloadFinished();
-    void updateDownloadProgress( qint64, qint64 );
+    void httpDownloadFinishedAirports();
+    void httpDownloadFinishedAirspace();
+    void updateDownloadProgressAirports( qint64, qint64 );
+    void updateDownloadProgressAirspace( qint64, qint64 );
 };
 
 #endif // __SETTINGSDIALOG_H__

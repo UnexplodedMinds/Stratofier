@@ -25,7 +25,8 @@ public:
 
     static void getStorage( QString *pInternal );
 
-    static void populateUrlMap( QMap<Canvas::CountryCode, QString> *pMap );
+    static void populateUrlMapAirports( QMap<Canvas::CountryCodeAirports, QString> *pMapAP );
+    static void populateUrlMapAirspaces( QMap<Canvas::CountryCodeAirspace, QString> *pMapAS );
 };
 
 #endif // __BUILDER_H__

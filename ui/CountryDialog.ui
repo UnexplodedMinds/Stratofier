@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>457</width>
     <height>800</height>
    </rect>
   </property>
@@ -117,6 +117,37 @@ QComboBox
 	background-color: DimGray;
 	color: black;
 }
+QTabWidget::pane
+{
+	border-left: 5px solid black;
+	border-right: 5px solid black;
+	border-top: 0px;
+	border-bottom: 5px solid black;
+}
+QTabWidget::tab-bar
+{
+	alignment: center;
+}
+QTabBar::tab
+{
+	font-family: Sans-serif;
+	font-size: 20pt;
+	font-weight: bold;
+	min-width: 200px;
+	min-height: 50px;
+	background: DimGray;
+	color: black;
+}
+QTabBar::tab:selected
+{
+	background: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #F0F0FF, stop: 0.4 #70707F, stop: 0.5 #A0A0BF, stop: 1.0 #BFBFFF );
+	color: white;
+	padding: 1px;
+	min-width: 200px; min-height: 50px;
+	border: 2px solid black;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
 </string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -135,217 +166,6 @@ QComboBox
    <property name="spacing">
     <number>5</number>
    </property>
-   <item row="1" column="0" colspan="2">
-    <widget class="QListWidget" name="m_pCountryList">
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>20</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QListWidget
-{
-	selection-color: white;
-	selection-background-color: black;
-	alternate-background-color: LightSteelBlue;
-}
-
-QListWidget:item:selected
-{
-	background: black;
-	color: white;
-}</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::MultiSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string>UNITED STATES AIRPORTS</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UNITED STATES AIRSPACE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CANADA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>AUSTRALIA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>BELGIUM</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>BRAZIL</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CHILE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CHINA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CZECHOSLOVAKIA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HUNGARY</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ICELAND</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>INDIA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISRAEL</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>KENYA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>KOREA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>NEW ZEALAND</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>NIGERIA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PORTUGAL</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PUERTO RICO</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RUSSIA</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>SWEDEN</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UKRAINE</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="m_pTitleLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>14</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>SELECT COUNTRY DATA</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -427,6 +247,502 @@ QListWidget:item:selected
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="m_pTitleLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string>SELECT COUNTRY DATA</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QTabWidget" name="dataTypeTabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="airportsTab">
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <attribute name="title">
+       <string>AIRPORTS</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QListWidget" name="m_pAirportList">
+         <property name="font">
+          <font>
+           <family>Droid Sans</family>
+           <pointsize>20</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QListWidget
+{
+	selection-color: white;
+	selection-background-color: black;
+	alternate-background-color: LightSteelBlue;
+}
+
+QListWidget:item:selected
+{
+	background: black;
+	color: white;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <item>
+          <property name="text">
+           <string>UNITED STATES</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CANADA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>AUSTRALIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>BELGIUM</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>BRAZIL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CHILE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CHINA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CZECHOSLOVAKIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>HUNGARY</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ICELAND</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>INDIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISRAEL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>KENYA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>KOREA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NEW ZEALAND</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NIGERIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>PORTUGAL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>PUERTO RICO</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>RUSSIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SWEDEN</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UKRAINE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="airspaceTab">
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>120</red>
+            <green>120</green>
+            <blue>180</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <attribute name="title">
+       <string>AIRSPACE</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QListWidget" name="m_pAirspaceList">
+         <property name="font">
+          <font>
+           <family>Droid Sans</family>
+           <pointsize>20</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QListWidget
+{
+	selection-color: white;
+	selection-background-color: black;
+	alternate-background-color: LightSteelBlue;
+}
+
+QListWidget:item:selected
+{
+	background: black;
+	color: white;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <item>
+          <property name="text">
+           <string>UNITED STATES</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CANADA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>AUSTRALIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>BELGIUM</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>BRAZIL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CZECHOSLOVAKIA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>HUNGARY</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ICELAND</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>NEW ZEALAND</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>PORTUGAL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SWEDEN</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

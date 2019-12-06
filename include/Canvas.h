@@ -130,31 +130,45 @@ public:
         Airspace_Unknown
     };
 
-    enum CountryCode
+    enum CountryCodeAirports
     {
-        US,
-        US_Airspace,
-        CA,
-        AU,
-        AT,
-        BE,
-        BR,
-        CL,
-        CN,
-        CZ,
-        HU,
-        IS,
-        IN,
-        IL,
-        KE,
-        KR,
-        NZ,
-        NE,
-        PT,
-        PR,
-        RU,
-        SE,
-        UA
+        USap,
+        CAap,
+        AUap,
+        ATap,
+        BEap,
+        BRap,
+        CLap,
+        CNap,
+        CZap,
+        HUap,
+        ISap,
+        INap,
+        ILap,
+        KEap,
+        KRap,
+        NZap,
+        NEap,
+        PTap,
+        PRap,
+        RUap,
+        SEap,
+        UAap
+    };
+
+    enum CountryCodeAirspace
+    {
+        USas,
+        CAas,
+        AUas,
+        BEas,
+        BRas,
+        CZas,
+        HUas,
+        ISas,
+        NZas,
+        PTas,
+        SEas
     };
 
     enum ShowAirports
@@ -198,7 +212,8 @@ struct StratofierSettings
     bool                       bShowAirspaces;
     bool                       bShowAltitudes;
     Canvas::Units              eUnits;
-    QList<Canvas::CountryCode> listCountries;
+    QList<Canvas::CountryCodeAirports> listAirports;
+    QList<Canvas::CountryCodeAirspace> listAirspaces;
     QString                    qsOwnshipID;
 };
 

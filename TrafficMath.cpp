@@ -127,11 +127,11 @@ void TrafficMath::updateAirport( Airport *pAirport )
 
 void TrafficMath::cacheAirports()
 {
-    QString                       qsInternal;
-    QFile                         aipDatabase;
-    QMap<Canvas::CountryCode, QString> urlMap;
+    QString                                    qsInternal;
+    QFile                                      aipDatabase;
+    QMap<Canvas::CountryCodeAirports, QString> urlMap;
 
-    Builder::populateUrlMap( &urlMap );
+    Builder::populateUrlMapAirports( &urlMap );
 
     QVariantList countries = g_pSet->value( "CountryAirports", QVariantList() ).toList();
     QVariant     country;
@@ -140,7 +140,8 @@ void TrafficMath::cacheAirports()
     foreach( country, countries )
     {
         Builder::getStorage( &qsInternal );
-        qsInternal.append( QString( "/data/space.skyfun.stratofier/%1.aip" ).arg( urlMap[static_cast<Canvas::CountryCode>( country.toInt() )] ) );
+        qsInternal.append( QString( "/data/space.skyfun.stratofier/%1.aip" )
+                                .arg( urlMap[static_cast<Canvas::CountryCodeAirports>( country.toInt() )] ) );
 
         aipDatabase.setFileName( qsInternal );
 
@@ -283,147 +284,158 @@ void TrafficMath::cacheAirports()
 
 void TrafficMath::cacheAirspaces()
 {
-    QString qsInternal;
-    QFile   aipDatabase;
+    QString                                    qsInternal;
+    QFile                                      aipDatabase;
+    QMap<Canvas::CountryCodeAirspace, QString> urlMap;
+
+    Builder::populateUrlMapAirspaces( &urlMap );
+
+    QVariantList countries = g_pSet->value( "CountryAirspaces", QVariantList() ).toList();
+    QVariant     country;
 
     g_airspaceCache.clear();
     Builder::getStorage( &qsInternal );
-    qsInternal.append( "/data/space.skyfun.stratofier/airspace_united_states_us.aip" );
 
-    aipDatabase.setFileName( qsInternal );
-
-    if( !aipDatabase.open( QIODevice::ReadOnly ) )
-        return;
-
-    QDomDocument aipDoc( "XML_OpenAIP" );
-    QDomElement  xRoot, xWayPtElem, xAirspaceElem, xChildElem, xSubChildElem;
-    QDomNode     xWayPtNode, xAirspaceNode, xChildNode, xSubChildNode;
-    QString      qsTemp, qsErrMsg;
-    Airspace     as;
-    int          iErrLine, iErrCol;
-
-    if( !aipDoc.setContent( &aipDatabase, &qsErrMsg, &iErrLine, &iErrCol ) )
+    foreach( country, countries )
     {
-        qDebug() << qsErrMsg << iErrLine << iErrCol;
-        aipDatabase.close();
-        return;
-    }
-    aipDatabase.close();
+        Builder::getStorage( &qsInternal );
+        qsInternal.append( QString( "/data/space.skyfun.stratofier/%1.aip" ).arg( urlMap[static_cast<Canvas::CountryCodeAirspace>( country.toInt() )] ) );
 
-    xRoot = aipDoc.documentElement();
+        aipDatabase.setFileName( qsInternal );
 
-    // Don't proceed if this isn't an OpenAIP file
-    if( xRoot.tagName() != "OPENAIP" )
-        return;
+        if( !aipDatabase.open( QIODevice::ReadOnly ) )
+            return;
 
-    // Total test points in test results file
-    xWayPtNode = xRoot.firstChild();
+        QDomDocument aipDoc( "XML_OpenAIP" );
+        QDomElement  xRoot, xWayPtElem, xAirspaceElem, xChildElem, xSubChildElem;
+        QDomNode     xWayPtNode, xAirspaceNode, xChildNode, xSubChildNode;
+        QString      qsTemp, qsErrMsg;
+        Airspace     as;
+        int          iErrLine, iErrCol;
 
-    while( !xWayPtNode.isNull() )
-    {
-        xWayPtElem = xWayPtNode.toElement();
-        if( xWayPtElem.tagName() == "AIRSPACES" )
+        if( !aipDoc.setContent( &aipDatabase, &qsErrMsg, &iErrLine, &iErrCol ) )
         {
-            xAirspaceNode = xWayPtNode.firstChild();
-            while( !xAirspaceNode.isNull() )
-            {
-                xAirspaceElem = xAirspaceNode.toElement();
-                if( xAirspaceElem.tagName() == "ASP" )
-                {
-                    as.qsName.clear();
-                    as.eType = Canvas::Airspace_Class_G;
-                    as.iAltTop = 0;
-                    as.iAltBottom = 0;
-                    as.shape.clear();
-
-                    QString qsTemp = xAirspaceElem.attribute( "CATEGORY" );
-
-                    if( qsTemp == "G" )
-                        as.eType = Canvas::Airspace_Class_G;
-                    else if( qsTemp == "E" )
-                        as.eType = Canvas::Airspace_Class_E;
-                    else if( qsTemp == "D" )
-                        as.eType = Canvas::Airspace_Class_D;
-                    else if( qsTemp == "C" )
-                        as.eType = Canvas::Airspace_Class_C;
-                    // The AIP database doesn't distinguish between MOA, TFR and SFRA types; most can be resolved by the name but those that can't will
-                    // remain assigned to this unofficial type and should probably be colored the same as Restricted or Prohibited
-                    else if( qsTemp == "DANGER" )
-                        as.eType = Canvas::Airspace_Danger;
-                    else if( qsTemp == "PROHIBITED" )
-                        as.eType = Canvas::Airspace_Prohibited;
-                    else if( qsTemp == "RESTRICTED" )
-                        as.eType = Canvas::Airspace_Restricted;
-
-                    xChildNode = xAirspaceNode.firstChild();
-                    while( !xChildNode.isNull() )
-                    {
-                        xChildElem = xChildNode.toElement();
-                        if( xChildElem.tagName() == "NAME" )
-                        {
-                            as.qsName = xChildElem.text();
-                            // Try to resolve the ambiguous "DANGER" category to what it really is
-                            if( as.qsName.contains( "MOA" ) || as.qsName.contains( "BY NOTAM" ) )
-                                as.eType = Canvas::Airspace_MOA;
-                            else if( as.qsName.contains( "TFR" ) )
-                                as.eType = Canvas::Airspace_TFR;
-                            else if( as.qsName.contains( "SFRA" ) )
-                                as.eType = Canvas::Airspace_SFRA;
-                        }
-                        else if( xChildElem.tagName() == "ALTLIMIT_TOP" )
-                        {
-                            xSubChildNode = xChildNode.firstChild();
-                            while( !xSubChildNode.isNull() )
-                            {
-                                xSubChildElem = xSubChildNode.toElement();
-                                if( xSubChildElem.tagName() == "ALT" )
-                                    as.iAltTop = xSubChildElem.text().toInt();  // Assume feet
-                                xSubChildNode = xSubChildNode.nextSibling();
-                            }
-                        }
-                        else if( xChildElem.tagName() == "ALTLIMIT_BOTTOM" )
-                        {
-                            xSubChildNode = xChildNode.firstChild();
-                            while( !xSubChildNode.isNull() )
-                            {
-                                xSubChildElem = xSubChildNode.toElement();
-                                if( xSubChildElem.tagName() == "ALT" )
-                                    as.iAltBottom = xSubChildElem.text().toInt();  // Assume feet
-                                xSubChildNode = xSubChildNode.nextSibling();
-                            }
-                        }
-                        else if( xChildElem.tagName() == "GEOMETRY" )
-                        {
-                            xSubChildNode = xChildNode.firstChild();
-                            while( !xSubChildNode.isNull() )
-                            {
-                                xSubChildElem = xSubChildNode.toElement();
-                                if( xSubChildElem.tagName() == "POLYGON" )
-                                {
-                                    qsTemp = xSubChildElem.text();
-
-                                    QStringList qslPolyCoords = qsTemp.split( ',' );
-                                    QString     qsCoordPair;
-
-                                    foreach( qsCoordPair, qslPolyCoords )
-                                    {
-                                        qsCoordPair = qsCoordPair.trimmed();
-
-                                        QStringList qslCoords = qsCoordPair.split( ' ' );
-                                        if( qslCoords.count() == 2 )
-                                            as.shape.append( QPointF( qslCoords.first().toDouble(), qslCoords.last().toDouble() ) );
-                                    }
-                                }
-                                xSubChildNode = xSubChildNode.nextSibling();
-                            }
-                        }
-                        xChildNode = xChildNode.nextSibling();
-                    }
-                    g_airspaceCache.append( as );    // Note the cache has no haversine transforms to get the bearing and distance since that's handled by updateNearbyAirports
-                }
-                xAirspaceNode = xAirspaceNode.nextSibling();
-            }
+            qDebug() << qsErrMsg << iErrLine << iErrCol;
+            aipDatabase.close();
+            return;
         }
-        xWayPtNode = xWayPtNode.nextSibling();
+        aipDatabase.close();
+
+        xRoot = aipDoc.documentElement();
+
+        // Don't proceed if this isn't an OpenAIP file
+        if( xRoot.tagName() != "OPENAIP" )
+            return;
+
+        // Total test points in test results file
+        xWayPtNode = xRoot.firstChild();
+
+        while( !xWayPtNode.isNull() )
+        {
+            xWayPtElem = xWayPtNode.toElement();
+            if( xWayPtElem.tagName() == "AIRSPACES" )
+            {
+                xAirspaceNode = xWayPtNode.firstChild();
+                while( !xAirspaceNode.isNull() )
+                {
+                    xAirspaceElem = xAirspaceNode.toElement();
+                    if( xAirspaceElem.tagName() == "ASP" )
+                    {
+                        as.qsName.clear();
+                        as.eType = Canvas::Airspace_Class_G;
+                        as.iAltTop = 0;
+                        as.iAltBottom = 0;
+                        as.shape.clear();
+
+                        QString qsTemp = xAirspaceElem.attribute( "CATEGORY" );
+
+                        if( qsTemp == "G" )
+                            as.eType = Canvas::Airspace_Class_G;
+                        else if( qsTemp == "E" )
+                            as.eType = Canvas::Airspace_Class_E;
+                        else if( qsTemp == "D" )
+                            as.eType = Canvas::Airspace_Class_D;
+                        else if( qsTemp == "C" )
+                            as.eType = Canvas::Airspace_Class_C;
+                        // The AIP database doesn't distinguish between MOA, TFR and SFRA types; most can be resolved by the name but those that can't will
+                        // remain assigned to this unofficial type and should probably be colored the same as Restricted or Prohibited
+                        else if( qsTemp == "DANGER" )
+                            as.eType = Canvas::Airspace_Danger;
+                        else if( qsTemp == "PROHIBITED" )
+                            as.eType = Canvas::Airspace_Prohibited;
+                        else if( qsTemp == "RESTRICTED" )
+                            as.eType = Canvas::Airspace_Restricted;
+
+                        xChildNode = xAirspaceNode.firstChild();
+                        while( !xChildNode.isNull() )
+                        {
+                            xChildElem = xChildNode.toElement();
+                            if( xChildElem.tagName() == "NAME" )
+                            {
+                                as.qsName = xChildElem.text();
+                                // Try to resolve the ambiguous "DANGER" category to what it really is
+                                if( as.qsName.contains( "MOA" ) || as.qsName.contains( "BY NOTAM" ) )
+                                    as.eType = Canvas::Airspace_MOA;
+                                else if( as.qsName.contains( "TFR" ) )
+                                    as.eType = Canvas::Airspace_TFR;
+                                else if( as.qsName.contains( "SFRA" ) )
+                                    as.eType = Canvas::Airspace_SFRA;
+                            }
+                            else if( xChildElem.tagName() == "ALTLIMIT_TOP" )
+                            {
+                                xSubChildNode = xChildNode.firstChild();
+                                while( !xSubChildNode.isNull() )
+                                {
+                                    xSubChildElem = xSubChildNode.toElement();
+                                    if( xSubChildElem.tagName() == "ALT" )
+                                        as.iAltTop = xSubChildElem.text().toInt();  // Assume feet
+                                    xSubChildNode = xSubChildNode.nextSibling();
+                                }
+                            }
+                            else if( xChildElem.tagName() == "ALTLIMIT_BOTTOM" )
+                            {
+                                xSubChildNode = xChildNode.firstChild();
+                                while( !xSubChildNode.isNull() )
+                                {
+                                    xSubChildElem = xSubChildNode.toElement();
+                                    if( xSubChildElem.tagName() == "ALT" )
+                                        as.iAltBottom = xSubChildElem.text().toInt();  // Assume feet
+                                    xSubChildNode = xSubChildNode.nextSibling();
+                                }
+                            }
+                            else if( xChildElem.tagName() == "GEOMETRY" )
+                            {
+                                xSubChildNode = xChildNode.firstChild();
+                                while( !xSubChildNode.isNull() )
+                                {
+                                    xSubChildElem = xSubChildNode.toElement();
+                                    if( xSubChildElem.tagName() == "POLYGON" )
+                                    {
+                                        qsTemp = xSubChildElem.text();
+
+                                        QStringList qslPolyCoords = qsTemp.split( ',' );
+                                        QString     qsCoordPair;
+
+                                        foreach( qsCoordPair, qslPolyCoords )
+                                        {
+                                            qsCoordPair = qsCoordPair.trimmed();
+
+                                            QStringList qslCoords = qsCoordPair.split( ' ' );
+                                            if( qslCoords.count() == 2 )
+                                                as.shape.append( QPointF( qslCoords.first().toDouble(), qslCoords.last().toDouble() ) );
+                                        }
+                                    }
+                                    xSubChildNode = xSubChildNode.nextSibling();
+                                }
+                            }
+                            xChildNode = xChildNode.nextSibling();
+                        }
+                        g_airspaceCache.append( as );    // Note the cache has no haversine transforms to get the bearing and distance since that's handled by updateNearbyAirports
+                    }
+                    xAirspaceNode = xAirspaceNode.nextSibling();
+                }
+            }
+            xWayPtNode = xWayPtNode.nextSibling();
+        }
     }
 }

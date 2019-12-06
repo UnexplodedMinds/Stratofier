@@ -10,6 +10,7 @@ Stratofier Stratux AHRS Display
 #include <QColor>
 #include <QPalette>
 #include <QNetworkInterface>
+#include <QBluetoothDeviceDiscoveryAgent>
 
 #include <math.h>
 
@@ -31,12 +32,30 @@ StreamReader::StreamReader( QObject *parent, const QString &qsIP )
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
+
+    // Create a discovery agent and connect to its signals
+    /*
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent = new QBluetoothDeviceDiscoveryAgent( this );
+    connect( discoveryAgent, SIGNAL( deviceDiscovered(QBluetoothDeviceInfo ) ),
+             this, SLOT( deviceDiscovered( QBluetoothDeviceInfo ) ) );
+
+    // Start a discovery
+    discoveryAgent->start();
+    */
 }
 
 
 StreamReader::~StreamReader()
 {
 }
+
+
+/*
+void StreamReader::deviceDiscovered( const QBluetoothDeviceInfo &device )
+{
+    qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
+}
+*/
 
 
 // Open the websocket URLs from the Stratux

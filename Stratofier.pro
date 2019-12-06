@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui websockets widgets network concurrent xml
+QT += core gui websockets widgets network concurrent xml bluetooth
 
 VPATH += ./include \
          ../include \

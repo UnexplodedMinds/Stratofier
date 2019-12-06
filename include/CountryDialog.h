@@ -20,16 +20,22 @@ public:
     explicit CountryDialog( QWidget *pParent, CanvasConstants *pC );
     ~CountryDialog();
 
-    QList<Canvas::CountryCode> countries() { return m_countryList; }
-    QList<Canvas::CountryCode> deleteCountries() { return m_deleteCountryList; }
+    QList<Canvas::CountryCodeAirports> countriesAirports() { return m_countryListAirports; }
+    QList<Canvas::CountryCodeAirports> deleteCountriesAirports() { return m_deleteCountryListAirports; }
+    QList<Canvas::CountryCodeAirspace> countriesAirspaces() { return m_countryListAirspaces; }
+    QList<Canvas::CountryCodeAirspace> deleteCountriesAirspaces() { return m_deleteCountryListAirspaces; }
 
 private:
     void updateAirports();
-    void populateCountries();
+    void populateCountriesAirports();
+    void updateAirspaces();
+    void populateCountriesAirspaces();
 
-    CanvasConstants           *m_pC;
-    QList<Canvas::CountryCode> m_countryList;
-    QList<Canvas::CountryCode> m_deleteCountryList;
+    CanvasConstants                   *m_pC;
+    QList<Canvas::CountryCodeAirports> m_countryListAirports;
+    QList<Canvas::CountryCodeAirports> m_deleteCountryListAirports;
+    QList<Canvas::CountryCodeAirspace> m_countryListAirspaces;
+    QList<Canvas::CountryCodeAirspace> m_deleteCountryListAirspaces;
 
 private slots:
     void ok();

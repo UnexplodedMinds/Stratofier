@@ -74,7 +74,7 @@ int main( int argc, char *argv[] )
 #endif
 
     QCoreApplication::setOrganizationName( "Sky Fun" );
-    QCoreApplication::setOrganizationDomain( "unexplodedminds.com" );
+    QCoreApplication::setOrganizationDomain( "skyfun.space" );
     QCoreApplication::setApplicationName( "Stratofier" );
     QGuiApplication::setApplicationDisplayName( "Stratofier" );
 
@@ -96,9 +96,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->setGeometry( 0, 0, 1024, 1638 );
+            pMainWin->setGeometry( 0, 0, 640, 1100 /* 0, 0, 1024, 1638 */ );
         else
-            pMainWin->setGeometry( 0, 0, 1638, 1024 );
+            pMainWin->setGeometry( 0, 0, 1100, 640 /* 0, 0, 1638, 1024 */ );
 	}
 
     while( guiApp.exec() != 0 )

@@ -119,29 +119,44 @@ void Builder::getStorage( QString *pInternal )
 }
 
 
-void Builder::populateUrlMap( QMap<Canvas::CountryCode, QString> *pMap )
+void Builder::populateUrlMapAirports( QMap<Canvas::CountryCodeAirports, QString> *pMapAP )
 {
-    pMap->insert( Canvas::AU, "airports_australia_au" );
-    pMap->insert( Canvas::AT, "airports_austria_at" );
-    pMap->insert( Canvas::BE, "airports_belgium_be" );
-    pMap->insert( Canvas::BR, "airports_brazil_br" );
-    pMap->insert( Canvas::CA, "airports_canada_ca" );
-    pMap->insert( Canvas::CL, "airports_chile_cl" );
-    pMap->insert( Canvas::CN, "airports_china_cn" );
-    pMap->insert( Canvas::CZ, "airports_czech_republic_cz" );
-    pMap->insert( Canvas::HU, "airports_hungary_hu" );
-    pMap->insert( Canvas::IS, "airports_iceland_is" );
-    pMap->insert( Canvas::IN, "airports_india_in" );
-    pMap->insert( Canvas::IL, "airports_israel_il" );
-    pMap->insert( Canvas::KE, "airports_kenya_ke" );
-    pMap->insert( Canvas::KR, "airports_korea_kr" );
-    pMap->insert( Canvas::NZ, "airports_new_zealand_nz" );
-    pMap->insert( Canvas::NE, "airports_niger_ne" );
-    pMap->insert( Canvas::PT, "airports_portugal_pt" );
-    pMap->insert( Canvas::PR, "airports_rico_pr" );
-    pMap->insert( Canvas::RU, "airports_russian_federation_ru" );
-    pMap->insert( Canvas::SE, "airports_sweden_se" );
-    pMap->insert( Canvas::UA, "airports_ukraine_ua" );
-    pMap->insert( Canvas::US, "airports_united_states_us" );
-    pMap->insert( Canvas::US_Airspace, "airspace_united_states_us" );
+    pMapAP->insert( Canvas::USap, "airports_united_states_us" );
+    pMapAP->insert( Canvas::CAap, "airports_canada_ca" );
+    pMapAP->insert( Canvas::AUap, "airports_australia_au" );
+    pMapAP->insert( Canvas::ATap, "airports_austria_at" );
+    pMapAP->insert( Canvas::BEap, "airports_belgium_be" );
+    pMapAP->insert( Canvas::BRap, "airports_brazil_br" );
+    pMapAP->insert( Canvas::CLap, "airports_chile_cl" );
+    pMapAP->insert( Canvas::CNap, "airports_china_cn" );
+    pMapAP->insert( Canvas::CZap, "airports_czech_republic_cz" );
+    pMapAP->insert( Canvas::HUap, "airports_hungary_hu" );
+    pMapAP->insert( Canvas::ISap, "airports_iceland_is" );
+    pMapAP->insert( Canvas::INap, "airports_india_in" );
+    pMapAP->insert( Canvas::ILap, "airports_israel_il" );
+    pMapAP->insert( Canvas::KEap, "airports_kenya_ke" );
+    pMapAP->insert( Canvas::KRap, "airports_korea_kr" );
+    pMapAP->insert( Canvas::NZap, "airports_new_zealand_nz" );
+    pMapAP->insert( Canvas::NEap, "airports_niger_ne" );
+    pMapAP->insert( Canvas::PTap, "airports_portugal_pt" );
+    pMapAP->insert( Canvas::PRap, "airports_rico_pr" );
+    pMapAP->insert( Canvas::RUap, "airports_russian_federation_ru" );
+    pMapAP->insert( Canvas::SEap, "airports_sweden_se" );
+    pMapAP->insert( Canvas::UAap, "airports_ukraine_ua" );
+}
+
+
+void Builder::populateUrlMapAirspaces( QMap<Canvas::CountryCodeAirspace, QString> *pMapAS )
+{
+    pMapAS->insert( Canvas::USas, "airspace_united_states_us" );
+    pMapAS->insert( Canvas::CAas, "airspace_canada_ca" );
+    pMapAS->insert( Canvas::AUas, "airspace_austrailia_au" );
+    pMapAS->insert( Canvas::BEas, "airspace_belgium_be" );
+    pMapAS->insert( Canvas::BRas, "airspace_brazil_br" );
+    pMapAS->insert( Canvas::CZas, "airspace_czech_republic_cz" );
+    pMapAS->insert( Canvas::HUas, "airspace_hungary_hu" );
+    pMapAS->insert( Canvas::ISas, "airspace_iceland_is" );
+    pMapAS->insert( Canvas::NZas, "airspace_new_zealand_nz" );
+    pMapAS->insert( Canvas::PTas, "airspace_portugal_pt" );
+    pMapAS->insert( Canvas::SEas, "airspace_sweden_se" );
 }

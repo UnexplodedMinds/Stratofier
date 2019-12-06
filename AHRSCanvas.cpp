@@ -55,7 +55,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.6.2.0" );
+QString g_qsStratofierVersion( "1.6.3.0" );
 
 
 /*
@@ -75,6 +75,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iHeadBugAngle( -1 ),
       m_iWindBugAngle( -1 ),
       m_iWindBugSpeed( 0 ),
+      m_iAltBug( -1 ),
       m_pMagHeadOffLessPixmap( Q_NULLPTR ),
       m_pMagHeadOffMorePixmap( Q_NULLPTR ),
       m_bUpdated( false ),
@@ -85,12 +86,11 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bShowCrosswind( false ),
       m_iTimerMin( -1 ),
       m_iTimerSec( -1 ),
-      m_bDisplayTanksSwitchNotice( false ),
       m_iMagDev( 0 ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
+      m_bDisplayTanksSwitchNotice( false ),
       m_SwipeStart( 0, 0 ),
       m_iSwiping( 0 ),
-      m_iAltBug( -1 )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -306,7 +306,7 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     StratuxTraffic        traffic;
     QPen                  planePen( Qt::black, 15, Qt::SolidLine, Qt::RoundCap, Qt::BevelJoin );
     double				  dPxPerNM = static_cast<double>( c->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
-	QLineF				  track, ball;
+    QLineF				  track, ball, info;
 	double                dAlt;
 	QString               qsSign;
     QFontMetrics          smallMetrics( small );
@@ -389,26 +389,18 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 				    qsSign = "-";
 			    pAhrs->setPen( Qt::black );
                 pAhrs->setFont( wee );
-                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
-                pAhrs->setFont( tiny );
-#if defined( Q_OS_ANDROID )
-                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + c->dH80 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + c->dH80 + c->dH80 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
-#else
-                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 25.0, ball.p2().y() + 10.0 + (c->iWeeFontHeight * 4.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
-#endif
+                info.setP1( ball.p2() );
+                info.setP2( QPointF( ball.p2().x() + c->dW40, ball.p2().y() ) );
+                info.setAngle( 30.0 );
+                pAhrs->drawText( info.p2(), traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                info.setAngle( -50.0 );
+                pAhrs->drawText( info.p2(), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
                 pAhrs->setPen( closenessColor );
-                pAhrs->setFont( wee );
-                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + 9.0, traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
-                pAhrs->setFont( tiny );
-#if defined( Q_OS_ANDROID )
-                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + c->dH80 - 1 + (c->iWeeFontHeight / 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 24.0, ball.p2().y() + c->dH80 + c->dH80 - 1 + c->iWeeFontHeight, QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
-#else
-                pAhrs->drawText( ball.p2().x() + 14.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 2.0), QString::number( static_cast<int>( traffic.dTrack ) ) );
-                pAhrs->drawText( ball.p2().x() + 14.0, ball.p2().y() + 9.0 + (c->iWeeFontHeight * 4.0), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
-#endif
+                info.translate( 2.0, 2.0 );
+                info.setAngle( 30.0 );
+                pAhrs->drawText( info.p2(), traffic.qsTail.isEmpty() ? "UNKWN" : traffic.qsTail );
+                info.setAngle( -50.0 );
+                pAhrs->drawText( info.p2(), QString( "%1%2" ).arg( qsSign ).arg( static_cast<int>( fabs( dAlt ) ) ) );
             }
 		}
     }
@@ -419,7 +411,6 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
     QString qsZoom = QString( "%1nm" ).arg( static_cast<int>( m_dZoomNM ) );
     QString qsMagDev = QString( "%1%2" ).arg( m_iMagDev ).arg( QChar( 0xB0 ) );
-    double  dInfoH = smallMetrics.boundingRect( qsZoom ).height();
 
     if( m_iMagDev < 0 )
         qsMagDev.prepend( "   " );  // There will already be a negative symbol
@@ -431,23 +422,19 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
     // Draw the zoom level
     pAhrs->setFont( tiny );
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 - (m_bPortrait ? c->dW20 + c->dW80 : c->dW10) + 2,
-                     c->dH - 20.0 - (dInfoH * 2.0) + 2.0 - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
-                     qsZoom );
+    QLineF zoomLine = (m_bPortrait ? QLineF( c->dW2, c->dH - c->dW2 - 20.0, c->dW, c->dH - c->dW2 - 20.0 )
+                                   : QLineF( c->dW + c->dW2, c->dH - c->dW2 - 10.0, c->dWa, c->dH - c->dW2 - 10.0 ));
+    zoomLine.setAngle( -40.0 );
+    pAhrs->drawText( zoomLine.p2().x() + 2.0, zoomLine.p2().y() + 2.0, qsZoom );
     pAhrs->setPen( QColor( 80, 255, 80 ) );
-    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 - (m_bPortrait ? c->dW20 + c->dW80 : c->dW10),
-                     c->dH - 20.0 - (dInfoH * 2.0) - (m_bPortrait ? (c->dH10 - c->dH40) : c->dH40),
-                     qsZoom );
+    pAhrs->drawText( zoomLine.p2(), qsZoom );
 
     // Draw the magnetic deviation
+    zoomLine.setAngle( -50.0 );
     pAhrs->setPen( Qt::black );
-    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 + (m_bPortrait ? c->dW80 : 0.0) - c->dW10 + 2,
-                     c->dH - dInfoH + 2.0 - (m_bPortrait ? c->dH20 + c->dH80 : 0.0),
-                     qsMagDev );
+    pAhrs->drawText( zoomLine.p2().x() + 2.0, zoomLine.p2().y() + 2.0, qsMagDev );
     pAhrs->setPen( Qt::yellow );
-    pAhrs->drawText( (m_bPortrait ? c->dW : c->dWa) - c->dW20 + (m_bPortrait ? c->dW80 : 0.0) - c->dW10,
-                     c->dH - dInfoH - (m_bPortrait ? c->dH20 + c->dH80 : 0.0),
-                     qsMagDev );
+    pAhrs->drawText( zoomLine.p2(), qsMagDev );
 }
 
 
@@ -2253,7 +2240,7 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             ball.setLength( pC->dW2 - 30.0 );
 
         // Traffic angle in reference to you (which clock position they're at)
-        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading - static_cast<double>( m_iMagDev / 2 )) + 180.0 );
 
         pAhrs->setPen( coursePen );
         pAhrs->drawLine( ball );
@@ -2265,9 +2252,9 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             dDispBearing += 360.0;
 
         Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, pC->dW4, pC->dH20, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + (m_bPortrait ? 0.0 : pC->dH40), num );
         Builder::buildNumber( &num, pC, m_directAP.bd.dDistance, 1 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, pC->dW4, pC->dH20, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20 + (m_bPortrait ? 0.0 : pC->dH40), num );
     }
     else if( m_fromAP.qsID != "NULL" )
     {
@@ -2321,9 +2308,9 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             dDispBearing += 360.0;
 
         Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, pC->dW4, pC->dH20, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80, num );
         Builder::buildNumber( &num, pC, m_toAP.bd.dDistance, 1 );
-        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, pC->dW4, pC->dH20, num );
+        pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20, num );
     }
 }
 
