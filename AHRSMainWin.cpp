@@ -20,6 +20,14 @@ Stratofier Stratux AHRS Display
 #include <QEventLoop>
 #include <QByteArray>
 
+#include <QBluetoothServer>
+#include <QBluetoothServiceInfo>
+#include <QBluetoothAddress>
+#include <QBluetoothLocalDevice>
+#include <QBluetoothDeviceInfo>
+#include <QBluetoothDeviceDiscoveryAgent>
+#include <QBluetoothSocket>
+
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
 #include "StreamReader.h"
@@ -55,7 +63,11 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
       m_iTimerSeconds( 0 ),
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
-      m_iTimerTimer( -1 )
+      m_iTimerTimer( -1 ),
+      m_pBTServer( nullptr ),
+      m_pBTdiscoverer( nullptr ),
+      m_pBTlocal( nullptr ),
+      m_pBTsocket( nullptr )
 {
     m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
 
@@ -74,6 +86,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     connect( m_pStratuxStream, SIGNAL( newSituation( StratuxSituation ) ), m_pAHRSDisp, SLOT( situation( StratuxSituation ) ) );
     connect( m_pStratuxStream, SIGNAL( newTraffic( int, StratuxTraffic ) ), m_pAHRSDisp, SLOT( traffic( int, StratuxTraffic ) ) );
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
+    connect( m_pStratuxStream, SIGNAL( newBTStatus( bool ) ), this, SLOT( BTUpdate( bool ) ) );
 
     m_pStratuxStream->connectStreams();
 
@@ -83,9 +96,33 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait )
     pScreen->setOrientationUpdateMask( Qt::PortraitOrientation | Qt::InvertedPortraitOrientation | Qt::LandscapeOrientation | Qt::InvertedLandscapeOrientation );
     connect( pScreen, SIGNAL( orientationChanged( Qt::ScreenOrientation ) ), this, SLOT( orient( Qt::ScreenOrientation ) ) );
 
+    m_pBTdiscoverer = new QBluetoothDeviceDiscoveryAgent( this );
+    connect( m_pBTdiscoverer, SIGNAL( deviceDiscovered( const QBluetoothDeviceInfo& ) ), this, SLOT( btDeviceDiscovered( const QBluetoothDeviceInfo& ) ) );
+    m_pBTdiscoverer->start();
+
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
 
     QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
+}
+
+
+void AHRSMainWin::btDeviceDiscovered( const QBluetoothDeviceInfo &devInfo )
+{
+    qDebug() << "DEVICE" << devInfo.name();
+
+    if( devInfo.name().contains( "ACGAM R1" ) )
+    {
+        qDebug() << "FOUND";
+        m_pBTdiscoverer->stop();
+        delete m_pBTdiscoverer;
+        m_pBTdiscoverer = nullptr;
+
+        m_pBTsocket = new QBluetoothSocket( QBluetoothServiceInfo::RfcommProtocol, this );
+        m_pBTsocket->connectToService( devInfo.address(), devInfo.deviceUuid(), QIODevice::ReadOnly );
+
+        connect( m_pBTsocket, &QBluetoothSocket::readyRead, this, &AHRSMainWin::btReadData );
+        connect( m_pBTsocket, &QBluetoothSocket::disconnected, this, QOverload<>::of( &AHRSMainWin::btDeviceDisconnected ) );
+    }
 }
 
 
@@ -112,10 +149,10 @@ void AHRSMainWin::init()
 AHRSMainWin::~AHRSMainWin()
 {
     delete m_pStratuxStream;
-    m_pStratuxStream = Q_NULLPTR;
+    m_pStratuxStream = nullptr;
 
     delete m_pAHRSDisp;
-    m_pAHRSDisp = Q_NULLPTR;
+    m_pAHRSDisp = nullptr;
 }
 
 
@@ -138,6 +175,16 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
     m_pGPSIndicator->setStyleSheet( bGPS ? qsOn : qsOff );
 
     m_lastStatusUpdate = QDateTime::currentDateTime();
+}
+
+
+// Bluetooth HC-06 was discovered
+void AHRSMainWin::BTUpdate( bool bBT )
+{
+    QString qsOn( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
+    QString qsOff( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
+
+    m_pBTIndicator->setStyleSheet( bBT ? qsOn : qsOff );
 }
 
 
@@ -391,3 +438,80 @@ void AHRSMainWin::settingsClosed()
 {
     QTimer::singleShot( 100, this, SLOT( menu() ) );
 }
+
+
+void AHRSMainWin::startBTServer( const QBluetoothAddress& localAdapter )
+{
+    m_pBTServer = new QBluetoothServer( QBluetoothServiceInfo::RfcommProtocol, this );
+    connect( m_pBTServer, &QBluetoothServer::newConnection, this, QOverload<>::of( &AHRSMainWin::btDeviceConnected ) );
+    if( !m_pBTServer->listen( localAdapter ) )
+        return;
+
+    qDebug() << "LISTENING";
+
+    QUuid serviceUuid = QUuid::createUuid();
+    QBluetoothServiceInfo::Sequence profileSequence;
+    QBluetoothServiceInfo::Sequence classId;
+    classId << QVariant::fromValue( QBluetoothUuid( QBluetoothUuid::SerialPort ) );
+    classId << QVariant::fromValue( quint16( 0x100 ) );
+    profileSequence.append( QVariant::fromValue( classId ) );
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::BluetoothProfileDescriptorList, profileSequence );
+
+    classId.clear();
+    classId << QVariant::fromValue( QBluetoothUuid( serviceUuid ) );
+    classId << QVariant::fromValue( QBluetoothUuid( QBluetoothUuid::SerialPort ) );
+
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::ServiceClassIds, classId );
+
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::ServiceName, "Stratofier" );
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::ServiceDescription, "Stratux AHRS Display" );
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::ServiceProvider, "skyfun.space" );
+    m_BTServiceInfo.setServiceUuid( QBluetoothUuid( serviceUuid ) );
+
+    QBluetoothServiceInfo::Sequence publicBrowse;
+    publicBrowse << QVariant::fromValue( QBluetoothUuid( QBluetoothUuid::PublicBrowseGroup ) );
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::BrowseGroupList, publicBrowse );
+
+    QBluetoothServiceInfo::Sequence protocolDescriptorList;
+    QBluetoothServiceInfo::Sequence protocol;
+    protocol << QVariant::fromValue( QBluetoothUuid( QBluetoothUuid::L2cap ) );
+    protocolDescriptorList.append( QVariant::fromValue( protocol ) );
+    protocol.clear();
+    protocol << QVariant::fromValue( QBluetoothUuid( QBluetoothUuid::Rfcomm ) )
+             << QVariant::fromValue( quint8( m_pBTServer->serverPort() ) );
+    protocolDescriptorList.append( QVariant::fromValue( protocol ) );
+    m_BTServiceInfo.setAttribute( QBluetoothServiceInfo::ProtocolDescriptorList,
+                                  protocolDescriptorList );
+    m_BTServiceInfo.registerService( localAdapter );
+}
+
+
+void AHRSMainWin::btDeviceConnected()
+{
+    qDebug() << "CONNECTED";
+
+    QBluetoothSocket *socket = m_pBTServer->nextPendingConnection();
+    if( !socket )
+        return;
+
+    connect(socket, &QBluetoothSocket::readyRead, this, &AHRSMainWin::btReadData );
+    connect( socket, &QBluetoothSocket::disconnected, this, QOverload<>::of( &AHRSMainWin::btDeviceDisconnected ) );
+}
+
+
+void AHRSMainWin::btDeviceDisconnected()
+{
+    QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>( sender() );
+
+    if( !socket )
+        return;
+
+    socket->deleteLater();
+}
+
+
+void AHRSMainWin::btReadData()
+{
+    qDebug() << m_pBTsocket->readAll();
+}
+

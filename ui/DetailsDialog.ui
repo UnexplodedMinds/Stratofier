@@ -205,6 +205,21 @@ QComboBox
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	background-color: RoyalBlue;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: CornflowerBlue;
+	color: black;
+}
+</string>
+     </property>
      <property name="text">
       <string>DONE</string>
      </property>

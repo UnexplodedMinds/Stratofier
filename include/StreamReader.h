@@ -8,6 +8,7 @@ Stratofier Stratux AHRS Display
 
 #include <QObject>
 #include <QWebSocket>
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
 
 #include "StratuxStreams.h"
@@ -52,8 +53,11 @@ private:
     double        m_dMyLat;
     double        m_dMyLong;
     bool          m_bConnected;
+    bool          m_bBTConnected;
     QString       m_qsIP;
     Canvas::Units m_eUnits;
+
+    QBluetoothDeviceDiscoveryAgent *m_pDiscoveryAgent;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -62,12 +66,15 @@ private slots:
     void stratuxConnected();
     void stratuxDisconnected();
 
-//  void deviceDiscovered( const QBluetoothDeviceInfo &device );
+    void deviceDiscovered( const QBluetoothDeviceInfo &device );
+    void stopLookingForBT();
 
 signals:
     void newSituation( StratuxSituation );
-    void newTraffic( int, StratuxTraffic );             // ICAO, Rest of traffic struct
-    void newStatus( bool, bool, bool, bool );     // Stratux available, AHRS available, GPS available, Traffic available
+    void newTraffic( int, StratuxTraffic );     // ICAO, Rest of traffic struct
+    void newStatus( bool, bool, bool, bool );   // Stratux available, AHRS available, GPS available, Traffic available
+
+    void newBTStatus( bool );                   // HC-06 discovered
 };
 
 #endif // __STREAMREADER_H__

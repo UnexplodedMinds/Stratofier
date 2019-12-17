@@ -207,6 +207,7 @@ struct StratofierSettings
     bool                       bShowAllTraffic;
     int                        iCurrDataSet;
     bool                       bSwitchableTanks;
+    bool                       bEnableBT;
     QString                    qsStratuxIP;
     bool                       bShowRunways;
     bool                       bShowAirspaces;

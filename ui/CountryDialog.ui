@@ -88,7 +88,7 @@
   </property>
   <property name="font">
    <font>
-    <family>Piboto</family>
+    <family>Droid Sans</family>
     <pointsize>12</pointsize>
     <weight>75</weight>
     <bold>true</bold>
@@ -131,7 +131,7 @@ QTabWidget::tab-bar
 QTabBar::tab
 {
 	font-family: Sans-serif;
-	font-size: 20pt;
+	font-size: 16pt;
 	font-weight: bold;
 	min-width: 200px;
 	min-height: 50px;
@@ -193,6 +193,21 @@ QTabBar::tab:selected
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: Olive;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: OliveDrab;
+	color: black;
+}
+</string>
+       </property>
        <property name="text">
         <string>OK</string>
        </property>
@@ -231,6 +246,21 @@ QTabBar::tab:selected
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: RoyalBlue;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: CornflowerBlue;
+	color: black;
+}
+</string>
        </property>
        <property name="text">
         <string>CANCEL</string>
@@ -295,6 +325,13 @@ QTabBar::tab:selected
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QTabWidget" name="dataTypeTabWidget">
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>

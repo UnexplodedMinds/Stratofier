@@ -10,13 +10,17 @@ Stratofier Stratux AHRS Display
 #include <QColor>
 #include <QPalette>
 #include <QNetworkInterface>
-#include <QBluetoothDeviceDiscoveryAgent>
+#include <QTimer>
+#include <QSettings>
 
 #include <math.h>
 
 #include "StreamReader.h"
 #include "TrafficMath.h"
 #include "StratofierDefs.h"
+
+
+extern QSettings *g_pSet;
 
 
 StreamReader::StreamReader( QObject *parent, const QString &qsIP )
@@ -27,35 +31,53 @@ StreamReader::StreamReader( QObject *parent, const QString &qsIP )
       m_bGPSStatus( false ),
       m_bConnected( false ),
       m_qsIP( qsIP ),
-      m_eUnits( Canvas::Knots )
+      m_eUnits( Canvas::Knots ),
+      m_bBTConnected( false ),
+      m_pDiscoveryAgent( nullptr )
 {
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
 
     // Create a discovery agent and connect to its signals
-    /*
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = new QBluetoothDeviceDiscoveryAgent( this );
-    connect( discoveryAgent, SIGNAL( deviceDiscovered(QBluetoothDeviceInfo ) ),
-             this, SLOT( deviceDiscovered( QBluetoothDeviceInfo ) ) );
-
-    // Start a discovery
-    discoveryAgent->start();
-    */
+    if( g_pSet->value( "EnableBluetooth" ).toBool() )
+    {
+        m_pDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent( this );
+        connect( m_pDiscoveryAgent, SIGNAL( deviceDiscovered(QBluetoothDeviceInfo ) ),
+                 this, SLOT( deviceDiscovered( QBluetoothDeviceInfo ) ) );
+        // Start a discovery for ten minutes
+        m_pDiscoveryAgent->start();
+        QTimer::singleShot( 600000, this, SLOT( stopLookingForBT() ) );
+    }
 }
 
 
 StreamReader::~StreamReader()
 {
+    stopLookingForBT();
 }
 
 
-/*
 void StreamReader::deviceDiscovered( const QBluetoothDeviceInfo &device )
 {
-    qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
+    if( device.name() == "HC-06" )
+    {
+        m_bBTConnected = true;
+        emit newBTStatus( true );
+        stopLookingForBT();
+    }
 }
-*/
+
+
+void StreamReader::stopLookingForBT()
+{
+    if( m_pDiscoveryAgent != nullptr )
+    {
+        m_pDiscoveryAgent->stop();
+        delete m_pDiscoveryAgent;
+        m_pDiscoveryAgent = nullptr;
+    }
+}
 
 
 // Open the websocket URLs from the Stratux

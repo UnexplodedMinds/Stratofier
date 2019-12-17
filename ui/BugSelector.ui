@@ -387,6 +387,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	background-color: RoyalBlue;
+	color: white;
+	margin: 2px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: CornflowerBlue;
+	color: black;
+	margin: 2px;
+}
+</string>
+     </property>
      <property name="text">
       <string>DONE</string>
      </property>

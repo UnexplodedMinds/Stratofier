@@ -60,6 +60,7 @@ private slots:
     void getMapDataAirspace();
     void storage();
     void switchable();
+    void enableBT();
     void selCountries();
 
     // Download slots

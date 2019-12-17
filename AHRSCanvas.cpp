@@ -55,7 +55,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.6.3.0" );
+QString g_qsStratofierVersion( "1.7.0.0" );
 
 
 /*
@@ -827,24 +827,33 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
                 {
                     if( ap.qsName == qsName )
                     {
+                        m_directAP.qsID = "NULL";
+                        m_directAP.qsName = "NULL";
                         m_toAP = ap;
                         break;
                     }
                 }
-                // Invalidate direct-to in favor of from-to
+            }
+            // Invalidate direct-to in favor of from-to
+            else
+            {
                 m_directAP.qsID = "NULL";
                 m_directAP.qsName = "NULL";
+                m_fromAP.qsID = "NULL";
+                m_fromAP.qsName = "NULL";
+                m_toAP.qsID = "NULL";
+                m_toAP.qsName = "NULL";
             }
         }
         else
         {
             m_directAP.qsID = "NULL";
             m_directAP.qsName = "NULL";
+            m_fromAP.qsID = "NULL";
+            m_fromAP.qsName = "NULL";
+            m_toAP.qsID = "NULL";
+            m_toAP.qsName = "NULL";
         }
-    }
-    else
-    {
-
     }
 }
 
@@ -1912,7 +1921,7 @@ void AHRSCanvas::drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNu
 
     pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
     pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
-    pAhrs->drawRect( pC->dW - pC->dW5 - (pC->dW * 0.0125), pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + (pC->dW * 0.025), pC->dHNum + (pC->dH * 0.015) );
+    pAhrs->drawRect( pC->dW - pC->dW5 - pC->dW40, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + pC->dW40, pC->dHNum + (pC->dH * 0.015) );
     pAhrs->setPen( Qt::white );
     pAhrs->drawPixmap( pC->dW - pC->dW5, pC->dH2 - (pC->dHNum / 2.0), *pNum );
 

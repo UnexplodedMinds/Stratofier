@@ -173,6 +173,21 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: Olive;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: OliveDrab;
+	color: black;
+}
+</string>
+       </property>
        <property name="text">
         <string>START L</string>
        </property>
@@ -199,6 +214,21 @@ QPushButton::pressed
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: Olive;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: OliveDrab;
+	color: black;
+}
+</string>
        </property>
        <property name="text">
         <string>START R</string>
@@ -227,6 +257,21 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: RoyalBlue;
+	color: white;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: CornflowerBlue;
+	color: black;
+}
+</string>
+       </property>
        <property name="text">
         <string>STOP</string>
        </property>
@@ -253,6 +298,21 @@ QPushButton::pressed
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: Goldenrod;
+	color: black;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: Gold;
+	color: black;
+}
+</string>
        </property>
        <property name="text">
         <string>RESET</string>
