@@ -55,7 +55,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.7.0.0" );
+QString g_qsStratofierVersion( "1.8.0.0" );
 
 
 /*
@@ -90,7 +90,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_bDisplayTanksSwitchNotice( false ),
       m_SwipeStart( 0, 0 ),
       m_iSwiping( 0 ),
-      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } )
+      m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
+      m_dBaroPress( 29.92 )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -660,9 +661,9 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         BugSelector bugSel( this );
 
         if( m_bPortrait )
-            bugSel.setGeometry( c.dW2 - c.dW4, c.dH2 - c.dH8, c.dW2, c.dH2 + c.dH8 - c.dH20 );
+            bugSel.setGeometry( c.dW2 - c.dW4, c.dH2 - c.dH4 - c.dH8, c.dW2, c.dH2 + c.dH4 );
         else
-            bugSel.setGeometry( c.dW + c.dW2 - c.dW4, c.dH2 - c.dH4 - c.dH20, c.dW2, c.dH2 + c.dH4 );
+            bugSel.setGeometry( c.dW + c.dW2 - c.dW4, c.dH20, c.dW2, c.dH - c.dH10 );
 
         iButton = bugSel.exec();
 
@@ -724,6 +725,18 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             connect( &overlaysDlg, SIGNAL( showAltitudes( bool ) ), this, SLOT( showAltitudes( bool ) ) );
 
             overlaysDlg.exec();
+            return;
+        }
+        else if( iButton == static_cast<int>( BugSelector::BaroPress ) )
+        {
+            Keypad baro( this, "BARO PRESS" );
+
+            m_pCanvas->setKeypadGeometry( &baro );
+            if( baro.exec() == QDialog::Accepted )
+            {
+                m_dBaroPress = baro.value();
+                static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->streamReader()->setBaroPress( m_dBaroPress );
+            }
             return;
         }
 

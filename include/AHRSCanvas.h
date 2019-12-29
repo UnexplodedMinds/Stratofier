@@ -45,6 +45,12 @@ public slots:
     void situation( StratuxSituation s );
     void traffic( int iICAO, StratuxTraffic t );
 
+    void showAllTraffic( bool bAll );
+    void showAirports( Canvas::ShowAirports eShow );
+    void showRunways( bool bShow );
+    void showAirspaces( bool bShow );
+    void showAltitudes( bool bShow );
+
 protected:
     void paintEvent( QPaintEvent *pEvent );
     void mouseReleaseEvent( QMouseEvent *pEvent );
@@ -124,12 +130,7 @@ private:
     QList<Airspace>    m_airspaces;
     FuelTanks          m_tanks;
 
-public slots:
-    void showAllTraffic( bool bAll );
-    void showAirports( Canvas::ShowAirports eShow );
-    void showRunways( bool bShow );
-    void showAirspaces( bool bShow );
-    void showAltitudes( bool bShow );
+    double m_dBaroPress;
 };
 
 #endif // __AHRSCANVAS_H__

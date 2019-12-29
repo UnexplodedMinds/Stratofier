@@ -8,8 +8,6 @@ Stratofier Stratux AHRS Display
 
 #include <QMainWindow>
 #include <QDateTime>
-#include <QBluetoothDeviceInfo>
-#include <QBluetoothServiceInfo>
 
 #include "ui_AHRSMainWin.h"
 #include "Canvas.h"
@@ -20,18 +18,13 @@ class AHRSCanvas;
 class MenuDialog;
 class QPushButton;
 
-class QBluetoothServer;
-class QBluetoothDeviceDiscoveryAgent;
-class QBluetoothLocalDevice;
-class QBluetoothSocket;
-class QBluetoothServiceInfo;
 
 class AHRSMainWin : public QMainWindow, public Ui::AHRSMainWin
 {
     Q_OBJECT
 
 public:
-    explicit AHRSMainWin( const QString &qsIP, bool bPortrait );
+    explicit AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, bool bUseBTBaro );
     ~AHRSMainWin();
 
     bool          menuActive() { return (m_pMenuDialog != nullptr); }
@@ -52,7 +45,6 @@ protected:
 
 private:
     void emptyHttpPost( const QString &qsToken );
-    void startBTServer( const QBluetoothAddress &localAdapter );
 
     StreamReader *m_pStratuxStream;
     bool          m_bStartup;
@@ -65,12 +57,6 @@ private:
     bool          m_bTimerActive;
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
-
-    QBluetoothServer               *m_pBTServer;
-    QBluetoothDeviceDiscoveryAgent *m_pBTdiscoverer;
-    QBluetoothLocalDevice          *m_pBTlocal;
-    QBluetoothSocket               *m_pBTsocket;
-    QBluetoothServiceInfo           m_BTServiceInfo;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -88,11 +74,6 @@ private slots:
     void dayMode();
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
-
-    void btDeviceDiscovered( const QBluetoothDeviceInfo &devInfo );
-    void btDeviceConnected();
-    void btDeviceDisconnected();
-    void btReadData();
 };
 
 #endif // __AHRSMAINWIN_H__

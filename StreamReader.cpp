@@ -13,6 +13,11 @@ Stratofier Stratux AHRS Display
 #include <QTimer>
 #include <QSettings>
 
+#include <QBluetoothServiceInfo>
+#include <QBluetoothAddress>
+#include <QBluetoothSocket>
+#include <QBluetoothServiceDiscoveryAgent>
+
 #include <math.h>
 
 #include "StreamReader.h"
@@ -23,7 +28,7 @@ Stratofier Stratux AHRS Display
 extern QSettings *g_pSet;
 
 
-StreamReader::StreamReader( QObject *parent, const QString &qsIP )
+StreamReader::StreamReader( QObject *parent, const QString &qsIP, bool bEnableBT, bool bUseBTBaro )
     : QObject( parent ),
       m_bHaveMyPos( false ),
       m_bAHRSStatus( false ),
@@ -32,51 +37,147 @@ StreamReader::StreamReader( QObject *parent, const QString &qsIP )
       m_bConnected( false ),
       m_qsIP( qsIP ),
       m_eUnits( Canvas::Knots ),
-      m_bBTConnected( false ),
-      m_pDiscoveryAgent( nullptr )
+      m_pBTserviceDiscoverer( nullptr ),
+      m_pBTsocket( nullptr ),
+      m_btBuffer(),
+      m_bHaveBTtelemetry( false ),
+      m_dBaroPress( 29.92 ),
+      m_bUseBTBaro( bUseBTBaro )
 {
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
 
-    // Create a discovery agent and connect to its signals
-    if( g_pSet->value( "EnableBluetooth" ).toBool() )
-    {
-        m_pDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent( this );
-        connect( m_pDiscoveryAgent, SIGNAL( deviceDiscovered(QBluetoothDeviceInfo ) ),
-                 this, SLOT( deviceDiscovered( QBluetoothDeviceInfo ) ) );
-        // Start a discovery for ten minutes
-        m_pDiscoveryAgent->start();
-        QTimer::singleShot( 600000, this, SLOT( stopLookingForBT() ) );
-    }
+    if( bEnableBT )
+        reconnectBT();
+}
+
+
+void StreamReader::reconnectBT()
+{
+    m_pBTserviceDiscoverer = new QBluetoothServiceDiscoveryAgent( this );
+    connect( m_pBTserviceDiscoverer, SIGNAL( serviceDiscovered( const QBluetoothServiceInfo& ) ),
+             this, SLOT( btServiceDiscovered( const QBluetoothServiceInfo& ) ) );
+    connect( m_pBTserviceDiscoverer, SIGNAL( finished() ),
+             this, SLOT( btServiceDiscoveryFinished() ) );
+    connect( m_pBTserviceDiscoverer, SIGNAL( error( const QBluetoothServiceDiscoveryAgent::Error ) ),
+             this, SLOT( btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error ) ) );
+    m_pBTserviceDiscoverer->clear();
+    m_pBTserviceDiscoverer->start( QBluetoothServiceDiscoveryAgent::FullDiscovery );
 }
 
 
 StreamReader::~StreamReader()
 {
-    stopLookingForBT();
+    if( m_pBTsocket != nullptr )
+    {
+        delete m_pBTsocket;
+        m_pBTsocket = nullptr;
+    }
+    if( m_pBTserviceDiscoverer != nullptr )
+    {
+        delete m_pBTserviceDiscoverer;
+        m_pBTserviceDiscoverer = nullptr;
+    }
 }
 
 
-void StreamReader::deviceDiscovered( const QBluetoothDeviceInfo &device )
+void StreamReader::btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error err )
 {
-    if( device.name() == "HC-06" )
+    Q_UNUSED( err )
+
+    // There isn't anything else we can really do
+    m_pBTserviceDiscoverer->stop();
+}
+
+
+void StreamReader::btServiceDiscovered( const QBluetoothServiceInfo &serviceInfo )
+{
+    // Connect to service
+    if( serviceInfo.serviceName().contains( "serial", Qt::CaseInsensitive ) )
     {
-        m_bBTConnected = true;
+        m_pBTserviceDiscoverer->stop();
+        m_pBTsocket = new QBluetoothSocket( QBluetoothServiceInfo::RfcommProtocol );
+        m_pBTsocket->connectToService( serviceInfo, QIODevice::ReadWrite );
+        connect( m_pBTsocket, SIGNAL( readyRead() ), this, SLOT( btReadData() ) );
+        connect( m_pBTsocket, SIGNAL( disconnected() ), this, SLOT( btDisconnected() ) );
         emit newBTStatus( true );
-        stopLookingForBT();
     }
 }
 
 
-void StreamReader::stopLookingForBT()
+void StreamReader::btServiceDiscoveryFinished()
 {
-    if( m_pDiscoveryAgent != nullptr )
+    m_pBTserviceDiscoverer->stop();
+    delete m_pBTserviceDiscoverer;
+    m_pBTserviceDiscoverer = nullptr;
+    emit newBTStatus( m_bHaveBTtelemetry ); // Make sure we update the indicator if discovery completed and we never found anything
+
+}
+
+
+void StreamReader::btDisconnected()
+{
+    m_bHaveBTtelemetry = false;
+    emit newBTStatus( false );
+    reconnectBT();
+}
+
+
+void StreamReader::btReadData()
+{
+    m_btBuffer.append( m_pBTsocket->readAll() );
+
+    // Format is "<Airspeed>,<Altitude>,<Heading>;"
+    // Once we have received two packets, we start parsing what's between the semicolons
+    if( m_btBuffer.count( ';' ) >= 2 )
     {
-        m_pDiscoveryAgent->stop();
-        delete m_pDiscoveryAgent;
-        m_pDiscoveryAgent = nullptr;
+        QString qsBuffer( m_btBuffer );
+        int     iP2 = qsBuffer.lastIndexOf( ';' );
+        int     iP1 = iP2 - 1;
+
+        while( iP1 >= 0 )
+        {
+            if( qsBuffer.at( iP1 ) == ';' )
+                break;
+            iP1--;
+        }
+        iP1++;
+
+        if( (iP1 >= 1) && (iP2 > iP1) )
+        {
+            qsBuffer = qsBuffer.mid( iP1, iP2 - iP1 );
+
+            QStringList qslFields = qsBuffer.split( ',' );
+
+            // Airspeed, Altitude, Heading, Baro Press (placeholder), Orient X,Y,Z
+            if( qslFields.count() == 8 )
+            {
+                m_btTelem.dAirspeed = qslFields.first().toDouble();
+                m_btTelem.dAltitude = qslFields.at( 1 ).toDouble();
+                m_btTelem.dHeading = qslFields.at( 2 ).toDouble();
+                m_btTelem.dBaroPress = qslFields.at( 3 ).toDouble();    // Invalid barometric pressure for future use (stream sets always to -1)
+                m_btTelem.orient.x = qslFields.at( 4 ).toDouble();
+                m_btTelem.orient.y = qslFields.at( 5 ).toDouble();
+                m_btTelem.orient.z = qslFields.at( 6 ).toDouble();
+                m_btTelem.iChecksum = qslFields.last().toInt();         // Checksum is simply all the floats added div by 6 cast to an int (excluding baro press)
+
+                m_bHaveBTtelemetry = true;
+            }
+            m_btBuffer = m_btBuffer.right( m_btBuffer.length() - iP2 ); // Truncate to anything that was past the last semicolon
+        }
     }
+}
+
+
+void StreamReader::setBaroPress( double dBaro )
+{
+    m_dBaroPress = dBaro;
+
+    QString qsData = QString( "%1" ).arg( m_dBaroPress, 5, 'f', 2, QChar( '0' ) );
+
+    if( m_bHaveBTtelemetry )
+        m_pBTsocket->write( qsData.toLatin1() );
 }
 
 
@@ -211,6 +312,25 @@ void StreamReader::situationUpdate( const QString &qsMessage )
             situation.lastAHRSAttTime.fromString( qsVal, Qt::ISODate );
         else if( qsTag == "AHRSStatus" )
             situation.iAHRSStatus = iVal;
+    }
+
+    // Replace Stratux telemetry with actual air data from the sensor sending bluetooth data
+    if( m_bHaveBTtelemetry )
+    {
+        int iMatch = static_cast<int>( (m_btTelem.dAirspeed + m_btTelem.dAltitude + m_btTelem.dHeading +
+                                        m_btTelem.orient.x + m_btTelem.orient.y + m_btTelem.orient.z) / 6.0 );
+
+        if( iMatch == m_btTelem.iChecksum )
+        {
+            situation.dBaroPressAlt = m_btTelem.dAltitude;
+            situation.dGPSGroundSpeed = m_btTelem.dAirspeed;
+            situation.dAHRSGyroHeading = m_btTelem.dHeading;
+            // If we are getting barometric pressure from the telemetry, use that
+            if( m_btTelem.dBaroPress >= 0.0 )
+                m_dBaroPress = m_btTelem.dBaroPress;
+
+            situation.dBaroPressAlt = m_btTelem.dAltitude + (1000.0 * (29.92 - m_dBaroPress));
+        }
     }
 
     while( situation.dAHRSGyroHeading > 360 )

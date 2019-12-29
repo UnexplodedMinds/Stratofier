@@ -31,6 +31,8 @@ int main( int argc, char *argv[] )
     QString      qsToken, qsVal;
 	bool         bMax = true;
     QString      qsIP;
+    bool         bEnableBT = false;
+    bool         bUseBTBaro = false;
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
     QString      qsCurrWorkPath( "/home/pi/Stratofier" );  // If you put Stratofier anywhere else, specify home=<whatever> as an argument when running
@@ -85,9 +87,11 @@ int main( int argc, char *argv[] )
 #endif
 
     qsIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
+    bEnableBT = g_pSet->value( "EnableBluetooth", false ).toBool();
+    bUseBTBaro = g_pSet->value( "UseBTBaro", false ).toBool();
 
     qInfo() << "Starting Stratofier";
-    pMainWin = new AHRSMainWin( qsIP, bPortrait );
+    pMainWin = new AHRSMainWin( qsIP, bPortrait, bEnableBT, bUseBTBaro );
     // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
         pMainWin->showMaximized();
@@ -109,7 +113,7 @@ int main( int argc, char *argv[] )
 
         bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
 #endif
-        pMainWin = new AHRSMainWin( qsIP, bPortrait );
+        pMainWin = new AHRSMainWin( qsIP, bPortrait, bEnableBT, bUseBTBaro );
         pMainWin->showMaximized();
     }
 

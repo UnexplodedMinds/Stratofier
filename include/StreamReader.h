@@ -8,14 +8,16 @@ Stratofier Stratux AHRS Display
 
 #include <QObject>
 #include <QWebSocket>
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QBluetoothDeviceInfo>
+#include <QBluetoothServiceInfo>
+#include <QBluetoothServiceDiscoveryAgent>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
 
 
 class QCoreApplication;
+class QBluetoothSocket;
+class QBluetoothServiceInfo;
 
 
 class StreamReader : public QObject
@@ -23,7 +25,7 @@ class StreamReader : public QObject
     Q_OBJECT
 
 public:
-    explicit StreamReader( QObject *parent, const QString &qsIP );
+    explicit StreamReader( QObject *parent, const QString &qsIP, bool bEnableBT, bool bUseBTBaro );
     ~StreamReader();
 
     void connectStreams();
@@ -34,9 +36,8 @@ public:
     static void initSituation( StratuxSituation &situation );
     static void initStatus( StratuxStatus &status );
 
-    void setIP( const QString &qsIP );
-
     void setUnits( Canvas::Units eUnits ) { m_eUnits = eUnits; }
+    void setBaroPress( double dBaro );
 
 private:
     double unitsMult();
@@ -57,7 +58,13 @@ private:
     QString       m_qsIP;
     Canvas::Units m_eUnits;
 
-    QBluetoothDeviceDiscoveryAgent *m_pDiscoveryAgent;
+    QBluetoothServiceDiscoveryAgent *m_pBTserviceDiscoverer;
+    QBluetoothSocket                *m_pBTsocket;
+    QByteArray                       m_btBuffer;
+    bool                             m_bHaveBTtelemetry;
+    BluetoothTelemetry               m_btTelem;
+    double                           m_dBaroPress;
+    bool                             m_bUseBTBaro;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -66,15 +73,19 @@ private slots:
     void stratuxConnected();
     void stratuxDisconnected();
 
-    void deviceDiscovered( const QBluetoothDeviceInfo &device );
-    void stopLookingForBT();
+    void btServiceDiscovered( const QBluetoothServiceInfo &devInfo );
+    void btDisconnected();
+    void btReadData();
+    void btServiceDiscoveryFinished();
+    void btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error err );
+    void reconnectBT();
 
 signals:
     void newSituation( StratuxSituation );
     void newTraffic( int, StratuxTraffic );     // ICAO, Rest of traffic struct
     void newStatus( bool, bool, bool, bool );   // Stratux available, AHRS available, GPS available, Traffic available
 
-    void newBTStatus( bool );                   // HC-06 discovered
+    void newBTStatus( bool );                   // HC-06 is sending data
 };
 
 #endif // __STREAMREADER_H__

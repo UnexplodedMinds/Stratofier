@@ -89,4 +89,26 @@ struct StratuxStatus
     bool bGPSConnected;
 };
 
+
+struct Vector3D
+{
+    double x;
+    double y;
+    double z;
+};
+
+
+struct BluetoothTelemetry
+{
+    double  dAirspeed;
+    double  dAltitude;
+    double  dHeading;
+    double  dBaroPress;
+    Vector3D orient;
+    Vector3D mag;
+    double   dTemp;
+    int      iChecksum;
+
+};
+
 #endif // __STRATUXSTREAMS_H__

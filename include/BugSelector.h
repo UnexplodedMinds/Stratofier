@@ -22,7 +22,8 @@ public:
 		WindBug    = 20,
         ClearBugs  = 30,
         Airports   = 40,
-        Overlays   = 50
+        Overlays   = 50,
+        BaroPress  = 60
 	};
 
     explicit BugSelector( QWidget *pParent );
@@ -34,6 +35,7 @@ private slots:
     void clearBugs();
     void airports();
     void overlays();
+    void baroPress();
 };
 
 #endif // __BUGSELECTOR_H__
