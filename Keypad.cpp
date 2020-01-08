@@ -200,7 +200,7 @@ void Keypad::setTitle( const QString &qsTitle )
 
 void Keypad::resizeEvent( QResizeEvent* )
 {
-    m_pTitleLabel->setMaximumHeight( static_cast<int>( static_cast<double>( height() ) * 0.1 ) );
+//  m_pTitleLabel->setMaximumHeight( static_cast<int>( static_cast<double>( height() ) * 0.1 ) );
     if( !m_bTimeMode )
         m_pBack->setIconSize( QSize( m_pBack->height() / 2, m_pBack->height() / 2 ) );
 }

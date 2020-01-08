@@ -60,8 +60,8 @@ private slots:
     void getMapDataAirspace();
     void storage();
     void switchable();
-    void enableBT();
     void selCountries();
+    void magDevChange();
 
     // Download slots
     void httpReadyRead();

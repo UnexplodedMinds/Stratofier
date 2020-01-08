@@ -55,7 +55,7 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.8.0.0" );
+QString g_qsStratofierVersion( "1.8.0.7" );
 
 
 /*
@@ -76,8 +76,6 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iWindBugAngle( -1 ),
       m_iWindBugSpeed( 0 ),
       m_iAltBug( -1 ),
-      m_pMagHeadOffLessPixmap( Q_NULLPTR ),
-      m_pMagHeadOffMorePixmap( Q_NULLPTR ),
       m_bUpdated( false ),
       m_bShowGPSDetails( false ),
       m_bPortrait( true ),
@@ -111,11 +109,12 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_DirectTo.load( ":/graphics/resources/DirectTo.png" );
     m_FromTo.load( ":/graphics/resources/FromTo.png" );
     m_AltBug.load( ":/icons/resources/AltBug.png" );
+    m_directIcon.load( ":/icons/resources/DirectIcon.png" );
 
     loadSettings();
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
-    QTimer::singleShot( 1500, this, SLOT( init() ) );
+    QTimer::singleShot( 2000, this, SLOT( init() ) );
 }
 
 
@@ -132,16 +131,6 @@ AHRSCanvas::~AHRSCanvas()
     {
         delete m_pCanvas;
         m_pCanvas = Q_NULLPTR;
-    }
-    if( m_pMagHeadOffLessPixmap != Q_NULLPTR )
-    {
-        delete m_pMagHeadOffLessPixmap;
-        m_pMagHeadOffLessPixmap = Q_NULLPTR;
-    }
-    if( m_pMagHeadOffMorePixmap != Q_NULLPTR )
-    {
-        delete m_pMagHeadOffMorePixmap;
-        m_pMagHeadOffMorePixmap = Q_NULLPTR;
     }
 }
 
@@ -178,15 +167,6 @@ void AHRSCanvas::init()
     flipper.scale( -1, 1 );
     m_Rfuel = m_Lfuel.transformed( flipper );
 
-    QPixmap zIn( ":/graphics/resources/ZoomIn.png" );
-    QPixmap zOut( ":/graphics/resources/ZoomOut.png" );
-    QTransform trans;
-
-    trans.rotate( -90.0 );
-    m_pMagHeadOffLessPixmap = new QPixmap( zIn.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
-    trans.rotate( 360.0 );
-    m_pMagHeadOffMorePixmap = new QPixmap( zOut.transformed( trans ).scaled( c.iMedFontHeight, c.iMedFontHeight ) );
-
     m_iDispTimer = startTimer( 5000 );     // Update the in-memory airspace objects every 15 seconds
 
     QtConcurrent::run( TrafficMath::cacheAirports );
@@ -204,8 +184,8 @@ void AHRSCanvas::loadSettings()
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.bShowAirspaces = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.bShowAltitudes = g_pSet->value( "ShowAltitudes", true ).toBool();
-    m_iMagDev = g_pSet->value( "MagDev", 0.0 ).toInt();
-    m_settings.eUnits = static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed", true ).toInt() );
+    m_iMagDev = g_pSet->value( "MagDev", 0 ).toInt();
+    g_eUnitsAirspeed = m_settings.eUnits = static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed", true ).toInt() );
 
     g_pSet->beginGroup( "FuelTanks" );
     m_tanks.dLeftCapacity = g_pSet->value( "LeftCapacity", 24.0 ).toDouble();
@@ -238,7 +218,7 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
     // If we have a valid GPS position, run the list of airports within range by threading it so it doesn't interfere with the display update
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
     {
-        QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
+        QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, &m_directAP, &m_fromAP, &m_toAP, m_dZoomNM );
         QtConcurrent::run( TrafficMath::updateNearbyAirspaces, &m_airspaces, m_dZoomNM );
     }
 
@@ -590,37 +570,12 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         fromtoRect.setRect( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20 );
     }
 
-    QRectF          magHeadLessRect;
-    QRectF          magHeadMoreRect;
-    QRectF          altRect;
+    QRectF altRect;
 
     if( m_bPortrait )
         altRect.setRect( c.dW - c.dW5, 0.0, c.dW5, c.dH2 - 40.0 );
     else
         altRect.setRect( c.dW - c.dW5 - c.dW40, 0.0, c.dW5 + c.dW40, c.dH );
-
-    if( m_bPortrait )
-    {
-        magHeadLessRect.setRect( c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125) - c.dW10,
-                                 c.dH - c.dW - 10.0 - c.dH20 - c.dHNum - (c.dH * 0.0075),
-                                 c.dW20 + c.dW40,
-                                 c.dHNum + (c.dH * 0.015) );
-        magHeadMoreRect.setRect( c.dW2 + (c.dWNum * 3.0 / 2.0) + (c.dW * 0.0125) + c.dW10 - c.dW20 - c.dW40,
-                                 c.dH - c.dW - 10.0 - c.dH20 - c.dHNum - (c.dH * 0.0075),
-                                 c.dW20 + c.dW40,
-                                 c.dHNum + (c.dH * 0.015) );
-    }
-    else
-    {
-        magHeadLessRect.setRect( c.dW + c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125) - c.dW10,
-                                 10.0 + (c.dH * 0.0075),
-                                 c.dW20 + c.dW40,
-                                 c.dHNum );
-        magHeadMoreRect.setRect( c.dW + c.dW2 + (c.dWNum * 3.0 / 2.0) + (c.dW * 0.0125) + c.dW10 - c.dW20 - c.dW40,
-                                 10.0 + (c.dH * 0.0075),
-                                 c.dW20 + c.dW40,
-                                 c.dHNum );
-    }
 
     if( altRect.contains( pressPt ) )
     {
@@ -636,24 +591,6 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     // User pressed the GPS Lat/long area. This needs to be before the test for the heading indicator since it's within that area's rectangle
     else if( gpsRect.contains( pressPt ) )
         m_bShowGPSDetails = (!m_bShowGPSDetails);
-    else if( magHeadLessRect.contains( pressPt ) )
-    {
-        m_iMagDev--;
-        if( m_iMagDev < -40.0 )
-            m_iMagDev++;
-        g_pSet->setValue( "MagDev", m_iMagDev );
-        g_pSet->sync();
-        TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
-    }
-    else if( magHeadMoreRect.contains( pressPt ) )
-    {
-        m_iMagDev++;
-        if( m_iMagDev > 40.0 )
-            m_iMagDev--;
-        g_pSet->setValue( "MagDev", m_iMagDev );
-        g_pSet->sync();
-        TrafficMath::updateNearbyAirports( &m_airports, m_dZoomNM );
-    }
     // User pressed on the heading indicator
     else if( headRect.contains( pressPt ) )
     {
@@ -907,7 +844,7 @@ void AHRSCanvas::zoomIn()
         m_dZoomNM = 5.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
-    QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
+    QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, &m_directAP, &m_fromAP, &m_toAP, m_dZoomNM );
 }
 
 
@@ -918,7 +855,7 @@ void AHRSCanvas::zoomOut()
         m_dZoomNM = 100.0;
     g_pSet->setValue( "ZoomNM", m_dZoomNM );
     g_pSet->sync();
-    QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, m_dZoomNM );
+    QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, &m_directAP, &m_fromAP, &m_toAP, m_dZoomNM );
 }
 
 
@@ -1089,12 +1026,27 @@ void AHRSCanvas::paintPortrait()
     // Draw the Speed tape
     ahrs.fillRect( 0, 0, c.dW10 + 5.0, c.dH2, QColor( 0, 0, 0, 100 ) );
     ahrs.setClipRect( 2.0, 2.0, c.dW5 - 4.0, c.dH2 + c.dH4 );
-    ahrs.drawPixmap( 5, c.dH4 + 5.0 - m_SpeedTape.height() + (g_situation.dGPSGroundSpeed * dPxPerKnot), m_SpeedTape );
+    if( g_situation.bHaveWTData )
+        ahrs.drawPixmap( 5, c.dH4 + 5.0 - m_SpeedTape.height() + (g_situation.dTAS * dPxPerKnot), m_SpeedTape );
+    else
+        ahrs.drawPixmap( 5, c.dH4 + 5.0 - m_SpeedTape.height() + (g_situation.dGPSGroundSpeed * dPxPerKnot), m_SpeedTape );
     ahrs.setClipping( false );
 
     // Draw the current speed
-    Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
-    drawCurrSpeed( &ahrs, &c, &num );
+    if( g_situation.bHaveWTData )
+    {
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dTAS ), 0 );
+        drawCurrSpeed( &ahrs, &c, &num );
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
+
+        // Draw the ground speed just below the indicator since we have both, and both are useful
+        drawCurrSpeed( &ahrs, &c, &num, true );
+    }
+    else
+    {
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
+        drawCurrSpeed( &ahrs, &c, &num );
+    }
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
@@ -1171,24 +1123,18 @@ void AHRSCanvas::paintPortrait()
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125), arrow.boundingRect().y() - c.dHNum - c.dH40 - (c.dH * 0.0075), (c.dWNum * 3.0) + (c.dW * 0.025), c.dHNum + (c.dH * 0.015) );
-    Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSGyroHeading ), 3 );
+    if( g_situation.bHaveWTData )
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSMagHeading ), 3 );
+    else
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSGyroHeading ), 3 );
     ahrs.drawPixmap( c.dW2 - (c.dWNum * 3.0 / 2.0), arrow.boundingRect().y() - c.dHNum - c.dH40, num );
-
-    // Draw the magnetic deviation less/more controls
-    ahrs.drawPixmap( c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125) - c.dW10,
-                     arrow.boundingRect().y() - c.dHNum - c.dH40 - (c.dH * 0.0075),
-                     c.dW20 + c.dW40,
-                     c.dHNum + (c.dH * 0.015),
-                     *m_pMagHeadOffLessPixmap );
-    ahrs.drawPixmap( c.dW2 + (c.dWNum * 3.0 / 2.0) + (c.dW * 0.0125) + c.dW10 - c.dW20 - c.dW40,
-                     arrow.boundingRect().y() - c.dHNum - c.dH40 - (c.dH * 0.0075),
-                     c.dW20 + c.dW40,
-                     c.dHNum + (c.dH * 0.015),
-                    *m_pMagHeadOffMorePixmap );
 
     // Draw the heading pixmap and rotate it to the current heading
     ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
-    ahrs.rotate( -g_situation.dAHRSGyroHeading );
+    if( g_situation.bHaveWTData )
+        ahrs.rotate( -g_situation.dAHRSMagHeading );
+    else
+        ahrs.rotate( -g_situation.dAHRSGyroHeading );
     ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
     ahrs.drawPixmap( 10, c.dH - c.dW - 10.0, c.dW - 20, c.dW - 20,  m_HeadIndicator );
     ahrs.resetTransform();
@@ -1202,7 +1148,10 @@ void AHRSCanvas::paintPortrait()
     if( m_iHeadBugAngle >= 0 )
     {
         ahrs.translate( c.dW2, c.dH - 20.0 - c.dW2 );
-        ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - 20.0 - c.dW2) );
         ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_headIcon );
 
@@ -1222,17 +1171,16 @@ void AHRSCanvas::paintPortrait()
     if( m_iWindBugAngle >= 0 )
     {
         ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
-        ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
-
-#if defined( Q_OS_ANDROID )
-        windRect.setWidth( windRect.width() * 4 );
-#endif
 
         ahrs.setFont( med );
         ahrs.setPen( Qt::black );
@@ -1259,7 +1207,10 @@ void AHRSCanvas::paintPortrait()
 
             ahrs.resetTransform();
             ahrs.translate( c.dW2, c.dH - c.dW2 - 10.0 );
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            if( g_situation.bHaveWTData )
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+            else
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
             ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 10.0) );
             ahrs.setFont( large );
             ahrs.setPen( Qt::black );
@@ -1280,9 +1231,7 @@ void AHRSCanvas::paintPortrait()
     if( m_iAltBug >= 0 )
     {
         double dAltTip = c.dH4 - 10.0 - ((static_cast<double>( m_iAltBug ) - g_situation.dBaroPressAlt) * dPxPerFt);
-#if !defined( Q_OS_ANDROID )
-        dAltTip += c.dH80;
-#endif
+
         ahrs.drawPixmap( c.dW - c.dW5 - c.dW20, dAltTip - c.dH40, c.dW20, c.dH20, m_AltBug );
     }
 
@@ -1310,9 +1259,6 @@ void AHRSCanvas::paintPortrait()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-#if defined( Q_OS_ANDROID )
-    intRect.setWidth( intRect.width() * 4 );
-#endif
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
     ahrs.setFont( itsy );
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ) + intRect.width() + 2, m_pCanvas->scaledV( 4.0 ), qsFracVspeed );
@@ -1340,11 +1286,7 @@ void AHRSCanvas::paintPortrait()
     arrow.append( QPoint( m_pCanvas->scaledH( 16.0 ), c.dH - c.iTinyFontHeight - m_pCanvas->scaledV( 25.0 ) ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
-#if defined( Q_OS_ANDROID )
-    ahrs.translate( c.dW - c.dW5 + (c.iTinyFontWidth / 2) + (fabs( 1.0 - g_situation.dAHRSGLoad ) * c.dW5 * 20.0), c.dH80 );
-#else
     ahrs.translate( c.dW - c.dW5 + (c.iTinyFontWidth / 2) + (fabs( 1.0 - g_situation.dAHRSGLoad ) * c.dW5 * 20.0), -c.dH160 );
-#endif
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
@@ -1363,18 +1305,112 @@ void AHRSCanvas::paintPortrait()
     else if( m_bDisplayTanksSwitchNotice )
         paintSwitchNotice( &ahrs, &c );
 
-    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
-        paintTimer( &ahrs, &c );
-
     ahrs.drawPixmap( c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
     ahrs.drawPixmap( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     // Draw the transparent overlay over the existing heading so the ticks and heading numbers are always visible
     ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
-    ahrs.rotate( -g_situation.dAHRSGyroHeading );
+    if( g_situation.bHaveWTData )
+        ahrs.rotate( -g_situation.dAHRSMagHeading );
+    else
+        ahrs.rotate( -g_situation.dAHRSGyroHeading );
     ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
     ahrs.drawPixmap( 10, c.dH - c.dW - 10.0, c.dW - 20, c.dW - 20,  m_HeadIndicatorOverlay );
     ahrs.resetTransform();
+
+    // Draw the heading bug
+    if( m_iHeadBugAngle >= 0 )
+    {
+        ahrs.translate( c.dW2, c.dH - 20.0 - c.dW2 );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+        ahrs.translate( -c.dW2, -(c.dH - 20.0 - c.dW2) );
+        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_headIcon );
+
+        // If long press triggered crosswind component display and the wind bug is set
+        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
+        {
+            linePen.setWidth( c.iThinPen );
+            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW2, c.dH - c.dW - 10.0, c.dW2, c.dH - 10.0 - c.dW2 );
+        }
+
+        ahrs.resetTransform();
+    }
+
+    // Draw the wind bug
+    if( m_iWindBugAngle >= 0 )
+    {
+        ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
+        ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
+        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_windIcon );
+
+        QString      qsWind = QString::number( m_iWindBugSpeed );
+        QFontMetrics windMetrics( med );
+        QRect        windRect = windMetrics.boundingRect( qsWind );
+
+        ahrs.setFont( med );
+        ahrs.setPen( Qt::black );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - c.dW - c.dH160, qsWind );
+        ahrs.setPen( Qt::white );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - c.dW - c.dH160 - 1, qsWind );
+
+        // If long press triggered crosswind component display and the heading bug is set
+        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
+        {
+            linePen.setWidth( c.iThinPen );
+            linePen.setColor( Qt::cyan );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW2, c.dH - c.dW - 10, c.dW2, c.dH - 10.0 - c.dW2 );
+
+            // Draw the crosswind component calculated from heading vs wind
+            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
+            while( dAng > 180.0 )
+                dAng -= 360.0;
+            dAng = fabs( dAng );
+            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
+            double dCrossPos = c.dH - (c.dW / 1.3) - 10.0;
+            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
+
+            ahrs.resetTransform();
+            ahrs.translate( c.dW2, c.dH - c.dW2 - 10.0 );
+            if( g_situation.bHaveWTData )
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+            else
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 10.0) );
+            ahrs.setFont( large );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.drawText( c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setFont( med );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
+            ahrs.setPen( Qt::cyan );
+            ahrs.drawText( c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
+        }
+
+        ahrs.resetTransform();
+    }
+
+    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
+        paintTimer( &ahrs, &c );
+
+    // Draw the outside temp if we have it
+    if( g_situation.bHaveWTData )
+    {
+        ahrs.setPen( Qt::yellow );
+        ahrs.setFont( small );
+        ahrs.drawText( c.dW10, c.dH2 - c.dH10, QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
+    }
 
     drawDayMode( &ahrs, &c );
 }
@@ -1439,11 +1475,6 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     QPen            linePen( Qt::black );
     int             iMedFontHeight = c->iMedFontHeight;
     int             iSmallFontHeight = c->iSmallFontHeight;
-    int             iVoff = 0;
-
-#if defined( Q_OS_ANDROID )
-    iVoff = 50;
-#endif
 
     med_bu.setUnderline( true );
     med_bu.setBold( true );
@@ -1456,28 +1487,28 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     pAhrs->setBrush( cloudyGradient );
     pAhrs->drawRect( 50, 50, (m_bPortrait ? c->dW : c->dWa) - 100, c->dH - 100 );
     pAhrs->setFont( med_bu );
-    pAhrs->drawText( 75, 95 + iVoff, "GPS Status" );
+
+    pAhrs->drawText( 75, 95, "GPS Status" );
     pAhrs->setFont( small );
-    pAhrs->drawText( 75, 95 + iVoff + iMedFontHeight,  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
-    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 2),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
-    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 3),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
-    pAhrs->drawText( 75, 95 + iVoff + (iMedFontHeight * 4),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
+    pAhrs->drawText( 75, 95 + iMedFontHeight,  QString( "GPS Satellites Seen: %1" ).arg( g_situation.iGPSSatsSeen ) );
+    pAhrs->drawText( 75, 95 + (iMedFontHeight * 2),  QString( "GPS Satellites Tracked: %1" ).arg( g_situation.iGPSSatsTracked ) );
+    pAhrs->drawText( 75, 95 + (iMedFontHeight * 3),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
+    pAhrs->drawText( 75, 95 + (iMedFontHeight * 4),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
 
     QList<StratuxTraffic> trafficList = g_trafficMap.values();
     StratuxTraffic        traffic;
     int                   iY = 0;
     int                   iLine;
 
-    // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
     pAhrs->setFont( med_bu );
-    pAhrs->drawText( m_bPortrait ? 75 : c->dW, m_bPortrait ? c->dH2 : 95 + iVoff, "Non-ADS-B Traffic" );
+    pAhrs->drawText( m_bPortrait ? 75 : c->dW, m_bPortrait ? c->dH2 : 95, "Non-ADS-B Traffic" );
     pAhrs->setFont( small );
     foreach( traffic, trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
         if( !traffic.bHasADSB && (!traffic.qsTail.isEmpty()) )
         {
-            iLine = (m_bPortrait ? static_cast<int>( c->dH2 ) : 95 + iVoff) + iMedFontHeight + (iY * iSmallFontHeight);
+            iLine = (m_bPortrait ? static_cast<int>( c->dH2 ) : 95) + iMedFontHeight + (iY * iSmallFontHeight);
             pAhrs->drawText( m_bPortrait ? 75 : c->dW, iLine, traffic.qsTail );
             pAhrs->drawText( m_bPortrait ? m_pCanvas->scaledH( 200.0 ) : m_pCanvas->scaledH( 500.0 ), iLine, QString( "%1 ft" ).arg( static_cast<int>( traffic.dAlt ) ) );
             if( traffic.iSquawk > 0 )
@@ -1498,7 +1529,6 @@ void AHRSCanvas::paintLandscape()
     QPainter        ahrs( this );
     CanvasConstants c = m_pCanvas->constants();
     double          dPitchH = c.dH2 + (g_situation.dAHRSpitch / 22.5 * c.dH2);     // The visible portion is only 1/4 of the 90 deg range
-    QString         qsHead( QString( "%1" ).arg( static_cast<int>( g_situation.dAHRSGyroHeading ), 3, 10, QChar( '0' ) ) );
     QPolygon        shape;
     QPen            linePen( Qt::black );
     double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
@@ -1624,7 +1654,10 @@ void AHRSCanvas::paintLandscape()
 
     // Draw the heading pixmap and rotate it to the current heading
     ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
-    ahrs.rotate( -g_situation.dAHRSGyroHeading );
+    if( g_situation.bHaveWTData )
+        ahrs.rotate( -g_situation.dAHRSMagHeading );
+    else
+        ahrs.rotate( -g_situation.dAHRSGyroHeading );
     ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
     ahrs.drawPixmap( c.dW + 10, c.dH - c.dW, c.dW - 20, c.dW - 20,  m_HeadIndicator );
     ahrs.resetTransform();
@@ -1638,7 +1671,10 @@ void AHRSCanvas::paintLandscape()
     if( m_iHeadBugAngle >= 0 )
     {
         ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
-        ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_headIcon );
 
@@ -1658,17 +1694,16 @@ void AHRSCanvas::paintLandscape()
     if( m_iWindBugAngle >= 0 )
     {
         ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
-        ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
         ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
         ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
         QFontMetrics windMetrics( med );
         QRect        windRect = windMetrics.boundingRect( qsWind );
-
-#if defined( Q_OS_ANDROID )
-        windRect.setWidth( windRect.width() * 4 );
-#endif
 
         ahrs.setFont( med );
         ahrs.setPen( Qt::black );
@@ -1695,7 +1730,10 @@ void AHRSCanvas::paintLandscape()
 
             ahrs.resetTransform();
             ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            if( g_situation.bHaveWTData )
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+            else
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
             ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
             ahrs.setFont( large );
             ahrs.setPen( Qt::black );
@@ -1721,9 +1759,6 @@ void AHRSCanvas::paintLandscape()
     {
         double dAltTip = c.dH2 - 10.0 - ((static_cast<double>( m_iAltBug ) - g_situation.dBaroPressAlt) * dPxPerFt);
 
-#if !defined( Q_OS_ANDROID )
-        dAltTip += c.dH40;
-#endif
         ahrs.drawPixmap( c.dW - c.dW5 - c.dW20 - c.dW40, dAltTip - c.dH40, c.dW20, c.dH20, m_AltBug );
     }
 
@@ -1751,9 +1786,7 @@ void AHRSCanvas::paintLandscape()
     // Draw vertical speed indicator as In thousands and hundreds of FPM in tiny text on the vertical speed arrow
     ahrs.setFont( wee );
     QRect intRect( weeMetrics.boundingRect( qsIntVspeed ) );
-#if defined( Q_OS_ANDROID )
-    intRect.setWidth( intRect.width() * 4 );
-#endif
+
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ), m_pCanvas->scaledV( 4.0 ), qsIntVspeed );
     ahrs.setFont( itsy );
     ahrs.drawText( c.dW - m_pCanvas->scaledH( 20.0 ) + intRect.width() + 2, m_pCanvas->scaledV( 4.0 ), qsFracVspeed );
@@ -1768,8 +1801,20 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPixmap( 5, c.dH2 + 5.0 - m_SpeedTape.height() + (g_situation.dGPSGroundSpeed * dPxPerKnot), m_SpeedTape );
 
     // Draw the current speed
-    Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
-    drawCurrSpeed( &ahrs, &c, &num );
+    if( g_situation.bHaveWTData )
+    {
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dTAS ), 0 );
+        drawCurrSpeed( &ahrs, &c, &num );
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
+
+        // Draw the ground speed just below the indicator since we have both, and both are useful
+        drawCurrSpeed( &ahrs, &c, &num, true );
+    }
+    else
+    {
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dGPSGroundSpeed ), 0 );
+        drawCurrSpeed( &ahrs, &c, &num );
+    }
 
     ahrs.setFont( wee );
     ahrs.setPen( Qt::black );
@@ -1782,20 +1827,11 @@ void AHRSCanvas::paintLandscape()
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
     ahrs.setBrush( Qt::black );
     ahrs.drawRect( c.dW + c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125), 10.0, (c.dWNum * 3.0) + (c.dW * 0.025), c.dHNum + (c.dH * 0.015) );
-    Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSGyroHeading ), 3 );
+    if( g_situation.bHaveWTData )
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSMagHeading ), 3 );
+    else
+        Builder::buildNumber( &num, &c, static_cast<int>( g_situation.dAHRSGyroHeading ), 3 );
     ahrs.drawPixmap( c.dW + c.dW2 - (c.dWNum * 3.0 / 2.0), 10.0 + (c.dH * 0.0075), num );
-
-    // Draw the magnetic deviation less/more controls
-    ahrs.drawPixmap( c.dW + c.dW2 - (c.dWNum * 3.0 / 2.0) - (c.dW * 0.0125) - c.dW10,
-                     10.0 + (c.dH * 0.0075),
-                     c.dW20 + c.dW40,
-                     c.dHNum,
-                     *m_pMagHeadOffLessPixmap );
-    ahrs.drawPixmap( c.dW + c.dW2 + (c.dWNum * 3.0 / 2.0) + (c.dW * 0.0125) + c.dW10 - c.dW20 - c.dW40,
-                     10.0 + (c.dH * 0.0075),
-                     c.dW20 + c.dW40,
-                     c.dHNum,
-                    *m_pMagHeadOffMorePixmap );
 
     // Draw the G-Force indicator box and scale
     ahrs.setFont( tiny );
@@ -1815,11 +1851,7 @@ void AHRSCanvas::paintLandscape()
     arrow.append( QPoint( 16.0, c.dH - c.iTinyFontHeight - 25.0 ) );
     ahrs.setPen( Qt::black );
     ahrs.setBrush( Qt::white );
-#if defined( Q_OS_ANDROID )
-    ahrs.translate( (fabs( 1.0 - g_situation.dAHRSGLoad ) * (c.dW5 + c.dW10) * 20.0) + c.dW2 - c.dW20 - c.dW10, c.dH80 );
-#else
     ahrs.translate( (fabs( 1.0 - g_situation.dAHRSGLoad ) * (c.dW5 + c.dW10) * 20.0) + c.dW2 - c.dW20 - c.dW10, -c.dH80 );
-#endif
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
@@ -1895,18 +1927,29 @@ void AHRSCanvas::paintLandscape()
     else if( m_bDisplayTanksSwitchNotice )
         paintSwitchNotice( &ahrs, &c );
 
-    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
-        paintTimer( &ahrs, &c );
-
     ahrs.drawPixmap( c.dW + c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
     ahrs.drawPixmap( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     // Draw the heading overlay so the markers aren't covered by other elements
     ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
-    ahrs.rotate( -g_situation.dAHRSGyroHeading );
+    if( g_situation.bHaveWTData )
+        ahrs.rotate( -g_situation.dAHRSMagHeading );
+    else
+        ahrs.rotate( -g_situation.dAHRSGyroHeading );
     ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
     ahrs.drawPixmap( c.dW + 10, c.dH - c.dW, c.dW - 20, c.dW - 20,  m_HeadIndicatorOverlay );
     ahrs.resetTransform();
+
+    if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
+        paintTimer( &ahrs, &c );
+
+    // Draw the outside temp if we have it
+    if( g_situation.bHaveWTData )
+    {
+        ahrs.setPen( Qt::yellow );
+        ahrs.setFont( small );
+        ahrs.drawText( c.dW10, c.dH2 - c.dH20 - c.dH40, QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
+    }
 
     drawDayMode( &ahrs, &c );
 }
@@ -1943,15 +1986,20 @@ void AHRSCanvas::drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNu
 }
 
 
-void AHRSCanvas::drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum )
+void AHRSCanvas::drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum, bool bGS )
 {
     if( pC->bPortrait )
         pAhrs->translate( 0.0, -pC->dH4 );
 
-    pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
-    pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
-    pAhrs->drawRect( 0, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5, pC->dHNum + (pC->dH * 0.015) );
-    pAhrs->drawPixmap( pC->dW * 0.0125, pC->dH2 - (pC->dHNum / 2.0), *pNum );
+    if( !bGS )
+    {
+        pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
+        pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
+        pAhrs->drawRect( 0, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + pC->dW40, pC->dHNum + (pC->dH * 0.015) );
+        pAhrs->drawPixmap( pC->dW * 0.0125, pC->dH2 - (pC->dHNum / 2.0), *pNum );
+    }
+    else
+        pAhrs->drawPixmap( pC->dW10, pC->dH2 + pC->dH40, *pNum );
 
     if( pC->bPortrait )
         pAhrs->resetTransform();
@@ -1997,18 +2045,16 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
     int          iRunway, iAPRunway;
     double       dAirportDiam = c->dWa * (m_bPortrait ? 0.03125 : 0.01875);
     QPainterPath maskPath;
-    QFont        apFont;
     QRect        apRect;
     double       deltaY;
+    double       dHead = g_situation.dAHRSGyroHeading;
 
-#if defined( Q_OS_ANDROID )
-        apFont = tiny;
-#else
-        apFont = wee;
-#endif
-    QFontMetrics apMetrics( apFont );
+    if( g_situation.bHaveWTData )
+        dHead = g_situation.dAHRSMagHeading;
 
-    pAhrs->setFont( apFont );
+    QFontMetrics apMetrics( tiny );
+
+    pAhrs->setFont( tiny );
 
     maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : c->dW),
                          c->dH - c->dW,
@@ -2033,7 +2079,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
         ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 + dAPDist ) );
 
         // Airport angle in reference to you (which clock position it's at)
-        ball.setAngle( ap.bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
+        ball.setAngle( ap.bd.dBearing - dHead - 90.0 );
         // Qt Y coords are backward
         deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
         ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 - deltaY ) );
@@ -2061,7 +2107,7 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
                 apPen.setWidth( c->iThickPen );
                 pAhrs->setPen( apPen );
                 pAhrs->drawLine( runwayLine );
-                if( ((iAPRunway - g_situation.dAHRSGyroHeading) > 90) && ((iAPRunway - g_situation.dAHRSGyroHeading) < 270) )
+                if( ((iAPRunway - dHead) > 90) && ((iAPRunway - dHead) < 270) )
                     runwayLine.setLength( runwayLine.length() + c->dW80 );
                 QPixmap num( 128, 84 ); // It would need to be resized back anyway so creating a new one each time is faster
                 num.fill( Qt::transparent );
@@ -2112,7 +2158,10 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
             ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dASDist ) );
 
             // Airspace polygon point angle in reference to you (which clock position it's at)
-            ball.setAngle( bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
+            if( g_situation.bHaveWTData )
+                ball.setAngle( bd.dBearing - g_situation.dAHRSMagHeading - 90.0 );
+            else
+                ball.setAngle( bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
             // Qt Y coords are backward
             deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
             ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 - deltaY ) );
@@ -2184,14 +2233,46 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
 #if defined( Q_OS_ANDROID )
 void AHRSCanvas::orient( bool bPortrait )
 {
+    m_bPortrait = bPortrait;
+    QTimer::singleShot( 1000, this, SLOT( orient2() ) );
+}
+
+
+void AHRSCanvas::orient2()
+{
     if( !m_bInitialized )
         return;
 
     m_bInitialized = false;
-    m_bPortrait = bPortrait;
 
-    killTimer( m_iDispTimer );
-    init();
+    m_pCanvas->init( width(), height(), m_bPortrait );
+
+    CanvasConstants c = m_pCanvas->constants();
+    int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) );
+
+    // Reload the icons so we don't loose resolution
+    m_headIcon.load( ":/icons/resources/HeadingIcon.png" );
+    m_windIcon.load( ":/icons/resources/WindIcon.png" );
+    // Rescale them
+    m_headIcon = m_headIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    m_windIcon = m_windIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+
+    if( m_bPortrait )
+        m_VertSpeedTape.load( ":/graphics/resources/vspeedP.png" );
+    else
+        m_VertSpeedTape.load( ":/graphics/resources/vspeedL.png" );
+
+    // Reload these for the same reason as above
+    m_AltTape.load( ":/graphics/resources/alttape.png" );
+    m_SpeedTape.load( ":/graphics/resources/speedtape.png" );
+    // Rescale them
+    m_AltTape = m_AltTape.scaledToWidth( c.dW10, Qt::SmoothTransformation );
+    m_SpeedTape = m_SpeedTape.scaledToWidth( c.dW10 - c.dW40, Qt::SmoothTransformation );
+    QTransform flipper;
+    flipper.scale( -1, 1 );
+    m_Rfuel = m_Lfuel.transformed( flipper );
+
+    m_bInitialized = true;
 }
 #endif
 
@@ -2199,9 +2280,7 @@ void AHRSCanvas::orient( bool bPortrait )
 void AHRSCanvas::drawDayMode( QPainter *pAhrs, CanvasConstants *c )
 {
     if( !g_bDayMode )
-    {
         pAhrs->fillRect( 0.0, 0.0, c->dWa, c->dH, QColor( 0, 0, 0, 128 ) );
-    }
 }
 
 
@@ -2243,26 +2322,28 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
 
     if( m_directAP.qsID != "NULL" )
     {
-        double dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
-        QLineF ball;
-
-        TrafficMath::updateAirport( &m_directAP );
+        double  dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
+        QLineF  ball;
+        Airport ap = m_airports.at( TrafficMath::findAirport( &m_directAP, &m_airports ) );
 
         if( m_bPortrait )
         {
             ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
+            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (ap.bd.dDistance * dPxPerNM) ) );
         }
         else
         {
             ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_directAP.bd.dDistance * dPxPerNM) ) );
+            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (ap.bd.dDistance * dPxPerNM) ) );
         }
         if( ball.length() > (pC->dW2 - 30.0) )
             ball.setLength( pC->dW2 - 30.0 );
 
-        // Traffic angle in reference to you (which clock position they're at)
-        ball.setAngle( -(m_directAP.bd.dBearing + g_situation.dAHRSGyroHeading - static_cast<double>( m_iMagDev / 2 )) + 180.0 );
+        // Airport angle in reference to you
+        if( g_situation.bHaveWTData )
+            ball.setAngle( g_situation.dAHRSMagHeading - ap.bd.dBearing + 90.0 );
+        else
+            ball.setAngle( g_situation.dAHRSGyroHeading - ap.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
 
         pAhrs->setPen( coursePen );
         pAhrs->drawLine( ball );
@@ -2283,9 +2364,8 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
         double  dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
         QLineF  ball;
         QPointF fromPt, toPt;
-
-        TrafficMath::updateAirport( &m_fromAP );
-        TrafficMath::updateAirport( &m_toAP );
+        Airport apFrom = m_airports.at( TrafficMath::findAirport( &m_fromAP, &m_airports ) );
+        Airport apTo = m_airports.at( TrafficMath::findAirport( &m_toAP, &m_airports ) );
 
         if( m_bPortrait )
         {
@@ -2297,7 +2377,12 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
             ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_fromAP.bd.dDistance * dPxPerNM) ) );
         }
-        ball.setAngle( -(m_fromAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        // Airport angle in reference to you
+        if( g_situation.bHaveWTData )
+            ball.setAngle( g_situation.dAHRSMagHeading - apFrom.bd.dBearing + 90.0 );
+        else
+            ball.setAngle( g_situation.dAHRSGyroHeading - apFrom.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
+
         fromPt = ball.p2();
         if( m_bPortrait )
         {
@@ -2309,7 +2394,12 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
             ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
             ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_toAP.bd.dDistance * dPxPerNM) ) );
         }
-        ball.setAngle( -(m_toAP.bd.dBearing + g_situation.dAHRSGyroHeading) + 180.0 );
+        // Airport angle in reference to you
+        if( g_situation.bHaveWTData )
+            ball.setAngle( g_situation.dAHRSMagHeading - apTo.bd.dBearing + 90.0 );
+        else
+            ball.setAngle( g_situation.dAHRSGyroHeading - apTo.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
+
         toPt = ball.p2();
         ball.setP1( fromPt );
         ball.setP2( toPt );
@@ -2345,6 +2435,13 @@ void AHRSCanvas::setSwitchableTanks( bool bSwitchable )
         m_tanks.dRightCapacity = 0.0;
         m_tanks.dRightRemaining = 0.0;
     }
+}
+
+
+void AHRSCanvas::setMagDev( int iMagDev )
+{
+    m_iMagDev = iMagDev;
+    update();
 }
 
 

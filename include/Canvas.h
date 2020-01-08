@@ -188,6 +188,8 @@ public:
 
     Canvas( double dWidth, double dHeight, bool bPortrait );
 
+    void init( double dWidth, double dHeight, bool bPortrait );
+
     CanvasConstants constants();
     double          scaledH( double d );    // Simplify scalars for constants used for known 480x800/800x480 screen size
     double          scaledV( double d );    // Same for vertical
@@ -207,7 +209,6 @@ struct StratofierSettings
     bool                       bShowAllTraffic;
     int                        iCurrDataSet;
     bool                       bSwitchableTanks;
-    bool                       bEnableBT;
     QString                    qsStratuxIP;
     bool                       bShowRunways;
     bool                       bShowAirspaces;
@@ -216,6 +217,7 @@ struct StratofierSettings
     QList<Canvas::CountryCodeAirports> listAirports;
     QList<Canvas::CountryCodeAirspace> listAirspaces;
     QString                    qsOwnshipID;
+    int                        iMagDev;
 };
 
 

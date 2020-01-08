@@ -16,12 +16,6 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>380</height>
-   </size>
-  </property>
   <property name="palette">
    <palette>
     <active>
@@ -191,7 +185,7 @@ QComboBox
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="font">

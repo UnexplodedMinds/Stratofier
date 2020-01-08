@@ -6,6 +6,9 @@ Stratofier Stratux AHRS Display
 #include <QSettings>
 #include <QtDebug>
 
+#include "ui_FuelTanksDialog.h"
+#include "ui_FuelTanksDialogLandscape.h"
+
 #include "FuelTanksDialog.h"
 #include "ClickLabel.h"
 #include "Keypad.h"
@@ -14,30 +17,64 @@ Stratofier Stratux AHRS Display
 
 extern QSettings *g_pSet;
 
+Ui::FuelTanksDialog          *uiP;
+Ui::FuelTanksDialogLandscape *uiL;
+
 
 FuelTanksDialog::FuelTanksDialog( QWidget *pParent, AHRSCanvas *pAHRS, Canvas *pCanvas )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
-      m_pAHRSDisp( pAHRS )
+      m_pAHRSDisp( pAHRS ),
+      m_bPortrait( pCanvas->constants().bPortrait )
 {
-    setupUi( this );
+    if( m_bPortrait )
+    {
+        uiP = new Ui::FuelTanksDialog;
+        uiP->setupUi( this );
+    }
+    else
+    {
+        uiL = new Ui::FuelTanksDialogLandscape;
+        uiL->setupUi( this );
+    }
 
     loadSettings();
 
-    m_pLeftRemainLabel->setTitle( "LEFT REMAINING" );
-    m_pRightRemainLabel->setTitle( "RIGHT REMAINING" );
-    m_pLeftCapLabel->setTitle( "LEFT CAPACITY" );
-    m_pRightCapLabel->setTitle( "RIGHT CAPACITY" );
-    m_pCruiseRateLabel->setTitle( "CRUISE RATE" );
-    m_pClimbRateLabel->setTitle( "CLIMB RATE" );
-    m_pDescRateLabel->setTitle( "DESCENT RATE" );
-    m_pTaxiRateLabel->setTitle( "TAXI RATE" );
-    m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
-    m_pSwitchIntLabel->setDecimals( 0 );
+    if( m_bPortrait )
+    {
+        uiP->m_pLeftRemainLabel->setTitle( "LEFT REMAINING" );
+        uiP->m_pRightRemainLabel->setTitle( "RIGHT REMAINING" );
+        uiP->m_pLeftCapLabel->setTitle( "LEFT CAPACITY" );
+        uiP->m_pRightCapLabel->setTitle( "RIGHT CAPACITY" );
+        uiP->m_pCruiseRateLabel->setTitle( "CRUISE RATE" );
+        uiP->m_pClimbRateLabel->setTitle( "CLIMB RATE" );
+        uiP->m_pDescRateLabel->setTitle( "DESCENT RATE" );
+        uiP->m_pTaxiRateLabel->setTitle( "TAXI RATE" );
+        uiP->m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
+        uiP->m_pSwitchIntLabel->setDecimals( 0 );
 
-    connect( m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
-    connect( m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
-    connect( m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    connect( m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
+        connect( uiP->m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
+        connect( uiP->m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
+        connect( uiP->m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
+        connect( uiP->m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
+    }
+    else
+    {
+        uiL->m_pLeftRemainLabel->setTitle( "LEFT REMAINING" );
+        uiL->m_pRightRemainLabel->setTitle( "RIGHT REMAINING" );
+        uiL->m_pLeftCapLabel->setTitle( "LEFT CAPACITY" );
+        uiL->m_pRightCapLabel->setTitle( "RIGHT CAPACITY" );
+        uiL->m_pCruiseRateLabel->setTitle( "CRUISE RATE" );
+        uiL->m_pClimbRateLabel->setTitle( "CLIMB RATE" );
+        uiL->m_pDescRateLabel->setTitle( "DESCENT RATE" );
+        uiL->m_pTaxiRateLabel->setTitle( "TAXI RATE" );
+        uiL->m_pSwitchIntLabel->setTitle( "SWITCH INTERVAL" );
+        uiL->m_pSwitchIntLabel->setDecimals( 0 );
+
+        connect( uiL->m_pStartLeftButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
+        connect( uiL->m_pStartRightButton, SIGNAL( clicked() ), this, SLOT( saveSettings() ) );
+        connect( uiL->m_pStopButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
+        connect( uiL->m_pResetFuelButton, SIGNAL( clicked() ), this, SLOT( resetFuel() ) );
+    }
 
     ClickLabel         *pCL;
     QList<ClickLabel *> kids = findChildren<ClickLabel *>();
@@ -50,19 +87,73 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, AHRSCanvas *pAHRS, Canvas *p
     g_pSet->beginGroup( "FuelTanks" );
     if( !g_pSet->value( "DualTanks" ).toBool() )
     {
-        m_pStartLeftButton->setText( "START" );
-        m_pStartRightButton->hide();
-        m_pRRemLabel->hide();
-        m_pRCapLabel->hide();
-        m_pRightRemainLabel->hide();
-        m_pRightCapLabel->hide();
-        m_pRightRemUnitsLabel->hide();
-        m_pRightCapUnitsLabel->hide();
-        m_pLRemLabel->setText( "REM :" );
-        m_pLCapLabel->setText( "CAP :" );
-        m_pSwitchIntLabel->hide();
-        m_pSwitchIntLabelLbl->hide();
-        m_pSwitchIntUnitsLabel->hide();
+        if( m_bPortrait )
+        {
+            uiP->m_pStartLeftButton->setText( "START" );
+            uiP->m_pStartRightButton->hide();
+            uiP->m_pRRemLabel->hide();
+            uiP->m_pRCapLabel->hide();
+            uiP->m_pRightRemainLabel->hide();
+            uiP->m_pRightCapLabel->hide();
+            uiP->m_pRightRemUnitsLabel->hide();
+            uiP->m_pRightCapUnitsLabel->hide();
+            uiP->m_pLRemLabel->setText( "REM :" );
+            uiP->m_pLCapLabel->setText( "CAP :" );
+            uiP->m_pSwitchIntLabel->hide();
+            uiP->m_pSwitchIntLabelLbl->hide();
+            uiP->m_pSwitchIntUnitsLabel->hide();
+        }
+        else
+        {
+            uiL->m_pStartLeftButton->setText( "START" );
+            uiL->m_pStartRightButton->hide();
+            uiL->m_pRRemLabel->hide();
+            uiL->m_pRCapLabel->hide();
+            uiL->m_pRightRemainLabel->hide();
+            uiL->m_pRightCapLabel->hide();
+            uiL->m_pRightRemUnitsLabel->hide();
+            uiL->m_pRightCapUnitsLabel->hide();
+            uiL->m_pLRemLabel->setText( "REM :" );
+            uiL->m_pLCapLabel->setText( "CAP :" );
+            uiL->m_pSwitchIntLabel->hide();
+            uiL->m_pSwitchIntLabelLbl->hide();
+            uiL->m_pSwitchIntUnitsLabel->hide();
+        }
+    }
+    else
+    {
+        if( m_bPortrait )
+        {
+            uiP->m_pStartLeftButton->setText( "START L" );
+            uiP->m_pStartRightButton->show();
+            uiP->m_pRRemLabel->show();
+            uiP->m_pRCapLabel->show();
+            uiP->m_pRightRemainLabel->show();
+            uiP->m_pRightCapLabel->show();
+            uiP->m_pRightRemUnitsLabel->show();
+            uiP->m_pRightCapUnitsLabel->show();
+            uiP->m_pLRemLabel->setText( "REM :" );
+            uiP->m_pLCapLabel->setText( "CAP :" );
+            uiP->m_pSwitchIntLabel->show();
+            uiP->m_pSwitchIntLabelLbl->show();
+            uiP->m_pSwitchIntUnitsLabel->show();
+        }
+        else
+        {
+            uiL->m_pStartLeftButton->setText( "START L" );
+            uiL->m_pStartRightButton->show();
+            uiL->m_pRRemLabel->show();
+            uiL->m_pRCapLabel->show();
+            uiL->m_pRightRemainLabel->show();
+            uiL->m_pRightCapLabel->show();
+            uiL->m_pRightRemUnitsLabel->show();
+            uiL->m_pRightCapUnitsLabel->show();
+            uiL->m_pLRemLabel->setText( "REM :" );
+            uiL->m_pLCapLabel->setText( "CAP :" );
+            uiL->m_pSwitchIntLabel->show();
+            uiL->m_pSwitchIntLabelLbl->show();
+            uiL->m_pSwitchIntUnitsLabel->show();
+        }
     }
     g_pSet->endGroup();
 }
@@ -70,22 +161,45 @@ FuelTanksDialog::FuelTanksDialog( QWidget *pParent, AHRSCanvas *pAHRS, Canvas *p
 
 FuelTanksDialog::~FuelTanksDialog()
 {
+    if( m_bPortrait )
+        delete uiP;
+    else
+        delete uiL;
 }
 
 
 void FuelTanksDialog::loadSettings()
 {
     g_pSet->beginGroup( "FuelTanks" );
-    m_pLeftCapLabel->setText( QString::number( g_pSet->value( "LeftCapacity", 24.0 ).toDouble(), 'f', 2 ) );
-    m_pRightCapLabel->setText( QString::number( g_pSet->value( "RightCapacity", 24.0 ).toDouble(), 'f', 2 ) );
-    m_pLeftRemainLabel->setText( QString::number( g_pSet->value( "LeftRemaining", 24.0 ).toDouble(), 'f', 2 ) );
-    m_pRightRemainLabel->setText( QString::number( g_pSet->value( "RightRemaining", 24.0 ).toDouble(), 'f', 2 ) );
+    if( m_bPortrait )
+    {
+        uiP->m_pLeftCapLabel->setText( QString::number( g_pSet->value( "LeftCapacity", 24.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pRightCapLabel->setText( QString::number( g_pSet->value( "RightCapacity", 24.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pLeftRemainLabel->setText( QString::number( g_pSet->value( "LeftRemaining", 24.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pRightRemainLabel->setText( QString::number( g_pSet->value( "RightRemaining", 24.0 ).toDouble(), 'f', 2 ) );
 
-    m_pCruiseRateLabel->setText( QString::number( g_pSet->value( "CruiseRate", 8.3 ).toDouble(), 'f', 2 ) );
-    m_pClimbRateLabel->setText( QString::number( g_pSet->value( "ClimbRate", 9.0 ).toDouble(), 'f', 2 ) );
-    m_pDescRateLabel->setText( QString::number( g_pSet->value( "DescentRate", 7.0 ).toDouble(), 'f', 2 ) );
-    m_pTaxiRateLabel->setText( QString::number( g_pSet->value( "TaxiRate", 4.0 ).toDouble(), 'f', 2 ) );
-    m_pSwitchIntLabel->setText( QString::number( g_pSet->value( "SwitchInterval", 15 ).toInt() ) );
+        uiP->m_pCruiseRateLabel->setText( QString::number( g_pSet->value( "CruiseRate", 8.3 ).toDouble(), 'f', 2 ) );
+        uiP->m_pClimbRateLabel->setText( QString::number( g_pSet->value( "ClimbRate", 9.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pDescRateLabel->setText( QString::number( g_pSet->value( "DescentRate", 7.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pTaxiRateLabel->setText( QString::number( g_pSet->value( "TaxiRate", 4.0 ).toDouble(), 'f', 2 ) );
+        uiP->m_pSwitchIntLabel->setText( QString::number( g_pSet->value( "SwitchInterval", 15 ).toInt() ) );
+    }
+    else
+    {
+        uiL->m_pStartLeftButton->setText( "START" );
+        uiL->m_pStartRightButton->hide();
+        uiL->m_pRRemLabel->hide();
+        uiL->m_pRCapLabel->hide();
+        uiL->m_pRightRemainLabel->hide();
+        uiL->m_pRightCapLabel->hide();
+        uiL->m_pRightRemUnitsLabel->hide();
+        uiL->m_pRightCapUnitsLabel->hide();
+        uiL->m_pLRemLabel->setText( "REM :" );
+        uiL->m_pLCapLabel->setText( "CAP :" );
+        uiL->m_pSwitchIntLabel->hide();
+        uiL->m_pSwitchIntLabelLbl->hide();
+        uiL->m_pSwitchIntUnitsLabel->hide();
+    }
 
     m_tanks.bDualTanks = g_pSet->value( "DualTanks", true ).toBool();
 
@@ -95,15 +209,30 @@ void FuelTanksDialog::loadSettings()
 
 void FuelTanksDialog::saveSettings()
 {
-    m_tanks.dLeftCapacity = m_pLeftCapLabel->text().toDouble();
-    m_tanks.dRightCapacity = m_pRightCapLabel->text().toDouble();
-    m_tanks.dLeftRemaining = m_pLeftRemainLabel->text().toDouble();
-    m_tanks.dRightRemaining = m_pRightRemainLabel->text().toDouble();
-    m_tanks.dFuelRateCruise = m_pCruiseRateLabel->text().toDouble();
-    m_tanks.dFuelRateClimb = m_pClimbRateLabel->text().toDouble();
-    m_tanks.dFuelRateDescent = m_pDescRateLabel->text().toDouble();
-    m_tanks.dFuelRateTaxi = m_pTaxiRateLabel->text().toDouble();
-    m_tanks.iSwitchIntervalMins = static_cast<int>( m_pSwitchIntLabel->text().toDouble() );
+    if( m_bPortrait )
+    {
+        m_tanks.dLeftCapacity = uiP->m_pLeftCapLabel->text().toDouble();
+        m_tanks.dRightCapacity = uiP->m_pRightCapLabel->text().toDouble();
+        m_tanks.dLeftRemaining = uiP->m_pLeftRemainLabel->text().toDouble();
+        m_tanks.dRightRemaining = uiP->m_pRightRemainLabel->text().toDouble();
+        m_tanks.dFuelRateCruise = uiP->m_pCruiseRateLabel->text().toDouble();
+        m_tanks.dFuelRateClimb = uiP->m_pClimbRateLabel->text().toDouble();
+        m_tanks.dFuelRateDescent = uiP->m_pDescRateLabel->text().toDouble();
+        m_tanks.dFuelRateTaxi = uiP->m_pTaxiRateLabel->text().toDouble();
+        m_tanks.iSwitchIntervalMins = static_cast<int>( uiP->m_pSwitchIntLabel->text().toDouble() );
+    }
+    else
+    {
+        m_tanks.dLeftCapacity = uiL->m_pLeftCapLabel->text().toDouble();
+        m_tanks.dRightCapacity = uiL->m_pRightCapLabel->text().toDouble();
+        m_tanks.dLeftRemaining = uiL->m_pLeftRemainLabel->text().toDouble();
+        m_tanks.dRightRemaining = uiL->m_pRightRemainLabel->text().toDouble();
+        m_tanks.dFuelRateCruise = uiL->m_pCruiseRateLabel->text().toDouble();
+        m_tanks.dFuelRateClimb = uiL->m_pClimbRateLabel->text().toDouble();
+        m_tanks.dFuelRateDescent = uiL->m_pDescRateLabel->text().toDouble();
+        m_tanks.dFuelRateTaxi = uiL->m_pTaxiRateLabel->text().toDouble();
+        m_tanks.iSwitchIntervalMins = static_cast<int>( uiL->m_pSwitchIntLabel->text().toDouble() );
+    }
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "LeftCapacity", m_tanks.dLeftCapacity );
@@ -149,8 +278,16 @@ void FuelTanksDialog::resetFuel()
 
     m_tanks.dLeftRemaining = iGalL;
     m_tanks.dRightRemaining = iGalR;
-    m_pLeftRemainLabel->setText( QString::number( iGalL ) );
-    m_pRightRemainLabel->setText( QString::number( iGalR ) );
+    if( m_bPortrait )
+    {
+        uiP->m_pLeftRemainLabel->setText( QString::number( iGalL ) );
+        uiP->m_pRightRemainLabel->setText( QString::number( iGalR ) );
+    }
+    else
+    {
+        uiL->m_pLeftRemainLabel->setText( QString::number( iGalL ) );
+        uiL->m_pRightRemainLabel->setText( QString::number( iGalR ) );
+    }
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "LeftRemaining", iGalL );
@@ -158,3 +295,4 @@ void FuelTanksDialog::resetFuel()
     g_pSet->endGroup();
     g_pSet->sync();
 }
+

@@ -74,7 +74,7 @@ double TrafficMath::degHeading( double dAng )
 
 
 // Get every airport in the cache that's within twice the distance of the current heading indicator radius
-void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist )
+void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, Airport *pDirect, Airport *pFrom, Airport *pTo, double dDist )
 {
     Airport ap;
 
@@ -84,7 +84,7 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, double dDist 
     {
         ap.bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
 
-        if( ap.bd.dDistance <= dDist )
+        if( (ap.bd.dDistance <= dDist) || (ap.qsID == pDirect->qsID) || (ap.qsID == pFrom->qsID) || (ap.qsID == pTo->qsID) )
             pAirports->append( ap );
     }
 }
@@ -119,9 +119,19 @@ void TrafficMath::updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDi
 }
 
 
-void TrafficMath::updateAirport( Airport *pAirport )
+int TrafficMath::findAirport( Airport *pAirport, QList<Airport> *apList )
 {
-    pAirport->bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, pAirport->dLat, pAirport->dLong );
+    Airport ap;
+    int     iIndex = 0;
+
+    foreach( ap, *apList )
+    {
+        if( ap.qsID == pAirport->qsID )
+            break;
+        iIndex++;
+    }
+
+    return iIndex;
 }
 
 

@@ -27,6 +27,7 @@ private:
 private slots:
     void fuel();
     void settings();
+    void help();
 
 signals:
     void resetLevel();
@@ -41,6 +42,7 @@ signals:
     void dayMode();
     void setSwitchableTanks( bool );
     void settingsClosed();
+    void magDev( int );
 };
 
 #endif // __MENUDIALOG_H__

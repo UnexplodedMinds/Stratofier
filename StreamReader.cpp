@@ -12,11 +12,7 @@ Stratofier Stratux AHRS Display
 #include <QNetworkInterface>
 #include <QTimer>
 #include <QSettings>
-
-#include <QBluetoothServiceInfo>
-#include <QBluetoothAddress>
-#include <QBluetoothSocket>
-#include <QBluetoothServiceDiscoveryAgent>
+#include <QNetworkDatagram>
 
 #include <math.h>
 
@@ -28,8 +24,8 @@ Stratofier Stratux AHRS Display
 extern QSettings *g_pSet;
 
 
-StreamReader::StreamReader( QObject *parent, const QString &qsIP, bool bEnableBT, bool bUseBTBaro )
-    : QObject( parent ),
+StreamReader::StreamReader( const QString &qsIP )
+    : QObject( nullptr ),
       m_bHaveMyPos( false ),
       m_bAHRSStatus( false ),
       m_bStratuxStatus( false ),
@@ -37,147 +33,77 @@ StreamReader::StreamReader( QObject *parent, const QString &qsIP, bool bEnableBT
       m_bConnected( false ),
       m_qsIP( qsIP ),
       m_eUnits( Canvas::Knots ),
-      m_pBTserviceDiscoverer( nullptr ),
-      m_pBTsocket( nullptr ),
-      m_btBuffer(),
-      m_bHaveBTtelemetry( false ),
+      m_bHaveWTtelem( false ),
       m_dBaroPress( 29.92 ),
-      m_bUseBTBaro( bUseBTBaro )
+      m_wtHost(),
+      m_lastPacketDateTime( QDateTime::currentDateTime() )
 {
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
 
-    if( bEnableBT )
-        reconnectBT();
+    m_wtSocket.bind( QHostAddress( "192.168.10.255" ), 45678 );
+    connect( &m_wtSocket, SIGNAL( readyRead() ), this, SLOT( wtDataAvail() ) );
+
+    // Re-transmit the currently set barometric pressure every ten seconds in case the WingThing restarted
+    startTimer( 10000 );
 }
 
 
-void StreamReader::reconnectBT()
+void StreamReader::wtDataAvail()
 {
-    m_pBTserviceDiscoverer = new QBluetoothServiceDiscoveryAgent( this );
-    connect( m_pBTserviceDiscoverer, SIGNAL( serviceDiscovered( const QBluetoothServiceInfo& ) ),
-             this, SLOT( btServiceDiscovered( const QBluetoothServiceInfo& ) ) );
-    connect( m_pBTserviceDiscoverer, SIGNAL( finished() ),
-             this, SLOT( btServiceDiscoveryFinished() ) );
-    connect( m_pBTserviceDiscoverer, SIGNAL( error( const QBluetoothServiceDiscoveryAgent::Error ) ),
-             this, SLOT( btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error ) ) );
-    m_pBTserviceDiscoverer->clear();
-    m_pBTserviceDiscoverer->start( QBluetoothServiceDiscoveryAgent::FullDiscovery );
+    QNetworkDatagram sensorData = m_wtSocket.receiveDatagram();
+
+    // Format coming from the WingThing is:
+    // <Airspeed>,<Altitude>,<Heading>,<Baro Press>,<Temp>,<Checksum>;
+    // Barometric Pressure is currently always -1 and ignored and not included in the checksum calculation
+    QString     qsBuffer( sensorData.data() ); qsBuffer.chop( 1 );
+    QStringList qslFields = qsBuffer.split( ',' );
+
+    // Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Checksum
+    if( qslFields.count() == 6 )
+    {
+        m_wtTelem.dAirspeed = qslFields.first().toDouble();
+        m_wtTelem.dAltitude = qslFields.at( 1 ).toDouble();
+        m_wtTelem.dHeading = qslFields.at( 2 ).toDouble();
+        m_wtTelem.dBaroPress = qslFields.at( 3 ).toDouble();    // Invalid barometric pressure for future use (stream sets always to -1)
+        m_wtTelem.dTemp = qslFields.at( 4 ).toDouble();
+        m_wtTelem.iChecksum = qslFields.last().toInt();         // Checksum is simply all the floats added div by 6 cast to an int (excluding baro press)
+
+        m_bHaveWTtelem = true;
+        m_wtHost = sensorData.senderAddress();
+        m_lastPacketDateTime = QDateTime::currentDateTime();
+    }
 }
 
 
 StreamReader::~StreamReader()
 {
-    if( m_pBTsocket != nullptr )
+}
+
+
+void StreamReader::timerEvent( QTimerEvent* )
+{
+    if( m_lastPacketDateTime.secsTo( QDateTime::currentDateTime() ) > 10 )
     {
-        delete m_pBTsocket;
-        m_pBTsocket = nullptr;
+        m_bHaveWTtelem = false;
+        emit newWTStatus( false );
     }
-    if( m_pBTserviceDiscoverer != nullptr )
-    {
-        delete m_pBTserviceDiscoverer;
-        m_pBTserviceDiscoverer = nullptr;
-    }
-}
 
-
-void StreamReader::btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error err )
-{
-    Q_UNUSED( err )
-
-    // There isn't anything else we can really do
-    m_pBTserviceDiscoverer->stop();
-}
-
-
-void StreamReader::btServiceDiscovered( const QBluetoothServiceInfo &serviceInfo )
-{
-    // Connect to service
-    if( serviceInfo.serviceName().contains( "serial", Qt::CaseInsensitive ) )
-    {
-        m_pBTserviceDiscoverer->stop();
-        m_pBTsocket = new QBluetoothSocket( QBluetoothServiceInfo::RfcommProtocol );
-        m_pBTsocket->connectToService( serviceInfo, QIODevice::ReadWrite );
-        connect( m_pBTsocket, SIGNAL( readyRead() ), this, SLOT( btReadData() ) );
-        connect( m_pBTsocket, SIGNAL( disconnected() ), this, SLOT( btDisconnected() ) );
-        emit newBTStatus( true );
-    }
-}
-
-
-void StreamReader::btServiceDiscoveryFinished()
-{
-    m_pBTserviceDiscoverer->stop();
-    delete m_pBTserviceDiscoverer;
-    m_pBTserviceDiscoverer = nullptr;
-    emit newBTStatus( m_bHaveBTtelemetry ); // Make sure we update the indicator if discovery completed and we never found anything
-
-}
-
-
-void StreamReader::btDisconnected()
-{
-    m_bHaveBTtelemetry = false;
-    emit newBTStatus( false );
-    reconnectBT();
-}
-
-
-void StreamReader::btReadData()
-{
-    m_btBuffer.append( m_pBTsocket->readAll() );
-
-    // Format is "<Airspeed>,<Altitude>,<Heading>;"
-    // Once we have received two packets, we start parsing what's between the semicolons
-    if( m_btBuffer.count( ';' ) >= 2 )
-    {
-        QString qsBuffer( m_btBuffer );
-        int     iP2 = qsBuffer.lastIndexOf( ';' );
-        int     iP1 = iP2 - 1;
-
-        while( iP1 >= 0 )
-        {
-            if( qsBuffer.at( iP1 ) == ';' )
-                break;
-            iP1--;
-        }
-        iP1++;
-
-        if( (iP1 >= 1) && (iP2 > iP1) )
-        {
-            qsBuffer = qsBuffer.mid( iP1, iP2 - iP1 );
-
-            QStringList qslFields = qsBuffer.split( ',' );
-
-            // Airspeed, Altitude, Heading, Baro Press (placeholder), Orient X,Y,Z
-            if( qslFields.count() == 8 )
-            {
-                m_btTelem.dAirspeed = qslFields.first().toDouble();
-                m_btTelem.dAltitude = qslFields.at( 1 ).toDouble();
-                m_btTelem.dHeading = qslFields.at( 2 ).toDouble();
-                m_btTelem.dBaroPress = qslFields.at( 3 ).toDouble();    // Invalid barometric pressure for future use (stream sets always to -1)
-                m_btTelem.orient.x = qslFields.at( 4 ).toDouble();
-                m_btTelem.orient.y = qslFields.at( 5 ).toDouble();
-                m_btTelem.orient.z = qslFields.at( 6 ).toDouble();
-                m_btTelem.iChecksum = qslFields.last().toInt();         // Checksum is simply all the floats added div by 6 cast to an int (excluding baro press)
-
-                m_bHaveBTtelemetry = true;
-            }
-            m_btBuffer = m_btBuffer.right( m_btBuffer.length() - iP2 ); // Truncate to anything that was past the last semicolon
-        }
-    }
+    setBaroPress( m_dBaroPress );
 }
 
 
 void StreamReader::setBaroPress( double dBaro )
 {
-    m_dBaroPress = dBaro;
+    if( !m_wtHost.isNull() )
+    {
+        m_dBaroPress = dBaro;
 
-    QString qsData = QString( "%1" ).arg( m_dBaroPress, 5, 'f', 2, QChar( '0' ) );
+        QString qsData = QString( "%1" ).arg( m_dBaroPress, 5, 'f', 2, QChar( '0' ) );
 
-    if( m_bHaveBTtelemetry )
-        m_pBTsocket->write( qsData.toLatin1() );
+        m_wtSocket.writeDatagram( qsData.toLatin1(), m_wtHost, 45678 );
+    }
 }
 
 
@@ -314,23 +240,27 @@ void StreamReader::situationUpdate( const QString &qsMessage )
             situation.iAHRSStatus = iVal;
     }
 
-    // Replace Stratux telemetry with actual air data from the sensor sending bluetooth data
-    if( m_bHaveBTtelemetry )
+    // Replace Stratux telemetry with actual air data from the sensor sending UDP data
+    if( m_bHaveWTtelem )
     {
-        int iMatch = static_cast<int>( (m_btTelem.dAirspeed + m_btTelem.dAltitude + m_btTelem.dHeading +
-                                        m_btTelem.orient.x + m_btTelem.orient.y + m_btTelem.orient.z) / 6.0 );
+        int iMatch = static_cast<int>( (m_wtTelem.dAirspeed + m_wtTelem.dAltitude + m_wtTelem.dHeading + m_wtTelem.dTemp) / 4.0 );
 
-        if( iMatch == m_btTelem.iChecksum )
+        if( iMatch == m_wtTelem.iChecksum )
         {
-            situation.dBaroPressAlt = m_btTelem.dAltitude;
-            situation.dGPSGroundSpeed = m_btTelem.dAirspeed;
-            situation.dAHRSGyroHeading = m_btTelem.dHeading;
+            situation.bHaveWTData = true;
+            situation.dTAS = m_wtTelem.dAirspeed;
+            situation.dAHRSMagHeading = m_wtTelem.dHeading;
             // If we are getting barometric pressure from the telemetry, use that
-            if( m_btTelem.dBaroPress >= 0.0 )
-                m_dBaroPress = m_btTelem.dBaroPress;
+            // Currently it is always -1
+            if( m_wtTelem.dBaroPress >= 0.0 )
+                m_dBaroPress = m_wtTelem.dBaroPress;
+            situation.dBaroPressAlt = m_wtTelem.dAltitude + (1000.0 * (29.92 - m_dBaroPress));
+            situation.dBaroTemp = m_wtTelem.dTemp;
 
-            situation.dBaroPressAlt = m_btTelem.dAltitude + (1000.0 * (29.92 - m_dBaroPress));
+            emit newWTStatus( true );
         }
+        else
+            m_bHaveWTtelem = false;
     }
 
     while( situation.dAHRSGyroHeading > 360 )
@@ -576,6 +506,8 @@ void StreamReader::initSituation( StratuxSituation &situation )
     situation.dAHRSGLoadMax = 1.0;
     situation.lastAHRSAttTime = nullDateTime;
     situation.iAHRSStatus = 0;
+    situation.bHaveWTData = false;
+    situation.dTAS = 0.0;
 }
 
 

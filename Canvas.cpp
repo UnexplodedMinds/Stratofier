@@ -21,9 +21,15 @@ extern QFont large;
 
 Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
 {
-	QFontMetrics weeMetrics( wee );
-	QRect        weeRect( weeMetrics.boundingRect( "0" ) );
-	QFontMetrics tinyMetrics( tiny );
+    init( dWidth, dHeight, bPortrait );
+}
+
+
+void Canvas::init( double dWidth, double dHeight, bool bPortrait )
+{
+    QFontMetrics weeMetrics( wee );
+    QRect        weeRect( weeMetrics.boundingRect( "0" ) );
+    QFontMetrics tinyMetrics( tiny );
     QRect        tinyRect( tinyMetrics.boundingRect( "0" ) );
     QFontMetrics smallMetrics( small );
     QRect        smallRect( smallMetrics.boundingRect( "0" ) );
@@ -49,11 +55,11 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.dH8 = dHeight / 8.0;
     m_preCalc.dH10 = dHeight / 10.0;
     m_preCalc.dH20 = dHeight / 20.0;
-	m_preCalc.dH30 = dHeight / 30.0;
-	m_preCalc.dH40 = dHeight / 40.0;
+    m_preCalc.dH30 = dHeight / 30.0;
+    m_preCalc.dH40 = dHeight / 40.0;
     m_preCalc.dH80 = dHeight / 80.0;
     m_preCalc.dH100 = dHeight / 100.0;
-	m_preCalc.dH160 = dHeight / 160.0;
+    m_preCalc.dH160 = dHeight / 160.0;
     m_preCalc.dW = dWidth;
     m_preCalc.dW2 = dWidth / 2.0;
     m_preCalc.dW4 = dWidth / 4.0;
@@ -61,37 +67,23 @@ Canvas::Canvas( double dWidth, double dHeight, bool bPortrait )
     m_preCalc.dW7 = dWidth / 7.0;
     m_preCalc.dW10 = dWidth / 10.0;
     m_preCalc.dW20 = dWidth / 20.0;
-	m_preCalc.dW30 = dWidth / 30.0;
-	m_preCalc.dW40 = dWidth / 40.0;
+    m_preCalc.dW30 = dWidth / 30.0;
+    m_preCalc.dW40 = dWidth / 40.0;
     m_preCalc.dW80 = dWidth / 80.0;
 
     m_preCalc.dHNum = dHeight * 0.03;
     m_preCalc.dWNum = dWidth * 0.0381;
 
-	m_preCalc.iWeeFontHeight = weeRect.height();
-	m_preCalc.iTinyFontHeight = tinyRect.height();
+    m_preCalc.iWeeFontHeight = weeRect.height();
+    m_preCalc.iTinyFontHeight = tinyRect.height();
     m_preCalc.iSmallFontHeight = smallRect.height();
     m_preCalc.iMedFontHeight = medRect.height();
     m_preCalc.iLargeFontHeight = largeRect.height();
     m_preCalc.iTinyFontWidth = tinyRect.width();
 
-// This just works out for Android font scaling (I don't know why)
-#if defined( Q_OS_ANDROID )
-    m_preCalc.iWeeFontHeight *= 4;
-    m_preCalc.iTinyFontHeight *= 4;
-    m_preCalc.iSmallFontHeight *= 4;
-    m_preCalc.iMedFontHeight *= 4;
-    m_preCalc.iLargeFontHeight *= 4;
-    m_preCalc.iTinyFontWidth *= 4;
-
-    m_preCalc.iThinPen = 4;
-    m_preCalc.iThickPen = 6;
-    m_preCalc.iFatPen = 10;
-#else
     m_preCalc.iThinPen = 2;
     m_preCalc.iThickPen = 3;
     m_preCalc.iFatPen = 5;
-#endif
 
     m_preCalc.dAspectL = m_preCalc.dW / m_preCalc.dH;
     m_preCalc.dAspectP = m_preCalc.dH / m_preCalc.dW;
@@ -147,13 +139,13 @@ void Canvas::setKeypadGeometry( Keypad *pKeypad )
     if( m_preCalc.bPortrait )
     {
         dW = m_preCalc.dW - m_preCalc.dW10;
-        dH = m_preCalc.dW * 0.75;
+        dH = m_preCalc.dW * 0.85;
         dX = m_preCalc.dW20;
         dY = m_preCalc.dH2 - (dH / 2.0);
     }
     else
     {
-        dH = m_preCalc.dH - m_preCalc.dH10;
+        dH = m_preCalc.dH - m_preCalc.dH40;
         dW = dH * 1.25;
         dX = m_preCalc.dW - (dW / 2.0);
         dY = m_preCalc.dH20;

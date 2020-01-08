@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>800</height>
+    <width>667</width>
+    <height>910</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -265,25 +265,13 @@
        <bool>true</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="2" column="0">
+       <item row="0" column="0">
         <widget class="QLabel" name="m_pSplashLabel">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>375</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>375</width>
-           <height>480</height>
-          </size>
          </property>
          <property name="styleSheet">
           <string notr="true">QLabel
@@ -302,54 +290,6 @@
           <bool>true</bool>
          </property>
         </widget>
-       </item>
-       <item row="0" column="0">
-        <spacer name="m_pSplashSpacerTop1">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
-        <spacer name="m_pSplashSpacerBottom">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <spacer name="m_pSplashSpacerTop2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -381,6 +321,9 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -407,6 +350,9 @@
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
@@ -435,6 +381,9 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+        </property>
         <property name="text">
          <string>TFC</string>
         </property>
@@ -459,6 +408,9 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+        </property>
         <property name="text">
          <string>GPS</string>
         </property>
@@ -468,7 +420,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="m_pBTIndicator">
+       <widget class="QLabel" name="m_pSensIndicator">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -483,8 +435,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+        </property>
         <property name="text">
-         <string>BT</string>
+         <string>SENS</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

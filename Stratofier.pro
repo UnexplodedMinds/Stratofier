@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui websockets widgets network concurrent xml bluetooth
+QT += core gui websockets widgets network concurrent xml
 
 VPATH += ./include \
          ../include \
@@ -100,6 +100,7 @@ FORMS += AHRSMainWin.ui \
          MenuDialog.ui \
          TimerDialog.ui \
          FuelTanksDialog.ui \
+         FuelTanksDialogLandscape.ui \
          SettingsDialog.ui \
          AirportDialog.ui \
          CountryDialog.ui \

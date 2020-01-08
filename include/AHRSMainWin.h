@@ -11,6 +11,7 @@ Stratofier Stratux AHRS Display
 
 #include "ui_AHRSMainWin.h"
 #include "Canvas.h"
+#include "StreamReader.h"
 
 
 class StreamReader;
@@ -24,7 +25,7 @@ class AHRSMainWin : public QMainWindow, public Ui::AHRSMainWin
     Q_OBJECT
 
 public:
-    explicit AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, bool bUseBTBaro );
+    explicit AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream, bool bShowSplash );
     ~AHRSMainWin();
 
     bool          menuActive() { return (m_pMenuDialog != nullptr); }
@@ -60,7 +61,7 @@ private:
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
-    void BTUpdate( bool bBT );
+    void WTUpdate( bool bWingThing );
     void resetLevel();
     void resetGMeter();
     void upgradeStratofier();
@@ -74,6 +75,7 @@ private slots:
     void dayMode();
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
+    void magDev( int iMagDev );
 };
 
 #endif // __AHRSMAINWIN_H__

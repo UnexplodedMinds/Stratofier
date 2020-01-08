@@ -22,7 +22,6 @@ Stratofier Stratux AHRS Display
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
-#include "StreamReader.h"
 #include "MenuDialog.h"
 #include "Canvas.h"
 #include "Keypad.h"
@@ -45,9 +44,9 @@ bool          g_bDayMode = true;
 
 
 // Setup minimal UI elements and make the connections
-AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, bool bUseBTBaro )
+AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream, bool bShowSplash )
     : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
-      m_pStratuxStream( new StreamReader( this, qsIP, bEnableBT, bUseBTBaro ) ),
+      m_pStratuxStream( pStream ),
       m_bStartup( true ),
       m_pMenuDialog( nullptr ),
       m_qsIP( qsIP ),
@@ -67,6 +66,12 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, b
 
     setupUi( this );
 
+    if( !bShowSplash )
+    {
+        delete m_pSplashLabel;
+        m_pSplashLabel = nullptr;
+    }
+
     m_pAHRSDisp->setPortrait( bPortrait );
 
     m_lastStatusUpdate = QDateTime::currentDateTime();
@@ -74,7 +79,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, b
     connect( m_pStratuxStream, SIGNAL( newSituation( StratuxSituation ) ), m_pAHRSDisp, SLOT( situation( StratuxSituation ) ) );
     connect( m_pStratuxStream, SIGNAL( newTraffic( int, StratuxTraffic ) ), m_pAHRSDisp, SLOT( traffic( int, StratuxTraffic ) ) );
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
-    connect( m_pStratuxStream, SIGNAL( newBTStatus( bool ) ), this, SLOT( BTUpdate( bool ) ) );
+    connect( m_pStratuxStream, SIGNAL( newWTStatus( bool ) ), this, SLOT( WTUpdate( bool ) ) );
 
     m_pStratuxStream->connectStreams();
 
@@ -86,7 +91,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, bool bEnableBT, b
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
 
-    QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
+    if( bShowSplash )
+        QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
 }
 
 
@@ -142,13 +148,13 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 }
 
 
-// Bluetooth HC-06 was discovered
-void AHRSMainWin::BTUpdate( bool bBT )
+// Valid WingThing data is being received
+void AHRSMainWin::WTUpdate( bool bWingThing )
 {
-    QString qsOn( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
-    QString qsOff( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
-
-    m_pBTIndicator->setStyleSheet( bBT ? qsOn : qsOff );
+    if( bWingThing )
+        m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
+    else
+        m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
 }
 
 
@@ -177,6 +183,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
+        connect( m_pMenuDialog, SIGNAL( magDev( int ) ), this, SLOT( magDev( int ) ) );
     }
     else
     {
@@ -324,10 +331,11 @@ void AHRSMainWin::stopTimer()
 
 void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
+#if defined( Q_OS_ANDROID )
+    m_pAHRSDisp->orient( (o == Qt::PortraitOrientation) || (o == Qt::InvertedPortraitOrientation) );
+#else
     Q_UNUSED( o )
-
-    QApplication::closeAllWindows();
-    qApp->exit( 1 );
+#endif
 }
 
 
@@ -378,6 +386,7 @@ void AHRSMainWin::unitsAirspeed()
     }
     g_pSet->setValue( "UnitsAirspeed", static_cast<int>( g_eUnitsAirspeed ) );
     g_pSet->sync();
+    m_pStratuxStream->setUnits( g_eUnitsAirspeed );
     m_pAHRSDisp->update();
 }
 
@@ -395,6 +404,12 @@ void AHRSMainWin::dayMode()
 void AHRSMainWin::setSwitchableTanks( bool bSwitchable )
 {
     m_pAHRSDisp->setSwitchableTanks( bSwitchable );
+}
+
+
+void AHRSMainWin::magDev( int iMagDev )
+{
+    m_pAHRSDisp->setMagDev( iMagDev );
 }
 
 

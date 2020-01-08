@@ -20,9 +20,9 @@ public:
 
     static void cacheAirports();
     static void cacheAirspaces();
-    static void updateNearbyAirports( QList<Airport> *pAirports, double dDist );
+    static void updateNearbyAirports( QList<Airport> *pAirports, Airport *pDirect, Airport *pFrom, Airport *pTo, double dDist );
     static void updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDist );
-    static void updateAirport( Airport *pAirport );
+    static int  findAirport( Airport *pAirport, QList<Airport> *apList );
 };
 
 #endif // TRAFFICMATH_H

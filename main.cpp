@@ -16,23 +16,29 @@ Stratofier Stratux AHRS Display
 #if defined( Q_OS_ANDROID )
 #include "ScreenLocker.h"
 #endif
+#include "StreamReader.h"
 
 
 QSettings *g_pSet = nullptr;
 Keyboard  *g_pKeyboard = nullptr;
 
 
+// This needs to stay global so it's not destroyed when the orientation changes
+StreamReader *g_pStratuxStream = nullptr;
+
 
 int main( int argc, char *argv[] )
 {
+#if defined( Q_OS_ANDROID )
+    QGuiApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
+#endif
+
     QApplication guiApp( argc, argv );
 	QStringList  qslArgs = guiApp.arguments();
     QString      qsArg;
     QString      qsToken, qsVal;
 	bool         bMax = true;
     QString      qsIP;
-    bool         bEnableBT = false;
-    bool         bUseBTBaro = false;
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
     QString      qsCurrWorkPath( "/home/pi/Stratofier" );  // If you put Stratofier anywhere else, specify home=<whatever> as an argument when running
@@ -61,14 +67,10 @@ int main( int argc, char *argv[] )
         }
     }
 
-    QFontDatabase::addApplicationFont( ":/fonts/resources/piboto_reg.ttf" );
-    QFontDatabase::addApplicationFont( ":/fonts/resources/piboto_reg.ttf" );
-
 // For Android, override any command line setting for portrait/landscape
 #if defined( Q_OS_ANDROID )
     QScreen *pScreen = QGuiApplication::primaryScreen();
 
-    QGuiApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
     bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
 // For running locally we need to set the correct working path so relative references work both locally and on the Pi
 #else
@@ -87,11 +89,10 @@ int main( int argc, char *argv[] )
 #endif
 
     qsIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
-    bEnableBT = g_pSet->value( "EnableBluetooth", false ).toBool();
-    bUseBTBaro = g_pSet->value( "UseBTBaro", false ).toBool();
 
     qInfo() << "Starting Stratofier";
-    pMainWin = new AHRSMainWin( qsIP, bPortrait, bEnableBT, bUseBTBaro );
+    g_pStratuxStream = new StreamReader( qsIP );
+    pMainWin = new AHRSMainWin( qsIP, bPortrait, g_pStratuxStream, true );
     // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
         pMainWin->showMaximized();
@@ -105,17 +106,10 @@ int main( int argc, char *argv[] )
             pMainWin->setGeometry( 0, 0, 1920, 1080 /* 0, 0, 1638, 1024 */ );
 	}
 
-    while( guiApp.exec() != 0 )
-    {
-        // For Android, override any command line setting for portrait/landscape
-#if defined( Q_OS_ANDROID )
-        QScreen *pScreen = QGuiApplication::primaryScreen();
+    guiApp.exec();
 
-        bPortrait = ((pScreen->orientation() == Qt::PortraitOrientation) || (pScreen->orientation() == Qt::InvertedPortraitOrientation));
-#endif
-        pMainWin = new AHRSMainWin( qsIP, bPortrait, bEnableBT, bUseBTBaro );
-        pMainWin->showMaximized();
-    }
+    delete g_pStratuxStream;
+    g_pStratuxStream = nullptr;
 
     return 0;
 }

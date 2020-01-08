@@ -8,7 +8,6 @@ Stratofier Stratux AHRS Display
 
 #include <QDialog>
 
-#include "ui_FuelTanksDialog.h"
 #include "Canvas.h"
 
 
@@ -17,7 +16,7 @@ class AHRSCanvas;
 
 // NOTE: The reason this is called settings instead of Fuel or something similar is that the expectation that other non-fuel related settings
 //       will go here or possibly be moved here from the menu.
-class FuelTanksDialog : public QDialog, public Ui::FuelTanksDialog
+class FuelTanksDialog : public QDialog
 {
     Q_OBJECT
 
@@ -32,10 +31,12 @@ private:
 
     FuelTanks   m_tanks;
     AHRSCanvas *m_pAHRSDisp;
+    bool        m_bPortrait;
 
 private slots:
     void saveSettings();
     void resetFuel();
 };
+
 
 #endif // __FUELTANKSDIALOG_H__

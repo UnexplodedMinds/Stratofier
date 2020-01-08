@@ -5,6 +5,7 @@ Stratofier Stratux AHRS Display
 
 #include <QSettings>
 #include <QPushButton>
+#include <QDesktopServices>
 
 #include "MenuDialog.h"
 #include "AHRSMainWin.h"
@@ -59,11 +60,20 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
 
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
+
+    connect( m_pHelpButton, SIGNAL( clicked() ), this, SLOT( help() ) );
 }
 
 
 MenuDialog::~MenuDialog()
 {
+    emit magDev( g_pSet->value( "MagDev", 0 ).toInt() );
+}
+
+
+void MenuDialog::help()
+{
+    QDesktopServices::openUrl( QUrl( "http://skyfun.space/?page_id=175" ) );
 }
 
 
@@ -72,10 +82,7 @@ void MenuDialog::fuel()
     FuelTanksDialog dlg( this, static_cast<AHRSCanvas *>( static_cast<AHRSMainWin *>( parent() )->disp() ), static_cast<AHRSMainWin *>( parent() )->disp()->canvas() );
     QWidget        *pMainWin = parentWidget();
 
-    if( m_bPortrait )
-        dlg.setGeometry( 0, 0, pMainWin->width(), pMainWin->width() );
-    else
-        dlg.setGeometry( 0, 0, pMainWin->width() / 2, pMainWin->width() / 2 );
+    dlg.setGeometry( 0, 0, pMainWin->width(), pMainWin->height() );
 
     if( dlg.exec() == QDialog::Accepted )
         emit fuelTanks( dlg.settings() );
@@ -96,7 +103,7 @@ void MenuDialog::settings()
     // Scale the menu dialog according to screen resolution
     dlg.setMinimumWidth( static_cast<int>( c.dW ) );
     dlg.setMinimumHeight( static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
-    dlg.setGeometry( 0, 0, static_cast<int>( c.dW ), static_cast<int>( m_bPortrait ? c.dH2 : c.dH ) );
+    dlg.setGeometry( 0, 0, static_cast<int>( c.dW ), static_cast<int>( c.dH ) );
 
     dlg.exec();
 
@@ -106,6 +113,7 @@ void MenuDialog::settings()
         static_cast<AHRSMainWin *>( parent() )->streamReader()->connectStreams();
     }
 
+    emit magDev( g_pSet->value( "MagDev", 0 ).toInt() );
     emit setSwitchableTanks( g_pSet->value( "DualTanks" ).toBool() );
     emit settingsClosed();
 }

@@ -51,6 +51,8 @@ struct StratuxSituation
     double    dAHRSGLoadMax;
     QDateTime lastAHRSAttTime;
     int       iAHRSStatus;
+    bool      bHaveWTData;
+    double    dTAS;
 };
 
 
@@ -90,25 +92,14 @@ struct StratuxStatus
 };
 
 
-struct Vector3D
-{
-    double x;
-    double y;
-    double z;
-};
-
-
-struct BluetoothTelemetry
+struct WingThingTelemetry
 {
     double  dAirspeed;
     double  dAltitude;
     double  dHeading;
     double  dBaroPress;
-    Vector3D orient;
-    Vector3D mag;
-    double   dTemp;
-    int      iChecksum;
-
+    double  dTemp;
+    int     iChecksum;
 };
 
 #endif // __STRATUXSTREAMS_H__

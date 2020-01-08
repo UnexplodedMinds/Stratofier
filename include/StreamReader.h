@@ -8,16 +8,13 @@ Stratofier Stratux AHRS Display
 
 #include <QObject>
 #include <QWebSocket>
-#include <QBluetoothServiceInfo>
-#include <QBluetoothServiceDiscoveryAgent>
+#include <QUdpSocket>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
 
 
 class QCoreApplication;
-class QBluetoothSocket;
-class QBluetoothServiceInfo;
 
 
 class StreamReader : public QObject
@@ -25,7 +22,7 @@ class StreamReader : public QObject
     Q_OBJECT
 
 public:
-    explicit StreamReader( QObject *parent, const QString &qsIP, bool bEnableBT, bool bUseBTBaro );
+    explicit StreamReader( const QString &qsIP );
     ~StreamReader();
 
     void connectStreams();
@@ -38,6 +35,9 @@ public:
 
     void setUnits( Canvas::Units eUnits ) { m_eUnits = eUnits; }
     void setBaroPress( double dBaro );
+
+protected:
+    void timerEvent( QTimerEvent* ) override;
 
 private:
     double unitsMult();
@@ -54,17 +54,16 @@ private:
     double        m_dMyLat;
     double        m_dMyLong;
     bool          m_bConnected;
-    bool          m_bBTConnected;
     QString       m_qsIP;
     Canvas::Units m_eUnits;
+    QUdpSocket    m_wtSocket;
 
-    QBluetoothServiceDiscoveryAgent *m_pBTserviceDiscoverer;
-    QBluetoothSocket                *m_pBTsocket;
-    QByteArray                       m_btBuffer;
-    bool                             m_bHaveBTtelemetry;
-    BluetoothTelemetry               m_btTelem;
-    double                           m_dBaroPress;
-    bool                             m_bUseBTBaro;
+    bool               m_bHaveWTtelem;
+    double             m_dBaroPress;
+    bool               m_bWTConnected;
+    WingThingTelemetry m_wtTelem;
+    QHostAddress       m_wtHost;
+    QDateTime          m_lastPacketDateTime;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -73,19 +72,13 @@ private slots:
     void stratuxConnected();
     void stratuxDisconnected();
 
-    void btServiceDiscovered( const QBluetoothServiceInfo &devInfo );
-    void btDisconnected();
-    void btReadData();
-    void btServiceDiscoveryFinished();
-    void btServiceDiscoveryError( QBluetoothServiceDiscoveryAgent::Error err );
-    void reconnectBT();
+    void wtDataAvail();
 
 signals:
     void newSituation( StratuxSituation );
     void newTraffic( int, StratuxTraffic );     // ICAO, Rest of traffic struct
     void newStatus( bool, bool, bool, bool );   // Stratux available, AHRS available, GPS available, Traffic available
-
-    void newBTStatus( bool );                   // HC-06 is sending data
+    void newWTStatus( bool );                   // Valid WingThing sensor data has been received
 };
 
 #endif // __STREAMREADER_H__

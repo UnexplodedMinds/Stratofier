@@ -40,9 +40,12 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
     Builder::populateUrlMapAirspaces( &m_mapUrlsAirspaces );
 
     loadSettings();
+    m_pMagDevLabel->setText( QString::number( m_settings.iMagDev ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
-    connect( m_pEnableBTButton, SIGNAL( clicked() ), this, SLOT( enableBT() ) );
+
+    connect( m_pMagDevLessButton, SIGNAL( clicked() ), this, SLOT( magDevChange() ) );
+    connect( m_pMagDevMoreButton, SIGNAL( clicked() ), this, SLOT( magDevChange() ) );
 
     connect( m_pGetButton, SIGNAL( clicked() ), this, SLOT( getMapDataAirports() ) );
 
@@ -58,8 +61,7 @@ SettingsDialog::~SettingsDialog()
 
     g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
     g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
-
-    g_pSet->setValue( "EnableBluetooth", m_settings.bEnableBT );
+    g_pSet->setValue( "MagDev", m_settings.iMagDev );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
@@ -75,7 +77,6 @@ void SettingsDialog::init()
     QSize iconSize( static_cast<int>( static_cast<double>( iBtnHeight ) / 2.0 * 2.3 ), iBtnHeight / 2 );
 
     m_pSwitchableButton->setIconSize( iconSize );
-    m_pEnableBTButton->setIconSize( iconSize );
 }
 
 
@@ -88,6 +89,7 @@ void SettingsDialog::loadSettings()
     m_settings.iCurrDataSet = g_pSet->value( "CurrDataSet", 0 ).toInt();
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
+    m_settings.iMagDev = g_pSet->value( "MagDev", 0 ).toInt();
     countries = g_pSet->value( "CountryAirports", countries ).toList();
     m_settings.listAirports.clear();
     foreach( country, countries )
@@ -100,9 +102,6 @@ void SettingsDialog::loadSettings()
     m_settings.bSwitchableTanks = (!g_pSet->value( "DualTanks" ).toBool());
     g_pSet->endGroup();
     switchable();
-    m_settings.bEnableBT = (!g_pSet->value( "EnableBluetooth" ).toBool());
-    enableBT();
-
     m_pIPClickLabel->setText( m_settings.qsStratuxIP );
     m_pOwnshipClickLabel->setText( m_settings.qsOwnshipID );
 
@@ -112,13 +111,29 @@ void SettingsDialog::loadSettings()
 }
 
 
-void SettingsDialog::getMapDataAirports()
+void SettingsDialog::magDevChange()
 {
     QObject *pSender = sender();
 
     if( pSender == nullptr )
         return;
 
+    if( pSender->objectName().contains( "Less" ) )
+        m_settings.iMagDev--;
+    else
+        m_settings.iMagDev++;
+
+    if( m_settings.iMagDev < -40 )
+        m_settings.iMagDev = -40;
+    else if( m_settings.iMagDev > 40 )
+        m_settings.iMagDev = 40;
+
+    m_pMagDevLabel->setText( QString::number( m_settings.iMagDev ) );
+}
+
+
+void SettingsDialog::getMapDataAirports()
+{
     if( m_settings.listAirports.count() == 0 )
         return;
 
@@ -443,17 +458,6 @@ void SettingsDialog::switchable()
     g_pSet->sync();
 
     m_pSwitchableButton->setIcon( m_settings.bSwitchableTanks ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
-}
-
-
-void SettingsDialog::enableBT()
-{
-    m_settings.bEnableBT = (!m_settings.bEnableBT);
-
-    g_pSet->setValue( "EnableBluetooth", m_settings.bSwitchableTanks );
-    g_pSet->sync();
-
-    m_pEnableBTButton->setIcon( m_settings.bEnableBT ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
 }
 
 

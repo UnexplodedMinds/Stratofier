@@ -36,9 +36,10 @@ public:
     void    orient( bool bPortrait );
 #endif
     int     magDev() { return m_iMagDev; }
+    void    setMagDev( int iMagDev );
     void    setSwitchableTanks( bool bSwitchable );
 
-    bool    m_bFuelFlowStarted;
+    bool m_bFuelFlowStarted;
 
 public slots:
     void init();
@@ -76,7 +77,7 @@ private:
     void drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC );
     void drawSlipSkid( QPainter *pAhrs, CanvasConstants *pC, double dSlipSkid );
     void drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
-    void drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
+    void drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum, bool bGS = false );
     void swipeLeft();
     void swipeRight();
     void swipeUp();
@@ -89,12 +90,11 @@ private:
     QPixmap   m_planeIcon;
     QPixmap   m_headIcon;
     QPixmap   m_windIcon;
+    QPixmap   m_directIcon;
     int       m_iHeadBugAngle;
     int       m_iWindBugAngle;
     int       m_iWindBugSpeed;
     int       m_iAltBug;
-    QPixmap  *m_pMagHeadOffLessPixmap;
-    QPixmap  *m_pMagHeadOffMorePixmap;
     int       m_iDispTimer;
     bool      m_bUpdated;
     bool      m_bShowGPSDetails;
@@ -131,6 +131,11 @@ private:
     FuelTanks          m_tanks;
 
     double m_dBaroPress;
+
+#if defined( Q_OS_ANDROID )
+private slots:
+    void orient2();
+#endif
 };
 
 #endif // __AHRSCANVAS_H__
