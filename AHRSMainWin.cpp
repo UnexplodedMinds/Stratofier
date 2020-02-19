@@ -98,18 +98,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
 
 void AHRSMainWin::init()
 {
-#if defined( Q_OS_ANDROID )
-    QScreen *pScreen = QGuiApplication::primaryScreen();
-    QSizeF   physicalSize = pScreen->physicalSize();
-    double   dWorH = 0;
-
-    if( physicalSize.width() > physicalSize.height() )
-        dWorH = physicalSize.width();
-    else
-        dWorH = physicalSize.height();
-
     m_pAHRSDisp->orient( m_bPortrait );
-#endif
 
     m_pStatusIndicator->setMinimumHeight( height() * (m_bPortrait ? 0.0125 : 0.025) );
 }
@@ -149,9 +138,9 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 
 
 // Valid WingThing data is being received
-void AHRSMainWin::WTUpdate( bool bWingThing )
+void AHRSMainWin::WTUpdate( bool bValid )
 {
-    if( bWingThing )
+    if( bValid )
         m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
     else
         m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
@@ -169,7 +158,7 @@ void AHRSMainWin::menu()
 
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW4 ) );
-        m_pMenuDialog->setGeometry( c.dW - c.dW4, 0.0, static_cast<int>( c.dW4 ), static_cast<int>( c.dH ) );
+        m_pMenuDialog->setGeometry( c.dW - c.dW2, 0.0, static_cast<int>( c.dW2 ), static_cast<int>( c.dH ) );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -180,10 +169,10 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( fuelTanks( FuelTanks ) ), this, SLOT( fuelTanks( FuelTanks ) ) );
         connect( m_pMenuDialog, SIGNAL( stopFuelFlow() ), this, SLOT( stopFuelFlow() ) );
         connect( m_pMenuDialog, SIGNAL( unitsAirspeed() ), this, SLOT( unitsAirspeed() ) );
-        connect( m_pMenuDialog, SIGNAL( dayMode() ), this, SLOT( dayMode() ) );
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
         connect( m_pMenuDialog, SIGNAL( magDev( int ) ), this, SLOT( magDev( int ) ) );
+        connect( m_pMenuDialog, SIGNAL( calibrateMag() ), this, SLOT( calibrateMag() ) );
     }
     else
     {
@@ -196,6 +185,7 @@ void AHRSMainWin::menu()
 void AHRSMainWin::resetLevel()
 {
     emptyHttpPost( "cageAHRS" );
+    m_pStratuxStream->snapshotOrientation();
 }
 
 
@@ -331,11 +321,7 @@ void AHRSMainWin::stopTimer()
 
 void AHRSMainWin::orient( Qt::ScreenOrientation o )
 {
-#if defined( Q_OS_ANDROID )
     m_pAHRSDisp->orient( (o == Qt::PortraitOrientation) || (o == Qt::InvertedPortraitOrientation) );
-#else
-    Q_UNUSED( o )
-#endif
 }
 
 
@@ -387,16 +373,6 @@ void AHRSMainWin::unitsAirspeed()
     g_pSet->setValue( "UnitsAirspeed", static_cast<int>( g_eUnitsAirspeed ) );
     g_pSet->sync();
     m_pStratuxStream->setUnits( g_eUnitsAirspeed );
-    m_pAHRSDisp->update();
-}
-
-
-void AHRSMainWin::dayMode()
-{
-    MenuDialog *pDlg = static_cast<MenuDialog *>( sender() );
-
-    g_bDayMode = (!g_bDayMode);
-    pDlg->m_pDayModeButton->setText( g_bDayMode ? "DAY MODE" : "NIGHT MODE" );
     m_pAHRSDisp->update();
 }
 

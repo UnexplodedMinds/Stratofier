@@ -94,12 +94,14 @@ struct StratuxStatus
 
 struct WingThingTelemetry
 {
+    QString qsFWversion;
     double  dAirspeed;
     double  dAltitude;
-    double  dHeading;
-    double  dBaroPress;
     double  dTemp;
-    int     iChecksum;
+    double  dMagX, dMagY, dMagZ;
+    double  dOrientX, dOrientY, dOrientZ;
+    double  dAccelX, dAccelY, dAccelZ;
+    double  dHeading;   // This one is calculated on the Stratofier side
 };
 
 #endif // __STRATUXSTREAMS_H__

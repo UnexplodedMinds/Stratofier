@@ -36,17 +36,43 @@ StreamReader::StreamReader( const QString &qsIP )
       m_bHaveWTtelem( false ),
       m_dBaroPress( 29.92 ),
       m_wtHost(),
-      m_lastPacketDateTime( QDateTime::currentDateTime() )
+      m_lastPacketDateTime( QDateTime::currentDateTime() ),
+      m_iMagCalIndex( 0 ),
+      m_dRollRef( 0.0 ),
+      m_dPitchRef( 0.0 ),
+      m_dRawRoll( 0.0 ),
+      m_dRawPitch( 0.0 )
 {
+/*
+    m_dBiasX = g_pSet->value( "MagBiasX", 0.0 ).toDouble();
+    m_dBiasY = g_pSet->value( "MagBiasY", 0.0 ).toDouble();
+    m_dBiasZ = g_pSet->value( "MagBiasZ", 0.0 ).toDouble();
+
+    m_dScaleX = g_pSet->value( "MagScaleX", 1.0 ).toDouble();
+    m_dScaleY = g_pSet->value( "MagScaleY", 1.0 ).toDouble();
+    m_dScaleZ = g_pSet->value( "MagScaleZ", 1.0 ).toDouble();
+*/
+    m_dPitchRef = g_pSet->value( "PitchRef", 0.0 ).toDouble();
+    m_dRawRoll = g_pSet->value( "RollRef", 0.0 ).toDouble();
+
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
 
-    m_wtSocket.bind( QHostAddress( "192.168.10.255" ), 45678 );
     connect( &m_wtSocket, SIGNAL( readyRead() ), this, SLOT( wtDataAvail() ) );
+    connect( &m_wtSocket, SIGNAL( disconnected() ), this, SLOT( wtDisconnected() ) );
+    m_wtSocket.bind( QHostAddress( "192.168.10.255" ), 45678 );
 
     // Re-transmit the currently set barometric pressure every ten seconds in case the WingThing restarted
     startTimer( 10000 );
+}
+
+
+// This will likely not get called but it needs to be here just in case
+void StreamReader::wtDisconnected()
+{
+    m_bHaveWTtelem = false;
+    emit newWTStatus( false );
 }
 
 
@@ -55,24 +81,36 @@ void StreamReader::wtDataAvail()
     QNetworkDatagram sensorData = m_wtSocket.receiveDatagram();
 
     // Format coming from the WingThing is:
-    // <Airspeed>,<Altitude>,<Heading>,<Baro Press>,<Temp>,<Checksum>;
-    // Barometric Pressure is currently always -1 and ignored and not included in the checksum calculation
-    QString     qsBuffer( sensorData.data() ); qsBuffer.chop( 1 );
+    // <Firmware Version>,<Airspeed>,<Altitude>,<Temp>,<Mag X>,<Mag Y>,<Mag Z>,<Orient X>,<Orient Y>,<Orient Z>,<Accel X>,<Accel Y>,<Accel Z>
+    QString     qsBuffer( sensorData.data() );
     QStringList qslFields = qsBuffer.split( ',' );
 
-    // Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Checksum
-    if( qslFields.count() == 6 )
+    // Firmware Version (e.g. 213), Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Mag X, Mag Y, Mag Z
+    if( qslFields.count() == 13 )
     {
-        m_wtTelem.dAirspeed = qslFields.first().toDouble();
-        m_wtTelem.dAltitude = qslFields.at( 1 ).toDouble();
-        m_wtTelem.dHeading = qslFields.at( 2 ).toDouble();
-        m_wtTelem.dBaroPress = qslFields.at( 3 ).toDouble();    // Invalid barometric pressure for future use (stream sets always to -1)
-        m_wtTelem.dTemp = qslFields.at( 4 ).toDouble();
-        m_wtTelem.iChecksum = qslFields.last().toInt();         // Checksum is simply all the floats added div by 6 cast to an int (excluding baro press)
-
+        m_wtTelem.qsFWversion = qslFields.first();
+        m_wtTelem.dAirspeed = qslFields.at( 1 ).toDouble();
+        m_wtTelem.dAltitude = qslFields.at( 2 ).toDouble();
+        m_wtTelem.dTemp = qslFields.at( 3 ).toDouble();
+        m_wtTelem.dMagX = qslFields.at( 4 ).toDouble();
+        m_wtTelem.dMagY = qslFields.at( 5 ).toDouble();
+        m_wtTelem.dMagZ = qslFields.at( 6 ).toDouble();
+        calcHeading( m_wtTelem.dMagX, m_wtTelem.dMagY, m_wtTelem.dMagZ );   // m_wtTelem.dHeading will be set in the function
+        m_wtTelem.dOrientX = qslFields.at( 7 ).toDouble();                  // Yaw  0 to 360 (not currently used)
+        m_dRawPitch = qslFields.at( 8 ).toDouble();
+        m_dRawRoll = qslFields.at( 9 ).toDouble();
+        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;    // Pitch -90 to 90, negative is down
+        m_wtTelem.dOrientZ = -(m_dRawRoll) + m_dRollRef;  // Roll -90 to 90, negative is right
+        m_wtTelem.dAccelX = qslFields.at( 10 ).toDouble();
+        m_wtTelem.dAccelY = qslFields.at( 11 ).toDouble();
+        m_wtTelem.dAccelZ = qslFields.last().toDouble();
         m_bHaveWTtelem = true;
-        m_wtHost = sensorData.senderAddress();
+        m_wtHost = sensorData.senderAddress();  // So we know where to send data TO
         m_lastPacketDateTime = QDateTime::currentDateTime();
+
+        m_wtLast = m_wtTelem;
+
+        emit newWTStatus( true );
     }
 }
 
@@ -82,9 +120,46 @@ StreamReader::~StreamReader()
 }
 
 
+void StreamReader::calcHeading( double dX, double dY, double dZ )
+{
+    Q_UNUSED( dZ )
+
+    double dHead = 360.0 - (atan2( dY, dX ) * 57.29578);
+//  double dAvg = 0.0;
+
+    dHead -= 90.0;
+    if( dHead < 0 )
+        dHead += 360.0;
+    else if( dHead > 360.0 )
+        dHead -= 360.0;
+
+    m_wtTelem.dHeading = dHead;
+/*
+    m_headSamples.append( dHead );
+    // Keep a circular buffer of the last three headings and average them
+    if( m_headSamples.count() > 2 )
+    {
+        // If we crossed the 0/360 line we'll get an absurd difference that will throw off the average
+        if( fabs( dHead - m_headSamples.last() ) > 90.0 )
+            m_wtTelem.dHeading = dHead;
+        // Otherwise business as usual
+        else
+        {
+            foreach( dHead, m_headSamples )
+                dAvg += dHead;
+            m_wtTelem.dHeading = dAvg / 3.0;
+        }
+        m_headSamples.removeFirst();
+    }
+    else
+        m_wtTelem.dHeading = dHead;
+*/
+}
+
+
 void StreamReader::timerEvent( QTimerEvent* )
 {
-    if( m_lastPacketDateTime.secsTo( QDateTime::currentDateTime() ) > 10 )
+    if( m_bHaveWTtelem && (m_lastPacketDateTime.secsTo( QDateTime::currentDateTime() ) > 10) )
     {
         m_bHaveWTtelem = false;
         emit newWTStatus( false );
@@ -243,24 +318,14 @@ void StreamReader::situationUpdate( const QString &qsMessage )
     // Replace Stratux telemetry with actual air data from the sensor sending UDP data
     if( m_bHaveWTtelem )
     {
-        int iMatch = static_cast<int>( (m_wtTelem.dAirspeed + m_wtTelem.dAltitude + m_wtTelem.dHeading + m_wtTelem.dTemp) / 4.0 );
-
-        if( iMatch == m_wtTelem.iChecksum )
-        {
-            situation.bHaveWTData = true;
-            situation.dTAS = m_wtTelem.dAirspeed;
-            situation.dAHRSMagHeading = m_wtTelem.dHeading;
-            // If we are getting barometric pressure from the telemetry, use that
-            // Currently it is always -1
-            if( m_wtTelem.dBaroPress >= 0.0 )
-                m_dBaroPress = m_wtTelem.dBaroPress;
-            situation.dBaroPressAlt = m_wtTelem.dAltitude + (1000.0 * (29.92 - m_dBaroPress));
-            situation.dBaroTemp = m_wtTelem.dTemp;
-
-            emit newWTStatus( true );
-        }
-        else
-            m_bHaveWTtelem = false;
+        situation.bHaveWTData = true;
+        situation.dTAS = m_wtTelem.dAirspeed;
+        situation.dAHRSMagHeading = m_wtTelem.dHeading;
+        situation.dBaroPressAlt = m_wtTelem.dAltitude;
+        situation.dBaroTemp = m_wtTelem.dTemp;
+        situation.dAHRSSlipSkid = m_wtTelem.dAccelY;
+        situation.dAHRSroll = m_wtTelem.dOrientZ;
+        situation.dAHRSpitch = m_wtTelem.dOrientY;
     }
 
     while( situation.dAHRSGyroHeading > 360 )
@@ -542,5 +607,14 @@ double StreamReader::unitsMult()
     }
 
     return dUnitsMult;
+}
+
+
+void StreamReader::snapshotOrientation()
+{
+    m_dRollRef = m_dRawRoll;
+    m_dPitchRef = m_dRawPitch;
+    g_pSet->setValue( "PitchRef", m_dPitchRef );
+    g_pSet->setValue( "RollRef", m_dRollRef );
 }
 

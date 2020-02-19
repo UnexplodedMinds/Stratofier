@@ -171,6 +171,7 @@ FuelTanksDialog::~FuelTanksDialog()
 void FuelTanksDialog::loadSettings()
 {
     g_pSet->beginGroup( "FuelTanks" );
+
     if( m_bPortrait )
     {
         uiP->m_pLeftCapLabel->setText( QString::number( g_pSet->value( "LeftCapacity", 24.0 ).toDouble(), 'f', 2 ) );
@@ -183,9 +184,34 @@ void FuelTanksDialog::loadSettings()
         uiP->m_pDescRateLabel->setText( QString::number( g_pSet->value( "DescentRate", 7.0 ).toDouble(), 'f', 2 ) );
         uiP->m_pTaxiRateLabel->setText( QString::number( g_pSet->value( "TaxiRate", 4.0 ).toDouble(), 'f', 2 ) );
         uiP->m_pSwitchIntLabel->setText( QString::number( g_pSet->value( "SwitchInterval", 15 ).toInt() ) );
+
+        uiP->m_pStartLeftButton->setText( "START" );
+        uiP->m_pStartRightButton->hide();
+        uiP->m_pRRemLabel->hide();
+        uiP->m_pRCapLabel->hide();
+        uiP->m_pRightRemainLabel->hide();
+        uiP->m_pRightCapLabel->hide();
+        uiP->m_pRightRemUnitsLabel->hide();
+        uiP->m_pRightCapUnitsLabel->hide();
+        uiP->m_pLRemLabel->setText( "REM :" );
+        uiP->m_pLCapLabel->setText( "CAP :" );
+        uiP->m_pSwitchIntLabel->hide();
+        uiP->m_pSwitchIntLabelLbl->hide();
+        uiP->m_pSwitchIntUnitsLabel->hide();
     }
     else
     {
+        uiL->m_pLeftCapLabel->setText( QString::number( g_pSet->value( "LeftCapacity", 24.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pRightCapLabel->setText( QString::number( g_pSet->value( "RightCapacity", 24.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pLeftRemainLabel->setText( QString::number( g_pSet->value( "LeftRemaining", 24.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pRightRemainLabel->setText( QString::number( g_pSet->value( "RightRemaining", 24.0 ).toDouble(), 'f', 2 ) );
+
+        uiL->m_pCruiseRateLabel->setText( QString::number( g_pSet->value( "CruiseRate", 8.3 ).toDouble(), 'f', 2 ) );
+        uiL->m_pClimbRateLabel->setText( QString::number( g_pSet->value( "ClimbRate", 9.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pDescRateLabel->setText( QString::number( g_pSet->value( "DescentRate", 7.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pTaxiRateLabel->setText( QString::number( g_pSet->value( "TaxiRate", 4.0 ).toDouble(), 'f', 2 ) );
+        uiL->m_pSwitchIntLabel->setText( QString::number( g_pSet->value( "SwitchInterval", 15 ).toInt() ) );
+
         uiL->m_pStartLeftButton->setText( "START" );
         uiL->m_pStartRightButton->hide();
         uiL->m_pRRemLabel->hide();

@@ -60,3 +60,9 @@ void BugSelector::baroPress()
 {
     done( static_cast<int>( BaroPress ) );
 }
+
+
+void BugSelector::calibrate()
+{
+    done( static_cast<int>( Calibrate ) );
+}

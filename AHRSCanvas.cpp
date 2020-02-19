@@ -55,8 +55,11 @@ QMap<int, StratuxTraffic> g_trafficMap;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
-QString g_qsStratofierVersion( "1.8.0.7" );
+bool g_bNoAirportsUpdate = false;
 
+QString g_qsStratofierVersion( "1.8.2.0" );
+
+QFuture<void> g_apt;
 
 /*
 IMPORTANT NOTE:
@@ -218,7 +221,9 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
     // If we have a valid GPS position, run the list of airports within range by threading it so it doesn't interfere with the display update
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
     {
-        QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, &m_directAP, &m_fromAP, &m_toAP, m_dZoomNM );
+        // This threaded function will crash the app if we're accessing the airports cache in the middle of an update
+        if( !g_bNoAirportsUpdate )
+            g_apt = QtConcurrent::run( TrafficMath::updateNearbyAirports, &m_airports, &m_directAP, &m_fromAP, &m_toAP, m_dZoomNM );
         QtConcurrent::run( TrafficMath::updateNearbyAirspaces, &m_airspaces, m_dZoomNM );
     }
 
@@ -330,7 +335,10 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
                 ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dTrafficDist ) );
 
 			    // Traffic angle in reference to you (which clock position they're at)
-                ball.setAngle( g_situation.dAHRSGyroHeading - traffic.dBearing + 90.0 );
+                if( g_situation.bHaveWTData )
+                    ball.setAngle( g_situation.dAHRSMagHeading - traffic.dBearing + 90.0 );
+                else
+                    ball.setAngle( g_situation.dAHRSGyroHeading - traffic.dBearing + 90.0 );
                 // Qt Y coords are backward
                 deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
                 ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 + deltaY ) );
@@ -424,10 +432,15 @@ void AHRSCanvas::situation( StratuxSituation s )
 {
     g_situation = s;
     g_situation.dAHRSGyroHeading += static_cast<double>( m_iMagDev );
+    g_situation.dAHRSMagHeading += static_cast<double>( m_iMagDev );
     if( g_situation.dAHRSGyroHeading < 0.0 )
         g_situation.dAHRSGyroHeading += 360.0;
     else if( g_situation.dAHRSGyroHeading > 360.0 )
         g_situation.dAHRSGyroHeading -= 360.0;
+    if( g_situation.dAHRSMagHeading < 0.0 )
+        g_situation.dAHRSMagHeading += 360.0;
+    else if( g_situation.dAHRSMagHeading > 360.0 )
+        g_situation.dAHRSMagHeading -= 360.0;
     m_bUpdated = true;
     update();
 }
@@ -436,8 +449,6 @@ void AHRSCanvas::situation( StratuxSituation s )
 // Traffic update
 void AHRSCanvas::traffic( int iICAO, StratuxTraffic t )
 {
-    cullTrafficMap();
-
     g_trafficMap.insert( iICAO, t );
     m_bUpdated = true;
     update();
@@ -446,6 +457,11 @@ void AHRSCanvas::traffic( int iICAO, StratuxTraffic t )
 
 void AHRSCanvas::cullTrafficMap()
 {
+    if( g_trafficMap.count() == 0 )
+        return;
+
+    g_trafficMap.clear();
+/*
     QMapIterator<int, StratuxTraffic> it( g_trafficMap );
     bool                              bTrafficRemoved = true;
     QDateTime                         now = QDateTime::currentDateTime();
@@ -458,7 +474,7 @@ void AHRSCanvas::cullTrafficMap()
         {
             it.next();
             // Anything older than 15 seconds discard
-            if( abs( it.value().lastActualReport.secsTo( now ) ) > 15.0 )
+            if( abs( it.value().lastActualReport.secsTo( now ) ) > 30.0 )
             {
                 g_trafficMap.remove( it.key() );
                 bTrafficRemoved = true;
@@ -466,6 +482,7 @@ void AHRSCanvas::cullTrafficMap()
             }
         }
     }
+*/
 }
 
 
@@ -610,6 +627,9 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         // Airport details requested
         else if( iButton == static_cast<int>( BugSelector::Airports ) )
         {
+            g_bNoAirportsUpdate = true;
+            g_apt.waitForFinished();
+
             AirportDialog airportDlg( this, &c, "SELECT AIRPORT" );
 
             airportDlg.setGeometry( 0, 0, c.dW, c.dH );
@@ -635,9 +655,11 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
                     detailsDlg.setGeometry( 0, 0, c.dW, c.dH );
 
                     detailsDlg.exec();
+                    g_bNoAirportsUpdate = false;
                     return;
                 }
             }
+            g_bNoAirportsUpdate = false;
         }
         // Bugs cleared - reset both to invalid and get out
         else if( iButton == static_cast<int>( BugSelector::ClearBugs ) )
@@ -715,6 +737,9 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
     }
     else if( directRect.contains( pressPt ) )
     {
+        g_bNoAirportsUpdate = true;
+        g_apt.waitForFinished();
+
         AirportDialog dlg( this, &c, "DIRECT TO AIRPORT" );
 
         // This geometry works for both orientations
@@ -744,9 +769,14 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             m_directAP.qsID = "NULL";
             m_directAP.qsName = "NULL";
         }
+
+        g_bNoAirportsUpdate = false;
     }
     else if( fromtoRect.contains( pressPt ) )
     {
+        g_bNoAirportsUpdate = true;
+        g_apt.waitForFinished();
+
         AirportDialog dlgFrom( this, &c, "FROM AIRPORT" );
 
         // This geometry works for both orientations
@@ -804,6 +834,8 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             m_toAP.qsID = "NULL";
             m_toAP.qsName = "NULL";
         }
+
+        g_bNoAirportsUpdate = false;
     }
 }
 
@@ -912,7 +944,7 @@ void AHRSCanvas::paintPortrait()
     QPolygon        shape;
     QPen            linePen( Qt::black );
     double          dPitchH = c.dH4 + (g_situation.dAHRSpitch / 22.5 * c.dH4);     // The visible portion is only 1/4 of the 90 deg range
-    double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 100.0) * c.dW2);
+    double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 4.0) * c.dW2);
     double          dPxPerVSpeed = c.dH2 / 40.0;
     double          dPxPerFt = static_cast<double>( m_AltTape.height() ) / 20000.0 * 0.99;
     double          dPxPerKnot = static_cast<double>( m_SpeedTape.height() ) / 300.0 * 0.99;
@@ -1300,11 +1332,6 @@ void AHRSCanvas::paintPortrait()
     // Update the traffic positions
     updateTraffic( &ahrs, &c );
 
-    if( m_bShowGPSDetails )
-        paintInfo( &ahrs, &c );
-    else if( m_bDisplayTanksSwitchNotice )
-        paintSwitchNotice( &ahrs, &c );
-
     ahrs.drawPixmap( c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
     ahrs.drawPixmap( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
@@ -1404,15 +1431,24 @@ void AHRSCanvas::paintPortrait()
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
 
+    paintTemp( &ahrs, &c );
+
+    if( m_bShowGPSDetails )
+        paintInfo( &ahrs, &c );
+    else if( m_bDisplayTanksSwitchNotice )
+        paintSwitchNotice( &ahrs, &c );
+}
+
+
+void AHRSCanvas::paintTemp( QPainter *pAhrs, CanvasConstants *c )
+{
     // Draw the outside temp if we have it
     if( g_situation.bHaveWTData )
     {
-        ahrs.setPen( Qt::yellow );
-        ahrs.setFont( small );
-        ahrs.drawText( c.dW10, c.dH2 - c.dH10, QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
+        pAhrs->setPen( Qt::yellow );
+        pAhrs->setFont( small );
+        pAhrs->drawText( c->dW - c->dW5 - c->dW5, c->dH20 + c->dH80, QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
     }
-
-    drawDayMode( &ahrs, &c );
 }
 
 
@@ -1922,11 +1958,6 @@ void AHRSCanvas::paintLandscape()
     // Update the traffic positions
     updateTraffic( &ahrs, &c );
 
-    if( m_bShowGPSDetails )
-        paintInfo( &ahrs, &c );
-    else if( m_bDisplayTanksSwitchNotice )
-        paintSwitchNotice( &ahrs, &c );
-
     ahrs.drawPixmap( c.dW + c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
     ahrs.drawPixmap( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
@@ -1943,15 +1974,12 @@ void AHRSCanvas::paintLandscape()
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
 
-    // Draw the outside temp if we have it
-    if( g_situation.bHaveWTData )
-    {
-        ahrs.setPen( Qt::yellow );
-        ahrs.setFont( small );
-        ahrs.drawText( c.dW10, c.dH2 - c.dH20 - c.dH40, QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
-    }
+    paintTemp( &ahrs, &c );
 
-    drawDayMode( &ahrs, &c );
+    if( m_bShowGPSDetails )
+        paintInfo( &ahrs, &c );
+    else if( m_bDisplayTanksSwitchNotice )
+        paintSwitchNotice( &ahrs, &c );
 }
 
 
@@ -1995,7 +2023,7 @@ void AHRSCanvas::drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *p
     {
         pAhrs->setPen( QPen( Qt::white, pC->iThinPen ) );
         pAhrs->setBrush( QColor( 0, 0, 0, 175 ) );
-        pAhrs->drawRect( 0, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + pC->dW40, pC->dHNum + (pC->dH * 0.015) );
+        pAhrs->drawRect( 0, pC->dH2 - (pC->dHNum / 2.0) - (pC->dH * 0.0075), pC->dW5 + pC->dW80, pC->dHNum + (pC->dH * 0.015) );
         pAhrs->drawPixmap( pC->dW * 0.0125, pC->dH2 - (pC->dHNum / 2.0), *pNum );
     }
     else
@@ -2230,7 +2258,6 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
 }
 
 
-#if defined( Q_OS_ANDROID )
 void AHRSCanvas::orient( bool bPortrait )
 {
     m_bPortrait = bPortrait;
@@ -2274,14 +2301,6 @@ void AHRSCanvas::orient2()
 
     m_bInitialized = true;
 }
-#endif
-
-
-void AHRSCanvas::drawDayMode( QPainter *pAhrs, CanvasConstants *c )
-{
-    if( !g_bDayMode )
-        pAhrs->fillRect( 0.0, 0.0, c->dWa, c->dH, QColor( 0, 0, 0, 128 ) );
-}
 
 
 void AHRSCanvas::swipeLeft()
@@ -2315,16 +2334,21 @@ void AHRSCanvas::swipeDown()
 
 void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
 {
-    if( (m_directAP.qsID == "NULL") && (m_fromAP.qsID == "NULL") )
+    if( ((m_directAP.qsID == "NULL") && (m_fromAP.qsID == "NULL")) || (m_airports.count() == 0) )
         return;
 
-    QPen coursePen( Qt::yellow, 12, Qt::SolidLine, Qt::RoundCap );
+    QPen coursePen( Qt::yellow, 8, Qt::SolidLine, Qt::RoundCap );
 
     if( m_directAP.qsID != "NULL" )
     {
         double  dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
         QLineF  ball;
-        Airport ap = m_airports.at( TrafficMath::findAirport( &m_directAP, &m_airports ) );
+        int     iAP = TrafficMath::findAirport( &m_directAP, &m_airports );
+
+        if( iAP >= m_airports.count() )
+            return;
+
+        Airport ap = m_airports.at( iAP );
 
         if( m_bPortrait )
         {
@@ -2343,85 +2367,86 @@ void AHRSCanvas::drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC )
         if( g_situation.bHaveWTData )
             ball.setAngle( g_situation.dAHRSMagHeading - ap.bd.dBearing + 90.0 );
         else
-            ball.setAngle( g_situation.dAHRSGyroHeading - ap.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
+            ball.setAngle( g_situation.dAHRSGyroHeading - ap.bd.dBearing + 90.0 ); // - static_cast<double>( m_iMagDev ) );
 
         pAhrs->setPen( coursePen );
         pAhrs->drawLine( ball );
 
-        double  dDispBearing = m_directAP.bd.dBearing;
+        double  dDispBearing = ap.bd.dBearing;
         QPixmap num( 320, 84 );
 
         if( dDispBearing < 0.0 )
             dDispBearing += 360.0;
 
-        Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
+        Builder::buildNumber( &num, pC, dDispBearing, 0 );
         pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + (m_bPortrait ? 0.0 : pC->dH40), num );
-        Builder::buildNumber( &num, pC, m_directAP.bd.dDistance, 1 );
+        Builder::buildNumber( &num, pC, ap.bd.dDistance, 1 );
         pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20 + (m_bPortrait ? 0.0 : pC->dH40), num );
     }
     else if( m_fromAP.qsID != "NULL" )
     {
         double  dPxPerNM = static_cast<double>( pC->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile
-        QLineF  ball;
-        QPointF fromPt, toPt;
-        Airport apFrom = m_airports.at( TrafficMath::findAirport( &m_fromAP, &m_airports ) );
-        Airport apTo = m_airports.at( TrafficMath::findAirport( &m_toAP, &m_airports ) );
+        QLineF  toLine, fromLine;
+        int     iFromAP = TrafficMath::findAirport( &m_fromAP, &m_airports );
+        int     iToAP = TrafficMath::findAirport( &m_toAP, &m_airports );
+
+        if( (iFromAP >= m_airports.count()) || (iToAP >= m_airports.count() ) )
+            return;
+
+        Airport apFrom = m_airports.at( iFromAP );
+        Airport apTo = m_airports.at( iToAP );
 
         if( m_bPortrait )
         {
-            ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_fromAP.bd.dDistance * dPxPerNM) ) );
+            fromLine.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            fromLine.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (apFrom.bd.dDistance * dPxPerNM) ) );
         }
         else
         {
-            ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_fromAP.bd.dDistance * dPxPerNM) ) );
+            fromLine.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            fromLine.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (apFrom.bd.dDistance * dPxPerNM) ) );
         }
         // Airport angle in reference to you
         if( g_situation.bHaveWTData )
-            ball.setAngle( g_situation.dAHRSMagHeading - apFrom.bd.dBearing + 90.0 );
+            fromLine.setAngle( g_situation.dAHRSMagHeading - apFrom.bd.dBearing + 90.0 );
         else
-            ball.setAngle( g_situation.dAHRSGyroHeading - apFrom.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
+            fromLine.setAngle( g_situation.dAHRSGyroHeading - apFrom.bd.dBearing + 90.0 ); // - static_cast<double>( m_iMagDev ) );
 
-        fromPt = ball.p2();
         if( m_bPortrait )
         {
-            ball.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_toAP.bd.dDistance * dPxPerNM) ) );
+            toLine.setP1( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            toLine.setP2( QPointF( pC->dW2, pC->dH - pC->dW2 - 30.0 - (apTo.bd.dDistance * dPxPerNM) ) );
         }
         else
         {
-            ball.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
-            ball.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (m_toAP.bd.dDistance * dPxPerNM) ) );
+            toLine.setP1( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 ) );
+            toLine.setP2( QPointF( pC->dW + pC->dW2, pC->dH - pC->dW2 - 30.0 - (apTo.bd.dDistance * dPxPerNM) ) );
         }
+
         // Airport angle in reference to you
         if( g_situation.bHaveWTData )
-            ball.setAngle( g_situation.dAHRSMagHeading - apTo.bd.dBearing + 90.0 );
+            toLine.setAngle( g_situation.dAHRSMagHeading - apTo.bd.dBearing + 90.0 );
         else
-            ball.setAngle( g_situation.dAHRSGyroHeading - apTo.bd.dBearing + 90.0 - static_cast<double>( m_iMagDev ) );
+            toLine.setAngle( g_situation.dAHRSGyroHeading - apTo.bd.dBearing + 90.0 ); // - static_cast<double>( m_iMagDev ) );
 
-        toPt = ball.p2();
-        ball.setP1( fromPt );
-        ball.setP2( toPt );
-
-        pAhrs->setPen( coursePen );
         QPainterPath maskPath;
         maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : pC->dW),
                              pC->dH - pC->dW,
                              pC->dW - 40.0, pC->dW - 40.0 );
         pAhrs->setClipPath( maskPath );
-        pAhrs->drawLine( ball );
+        pAhrs->setPen( coursePen );
+        pAhrs->drawLine( fromLine.p2(), toLine.p2() );
         pAhrs->setClipping( false );
 
-        double dDispBearing = m_toAP.bd.dBearing; // - 360.0;
+        double dDispBearing = apTo.bd.dBearing;
         QPixmap num( 320, 84 );
 
         if( dDispBearing < 0.0 )
             dDispBearing += 360.0;
 
-        Builder::buildNumber( &num, pC, dDispBearing + static_cast<double>( m_iMagDev ), 0 );
+        Builder::buildNumber( &num, pC, dDispBearing, 0 );
         pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + (m_bPortrait ? 0.0 : pC->dH40), num );
-        Builder::buildNumber( &num, pC, m_toAP.bd.dDistance, 1 );
+        Builder::buildNumber( &num, pC, apTo.bd.dDistance, 1 );
         pAhrs->drawPixmap( pC->dW10 + pC->dW80, pC->dH80 + pC->dH20 + (m_bPortrait ? 0.0 : pC->dH40), num );
     }
 }

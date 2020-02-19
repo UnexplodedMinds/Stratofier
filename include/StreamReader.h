@@ -35,12 +35,14 @@ public:
 
     void setUnits( Canvas::Units eUnits ) { m_eUnits = eUnits; }
     void setBaroPress( double dBaro );
+    void snapshotOrientation();
 
 protected:
     void timerEvent( QTimerEvent* ) override;
 
 private:
     double unitsMult();
+    void   calcHeading( double dX, double dY, double dZ );
 
     bool          m_bHaveMyPos;
     bool          m_bAHRSStatus;
@@ -61,9 +63,16 @@ private:
     bool               m_bHaveWTtelem;
     double             m_dBaroPress;
     bool               m_bWTConnected;
-    WingThingTelemetry m_wtTelem;
+    WingThingTelemetry m_wtTelem, m_wtLast;
     QHostAddress       m_wtHost;
     QDateTime          m_lastPacketDateTime;
+    int                m_iMagCalIndex;
+    QList<double>      m_headSamples;
+/*
+    double             m_dBiasX, m_dBiasY, m_dBiasZ;
+    double             m_dScaleX, m_dScaleY, m_dScaleZ;
+*/
+    double             m_dRollRef, m_dPitchRef, m_dRawRoll, m_dRawPitch;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -73,6 +82,7 @@ private slots:
     void stratuxDisconnected();
 
     void wtDataAvail();
+    void wtDisconnected();
 
 signals:
     void newSituation( StratuxSituation );

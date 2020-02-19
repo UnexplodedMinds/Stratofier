@@ -218,6 +218,7 @@ struct StratofierSettings
     QList<Canvas::CountryCodeAirspace> listAirspaces;
     QString                    qsOwnshipID;
     int                        iMagDev;
+    bool                       bWTScreenStayOn;
 };
 
 

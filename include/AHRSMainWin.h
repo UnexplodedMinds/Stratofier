@@ -61,7 +61,7 @@ private:
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
-    void WTUpdate( bool bWingThing );
+    void WTUpdate( bool bValid );
     void resetLevel();
     void resetGMeter();
     void upgradeStratofier();
@@ -72,7 +72,6 @@ private slots:
     void fuelTanks2();
     void stopFuelFlow();
     void unitsAirspeed();
-    void dayMode();
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
     void magDev( int iMagDev );

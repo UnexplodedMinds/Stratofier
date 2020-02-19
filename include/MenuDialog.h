@@ -39,7 +39,6 @@ signals:
     void fuelTanks( FuelTanks );
     void stopFuelFlow();
     void unitsAirspeed();
-    void dayMode();
     void setSwitchableTanks( bool );
     void settingsClosed();
     void magDev( int );

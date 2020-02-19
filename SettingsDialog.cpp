@@ -62,6 +62,7 @@ SettingsDialog::~SettingsDialog()
     g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
     g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
     g_pSet->setValue( "MagDev", m_settings.iMagDev );
+    g_pSet->setValue( "WTScreenStayOn", m_settings.bWTScreenStayOn );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
@@ -90,6 +91,7 @@ void SettingsDialog::loadSettings()
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
     m_settings.iMagDev = g_pSet->value( "MagDev", 0 ).toInt();
+    m_settings.bWTScreenStayOn = g_pSet->value( "WTScreenStayOn", false ).toBool();
     countries = g_pSet->value( "CountryAirports", countries ).toList();
     m_settings.listAirports.clear();
     foreach( country, countries )

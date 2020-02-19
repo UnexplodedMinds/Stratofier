@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>126</width>
-    <height>800</height>
+    <width>335</width>
+    <height>619</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -124,271 +124,7 @@ QPushButton::pressed
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="1" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pDayModeButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>DAY MODE</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QPushButton" name="m_pResetGMeterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: DarkGoldenrod;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: LightGray;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>RESET G</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QPushButton" name="m_pTimerButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: Aquamarine;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: LightGray;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>TIMER</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QPushButton" name="m_pResetLevelButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: DarkGoldenrod;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: LightGray;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>RESET LVL</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pSettingsButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: lightGray;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: dimGray;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>SETTINGS</string>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QPushButton" name="m_pFuelButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: CornflowerBlue;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: LightGray;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>FUEL</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pUnitsAirspeedButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: greenYellow;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: forestGreen;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>MPH</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
+   <item row="15" column="1">
     <widget class="QPushButton" name="m_pExitStratofierButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -430,8 +166,8 @@ QPushButton::pressed
      </property>
     </widget>
    </item>
-   <item row="12" column="1" colspan="2">
-    <widget class="QPushButton" name="m_pUpgradeButton">
+   <item row="2" column="1">
+    <widget class="QPushButton" name="m_pFuelButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -449,15 +185,147 @@ QPushButton::pressed
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: CornflowerBlue;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: LightGray;
+}
+</string>
+     </property>
      <property name="text">
-      <string>UPGRADE</string>
+      <string>FUEL</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="13" column="1" colspan="2">
+   <item row="2" column="2">
+    <widget class="QPushButton" name="m_pTimerButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: Aquamarine;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: LightGray;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>TIMER</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QPushButton" name="m_pUnitsAirspeedButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: greenYellow;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: forestGreen;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>MPH</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="m_pResetLevelButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: DarkGoldenrod;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: LightGray;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>RESET L</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="2">
     <widget class="QPushButton" name="m_pExitButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -477,14 +345,53 @@ QPushButton::pressed
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>SHUTDOWN</string>
+      <string>STX OFF</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="3" column="2">
+    <widget class="QPushButton" name="m_pResetGMeterButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: Gold;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: Yellow;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>RESET G</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
     <widget class="QPushButton" name="m_pHelpButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -507,7 +414,7 @@ QPushButton::pressed
       <string notr="true">QPushButton
 {
 	border: none;
-	background-color: RoyalBlue;
+	background-color: Blue;
 	color: white;
 }
 QPushButton::pressed
@@ -520,6 +427,51 @@ QPushButton::pressed
      </property>
      <property name="text">
       <string>HELP</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QPushButton" name="m_pSettingsButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	color: black;
+	background-color: lightGray;
+}
+QPushButton::pressed
+{
+	border: none;
+	color: black;
+	background-color: dimGray;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>SETTINGS</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
      <property name="autoDefault">
       <bool>false</bool>

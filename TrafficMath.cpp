@@ -20,6 +20,7 @@ Stratofier Stratux AHRS Display
 
 extern StratuxSituation g_situation;
 extern QSettings       *g_pSet;
+extern bool             g_bNoAirportsUpdate;
 
 
 // This was implemented to cut down on the airport lookup by lat/long that takes long enough to be noticeable on the display (it's threaded but you can see it filling back in)

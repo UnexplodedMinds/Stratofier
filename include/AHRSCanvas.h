@@ -32,9 +32,7 @@ public:
     void    setFuelTanks( FuelTanks tanks ) { m_tanks = tanks; }
     void    timerReminder( int iMinutes, int iSeconds );
     Canvas *canvas() { return m_pCanvas; }
-#if defined( Q_OS_ANDROID )
     void    orient( bool bPortrait );
-#endif
     int     magDev() { return m_iMagDev; }
     void    setMagDev( int iMagDev );
     void    setSwitchableTanks( bool bSwitchable );
@@ -72,8 +70,8 @@ private:
     void paintInfo( QPainter *pAhrs, CanvasConstants *c );
     void paintTimer( QPainter *pAhrs, CanvasConstants *c );
     void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
+    void paintTemp( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
-    void drawDayMode( QPainter *pArs, CanvasConstants *c );
     void drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC );
     void drawSlipSkid( QPainter *pAhrs, CanvasConstants *pC, double dSlipSkid );
     void drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
@@ -132,10 +130,8 @@ private:
 
     double m_dBaroPress;
 
-#if defined( Q_OS_ANDROID )
 private slots:
     void orient2();
-#endif
 };
 
 #endif // __AHRSCANVAS_H__

@@ -48,19 +48,10 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pExitStratofierButton, SIGNAL( clicked() ), this, SIGNAL( shutdownStratofier() ) );
     connect( m_pResetLevelButton, SIGNAL( clicked() ), this, SIGNAL( resetLevel() ) );
     connect( m_pResetGMeterButton, SIGNAL( clicked() ), this, SIGNAL( resetGMeter() ) );
-#if defined( Q_OS_ANDROID )
-    m_pUpgradeButton->hide();
-    m_pDayModeButton->hide();
-#else
-    connect( m_pUpgradeButton, SIGNAL( clicked() ), this, SIGNAL( upgradeStratofier() ) );
-    connect( m_pDayModeButton, SIGNAL( clicked() ), this, SIGNAL( dayMode() ) );
-#endif
     connect( m_pTimerButton, SIGNAL( clicked() ), this, SIGNAL( timer() ) );
     connect( m_pFuelButton, SIGNAL( clicked() ), this, SLOT( fuel() ) );
     connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
-
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
-
     connect( m_pHelpButton, SIGNAL( clicked() ), this, SLOT( help() ) );
 }
 
