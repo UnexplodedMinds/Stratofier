@@ -5,6 +5,7 @@ Stratofier Stratux AHRS Display
 
 #include <QKeyEvent>
 #include <QObjectList>
+#include <QtDebug>
 
 #include "Keypad.h"
 

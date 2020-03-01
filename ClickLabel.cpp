@@ -16,10 +16,11 @@ Stratofier Stratux AHRS Display
 extern Keyboard *g_pKeyboard;
 
 
-ClickLabel::ClickLabel( QWidget *pParent )
+ClickLabel::ClickLabel( QWidget *pParent, bool bTop )
     : QLabel( pParent ),
       m_iDecimals( 2 ),
-      m_bFullKeyboard( false )
+      m_bFullKeyboard( false ),
+      m_bTop( bTop )
 {
 }
 
@@ -37,6 +38,7 @@ void ClickLabel::mousePressEvent( QMouseEvent *pEvent )
 {
     if( g_pKeyboard != nullptr )
         keyboardComplete2();
+
     if( m_bFullKeyboard )
     {
         QWindow *pWindow = QGuiApplication::topLevelAt( QPoint( 0, parentWidget()->height() + 2 ) );
@@ -48,7 +50,12 @@ void ClickLabel::mousePressEvent( QMouseEvent *pEvent )
             g_pKeyboard->setGeometry( 0, 0, screenSize.width(), screenSize.height() / 2 );
         // Portrait
         else
-            g_pKeyboard->setGeometry( 0, screenSize.height() * 2 / 3, screenSize.width(), screenSize.height() / 3 );
+        {
+            if( m_bTop )
+                g_pKeyboard->setGeometry( 0, 0, screenSize.width(), screenSize.height() / 3 );
+            else
+                g_pKeyboard->setGeometry( 0, screenSize.height() * 2 / 3, screenSize.width(), screenSize.height() / 3 );
+        }
         connect( g_pKeyboard, SIGNAL( key( const QString& ) ), this, SLOT( key( const QString& ) ) );
         connect( g_pKeyboard, SIGNAL( accepted() ), this, SLOT( keyboardComplete() ) );
         g_pKeyboard->show();

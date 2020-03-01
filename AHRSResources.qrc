@@ -13,6 +13,10 @@
     <file>resources/Stratofier.png</file>
   </qresource>
   <qresource prefix="/graphics">
+    <file>resources/TrafficCyan.png</file>
+    <file>resources/TrafficGreen.png</file>
+    <file>resources/TrafficRed.png</file>
+    <file>resources/TrafficYellow.png</file>
     <file>resources/FromTo.png</file>
     <file>resources/StratofierSplash.png</file>
     <file>resources/DirectTo.png</file>

@@ -42,10 +42,11 @@ public:
 public slots:
     void init();
     void situation( StratuxSituation s );
-    void traffic( int iICAO, StratuxTraffic t );
+    void traffic( StratuxTraffic t );
 
     void showAllTraffic( bool bAll );
     void showAirports( Canvas::ShowAirports eShow );
+    void showPrivate( bool bShow );
     void showRunways( bool bShow );
     void showAirspaces( bool bShow );
     void showAltitudes( bool bShow );
@@ -89,6 +90,7 @@ private:
     QPixmap   m_headIcon;
     QPixmap   m_windIcon;
     QPixmap   m_directIcon;
+    QPixmap   m_trafficRed, m_trafficYellow, m_trafficGreen, m_trafficCyan, m_trafficOrange;
     int       m_iHeadBugAngle;
     int       m_iWindBugAngle;
     int       m_iWindBugSpeed;

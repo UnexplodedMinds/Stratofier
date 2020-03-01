@@ -15,6 +15,7 @@ Stratofier Stratux AHRS Display
 class QNetworkAccessManager;
 class QNetworkReply;
 class QFile;
+class Canvas;
 
 
 // NOTE: The reason this is called settings instead of Fuel or something similar is that the expectation that other non-fuel related settings
@@ -24,13 +25,14 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog
     Q_OBJECT
 
 public:
-    explicit SettingsDialog( QWidget *pParent, CanvasConstants *pC );
+    explicit SettingsDialog( QWidget *pParent, Canvas *pCanvas, CanvasConstants *pC );
     ~SettingsDialog();
 
     StratofierSettings settings() { return m_settings; }
 
 private:
     void          loadSettings();
+    void          saveSettings();
     void          startRequestAirports( QUrl url );
     void          startRequestAirspace( QUrl url );
     const QString settingsRoot();

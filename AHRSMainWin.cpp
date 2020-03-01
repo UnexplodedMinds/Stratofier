@@ -77,7 +77,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
     m_lastStatusUpdate = QDateTime::currentDateTime();
 
     connect( m_pStratuxStream, SIGNAL( newSituation( StratuxSituation ) ), m_pAHRSDisp, SLOT( situation( StratuxSituation ) ) );
-    connect( m_pStratuxStream, SIGNAL( newTraffic( int, StratuxTraffic ) ), m_pAHRSDisp, SLOT( traffic( int, StratuxTraffic ) ) );
+    connect( m_pStratuxStream, SIGNAL( newTraffic( StratuxTraffic ) ), m_pAHRSDisp, SLOT( traffic( StratuxTraffic ) ) );
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
     connect( m_pStratuxStream, SIGNAL( newWTStatus( bool ) ), this, SLOT( WTUpdate( bool ) ) );
 
@@ -172,7 +172,6 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
         connect( m_pMenuDialog, SIGNAL( magDev( int ) ), this, SLOT( magDev( int ) ) );
-        connect( m_pMenuDialog, SIGNAL( calibrateMag() ), this, SLOT( calibrateMag() ) );
     }
     else
     {

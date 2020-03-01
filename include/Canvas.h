@@ -62,6 +62,9 @@ struct CanvasConstants
     int iThickPen;
     int iFatPen;
 
+    double dHeadDiam;
+    double dHeadDiam2;
+
     bool bPortrait;
 };
 
@@ -206,6 +209,7 @@ private:
 struct StratofierSettings
 {
     Canvas::ShowAirports       eShowAirports;
+    bool                       bShowPrivate;
     bool                       bShowAllTraffic;
     int                        iCurrDataSet;
     bool                       bSwitchableTanks;
@@ -219,6 +223,7 @@ struct StratofierSettings
     QString                    qsOwnshipID;
     int                        iMagDev;
     bool                       bWTScreenStayOn;
+    double                     dAirspeedCal;
 };
 
 

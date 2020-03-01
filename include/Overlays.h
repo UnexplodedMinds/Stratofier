@@ -33,10 +33,12 @@ private slots:
     void runways();
     void airspaces();
     void altitudes();
+    void privateAirports();
 
 signals:
     void trafficToggled( bool );
     void showAirports( Canvas::ShowAirports );
+    void showPrivate( bool );
     void showRunways( bool );
     void showAirspaces( bool );
     void showAltitudes( bool );

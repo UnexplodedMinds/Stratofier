@@ -18,13 +18,14 @@ class ClickLabel : public QLabel
     Q_OBJECT
 
 public:
-    ClickLabel( QWidget *pParent = nullptr );
+    ClickLabel( QWidget *pParent = nullptr, bool bTop = false );
     ~ClickLabel();
 
     void setTitle( const QString &qsTitle ) { m_qsTitle = qsTitle; }
     void setCanvas( Canvas *pCanvas ) { m_pCanvas = pCanvas; }
     void setDecimals( int iDec ) { m_iDecimals = iDec; }
     void setFullKeyboard( bool bFullKeyboard ) { m_bFullKeyboard = bFullKeyboard; }
+    void setTop( bool bTop ) { m_bTop = bTop; }
 
 protected:
     void mousePressEvent( QMouseEvent *pEvent );
@@ -34,6 +35,7 @@ private:
     Canvas   *m_pCanvas;
     int       m_iDecimals;
     bool      m_bFullKeyboard;
+    bool      m_bTop;
 
 private slots:
     void key( const QString &qsKey );

@@ -17,12 +17,13 @@ Stratofier Stratux AHRS Display
 #include "TrafficMath.h"
 #include "CountryDialog.h"
 #include "ClickLabel.h"
+#include "Canvas.h"
 
 
 extern QSettings *g_pSet;
 
 
-SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
+SettingsDialog::SettingsDialog( QWidget *pParent, Canvas *pCanvas, CanvasConstants *pC )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_iTally( 0 ),
       m_pC( pC ),
@@ -31,16 +32,26 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
 {
     setupUi( this );
 
+    ClickLabel         *pCL;
+    QList<ClickLabel *> kids = findChildren<ClickLabel *>();
+
+    foreach( pCL, kids )
+        pCL->setCanvas( pCanvas );
+
     m_pDataProgress->hide();
+    m_pAirspeedCalLabel->setDecimals( 4 );
 
     m_pIPClickLabel->setFullKeyboard( true );
     m_pOwnshipClickLabel->setFullKeyboard( true );
+    m_pIPClickLabel->setTop( true );
+    m_pOwnshipClickLabel->setTop( true );
 
     Builder::populateUrlMapAirports( &m_mapUrlsAirports );
     Builder::populateUrlMapAirspaces( &m_mapUrlsAirspaces );
 
     loadSettings();
     m_pMagDevLabel->setText( QString::number( m_settings.iMagDev ) );
+    m_pAirspeedCalLabel->setText( QString::number( m_settings.dAirspeedCal, 'f', 4 ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
 
@@ -51,24 +62,15 @@ SettingsDialog::SettingsDialog( QWidget *pParent, CanvasConstants *pC )
 
     connect( m_pSelCountriesButton, SIGNAL( clicked() ), this, SLOT( selCountries() ) );
 
+    connect( this, SIGNAL( accepted() ), this, SLOT( saveSettings() ) );
+
     QTimer::singleShot( 100, this, SLOT( init() ) );
 }
 
 
 SettingsDialog::~SettingsDialog()
 {
-    g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
-
-    g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
-    g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
-    g_pSet->setValue( "MagDev", m_settings.iMagDev );
-    g_pSet->setValue( "WTScreenStayOn", m_settings.bWTScreenStayOn );
-
-    g_pSet->beginGroup( "FuelTanks" );
-    g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
-    g_pSet->endGroup();
-
-    g_pSet->sync();
+    saveSettings();
 }
 
 
@@ -91,7 +93,7 @@ void SettingsDialog::loadSettings()
     m_settings.qsStratuxIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
     m_settings.qsOwnshipID = g_pSet->value( "OwnshipID", QString() ).toString();
     m_settings.iMagDev = g_pSet->value( "MagDev", 0 ).toInt();
-    m_settings.bWTScreenStayOn = g_pSet->value( "WTScreenStayOn", false ).toBool();
+    m_settings.dAirspeedCal = g_pSet->value( "AirspeedCal", 1.0 ).toDouble();
     countries = g_pSet->value( "CountryAirports", countries ).toList();
     m_settings.listAirports.clear();
     foreach( country, countries )
@@ -551,4 +553,21 @@ bool SettingsDialog::nextCountryAirspace()
     }
 
     return bFound;
+}
+
+
+void SettingsDialog::saveSettings()
+{
+    g_pSet->setValue( "CurrDataSet", m_settings.iCurrDataSet );
+
+    g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
+    g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
+    g_pSet->setValue( "MagDev", m_settings.iMagDev );
+    g_pSet->setValue( "AirspeedCal", m_pAirspeedCalLabel->text().toDouble() );
+
+    g_pSet->beginGroup( "FuelTanks" );
+    g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );
+    g_pSet->endGroup();
+
+    g_pSet->sync();
 }

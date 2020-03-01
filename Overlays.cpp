@@ -6,6 +6,7 @@ Stratofier Stratux AHRS Display
 #include <QKeyEvent>
 #include <QTimer>
 #include <QSettings>
+#include <QDebug>
 
 #include "Overlays.h"
 
@@ -44,6 +45,7 @@ Overlays::Overlays( QWidget *pParent )
     connect( m_pShowRunwaysButton, SIGNAL( clicked() ), this, SLOT( runways() ) );
     connect( m_pShowAirspacesButton, SIGNAL( clicked() ), this, SLOT( airspaces() ) );
     connect( m_pShowAltButton, SIGNAL( clicked() ), this, SLOT( altitudes() ) );
+    connect( m_pShowPrivateButton, SIGNAL( clicked() ), this, SLOT( privateAirports() ) );
 
     QTimer::singleShot( 100, this, SLOT( init() ) );
 }
@@ -56,6 +58,7 @@ Overlays::~Overlays()
     g_pSet->setValue( "ShowRunways", m_settings.bShowRunways );
     g_pSet->setValue( "ShowAirspaces", m_settings.bShowAirspaces );
     g_pSet->setValue( "ShowAltitudes", m_settings.bShowAltitudes );
+    g_pSet->setValue( "ShowPrivate", m_settings.bShowPrivate );
     g_pSet->sync();
 }
 
@@ -68,6 +71,7 @@ void Overlays::init()
     m_pShowRunwaysButton->setIconSize( iconSize );
     m_pShowAirspacesButton->setIconSize( iconSize );
     m_pShowAltButton->setIconSize( iconSize );
+    m_pShowPrivateButton->setIconSize( iconSize );
 }
 
 
@@ -112,6 +116,20 @@ void Overlays::airports()
     }
 
     emit showAirports( m_settings.eShowAirports );
+}
+
+
+void Overlays::privateAirports()
+{
+    m_settings.bShowPrivate = (!m_settings.bShowPrivate);
+
+    g_pSet->setValue( "ShowPrivate", m_settings.bShowPrivate );
+    g_pSet->sync();
+
+    m_pShowPrivateButton->setIcon( m_settings.bShowPrivate ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
+
+    emit showPrivate( m_settings.bShowPrivate );
+
 }
 
 
@@ -162,6 +180,7 @@ void Overlays::loadSettings()
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.bShowAirspaces = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.bShowAltitudes = g_pSet->value( "ShowAltitudes" ).toBool();
+    m_settings.bShowPrivate = g_pSet->value( "ShowPrivate", false ).toBool();
 }
 
 

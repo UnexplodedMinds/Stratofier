@@ -87,6 +87,17 @@ void Canvas::init( double dWidth, double dHeight, bool bPortrait )
 
     m_preCalc.dAspectL = m_preCalc.dW / m_preCalc.dH;
     m_preCalc.dAspectP = m_preCalc.dH / m_preCalc.dW;
+
+    m_preCalc.dHeadDiam = m_preCalc.dW - 20;
+
+    // Tablets with a 4:3 aspect ratio result in the heading indicator being so large it takes over more than half of the screen
+    // We want to allow a slightly larger than half height diameter before shrinking down so it looks good with devices between 4:3 and 16:9
+    if( (m_preCalc.dHeadDiam > (m_preCalc.dH2 + m_preCalc.dH5)) && m_preCalc.bPortrait )
+        m_preCalc.dHeadDiam = m_preCalc.dW - m_preCalc.dW5;
+    else if( ((m_preCalc.dHeadDiam > (m_preCalc.dH - m_preCalc.dH10)) && (!m_preCalc.bPortrait)) )
+        m_preCalc.dHeadDiam = m_preCalc.dH - m_preCalc.dH5;
+
+    m_preCalc.dHeadDiam2 = m_preCalc.dHeadDiam / 2.0;
 }
 
 

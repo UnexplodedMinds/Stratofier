@@ -53,6 +53,7 @@ struct StratuxSituation
     int       iAHRSStatus;
     bool      bHaveWTData;
     double    dTAS;
+    QString   qsBADASPversion;
 };
 
 

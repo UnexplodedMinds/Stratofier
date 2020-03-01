@@ -41,19 +41,13 @@ StreamReader::StreamReader( const QString &qsIP )
       m_dRollRef( 0.0 ),
       m_dPitchRef( 0.0 ),
       m_dRawRoll( 0.0 ),
-      m_dRawPitch( 0.0 )
+      m_dRawPitch( 0.0 ),
+      m_bReported( false ),
+      m_dAirspeedCal( 1.0 )
 {
-/*
-    m_dBiasX = g_pSet->value( "MagBiasX", 0.0 ).toDouble();
-    m_dBiasY = g_pSet->value( "MagBiasY", 0.0 ).toDouble();
-    m_dBiasZ = g_pSet->value( "MagBiasZ", 0.0 ).toDouble();
-
-    m_dScaleX = g_pSet->value( "MagScaleX", 1.0 ).toDouble();
-    m_dScaleY = g_pSet->value( "MagScaleY", 1.0 ).toDouble();
-    m_dScaleZ = g_pSet->value( "MagScaleZ", 1.0 ).toDouble();
-*/
     m_dPitchRef = g_pSet->value( "PitchRef", 0.0 ).toDouble();
-    m_dRawRoll = g_pSet->value( "RollRef", 0.0 ).toDouble();
+    m_dRollRef = g_pSet->value( "RollRef", 0.0 ).toDouble();
+    m_dAirspeedCal = g_pSet->value( "AirspeedCal", 1.0 ).toDouble();
 
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
@@ -84,12 +78,21 @@ void StreamReader::wtDataAvail()
     // <Firmware Version>,<Airspeed>,<Altitude>,<Temp>,<Mag X>,<Mag Y>,<Mag Z>,<Orient X>,<Orient Y>,<Orient Z>,<Accel X>,<Accel Y>,<Accel Z>
     QString     qsBuffer( sensorData.data() );
     QStringList qslFields = qsBuffer.split( ',' );
+    double      dAS;
 
     // Firmware Version (e.g. 213), Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Mag X, Mag Y, Mag Z
     if( qslFields.count() == 13 )
     {
         m_wtTelem.qsFWversion = qslFields.first();
-        m_wtTelem.dAirspeed = qslFields.at( 1 ).toDouble();
+        dAS = qslFields.at( 1 ).toDouble() / 8192.0 * 173.7952 * m_dAirspeedCal;    // Ratio of sensor value over sensor maximum times the rated maximum speed times a calibration factor
+        m_airspeedSamples.append( dAS );
+        if( m_airspeedSamples.count() == 4 )
+        {
+            dAS = (m_airspeedSamples.first() + m_airspeedSamples.at( 1 ) + m_airspeedSamples.at( 2 ) + m_airspeedSamples.last()) / 4.0;
+            m_airspeedSamples.removeFirst();
+        }
+        m_wtTelem.dAirspeed = dAS;
+
         m_wtTelem.dAltitude = qslFields.at( 2 ).toDouble();
         m_wtTelem.dTemp = qslFields.at( 3 ).toDouble();
         m_wtTelem.dMagX = qslFields.at( 4 ).toDouble();
@@ -99,8 +102,8 @@ void StreamReader::wtDataAvail()
         m_wtTelem.dOrientX = qslFields.at( 7 ).toDouble();                  // Yaw  0 to 360 (not currently used)
         m_dRawPitch = qslFields.at( 8 ).toDouble();
         m_dRawRoll = qslFields.at( 9 ).toDouble();
-        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;    // Pitch -90 to 90, negative is down
-        m_wtTelem.dOrientZ = -(m_dRawRoll) + m_dRollRef;  // Roll -90 to 90, negative is right
+        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;     // Pitch -90 to 90, negative is down
+        m_wtTelem.dOrientZ = m_dRawRoll - m_dRollRef;       // Roll -90 to 90, negative is left
         m_wtTelem.dAccelX = qslFields.at( 10 ).toDouble();
         m_wtTelem.dAccelY = qslFields.at( 11 ).toDouble();
         m_wtTelem.dAccelZ = qslFields.last().toDouble();
@@ -110,7 +113,12 @@ void StreamReader::wtDataAvail()
 
         m_wtLast = m_wtTelem;
 
-        emit newWTStatus( true );
+        // Don't rapid fire this signal
+        if( !m_bReported )
+        {
+            m_bReported = true;
+            emit newWTStatus( true );
+        }
     }
 }
 
@@ -125,35 +133,21 @@ void StreamReader::calcHeading( double dX, double dY, double dZ )
     Q_UNUSED( dZ )
 
     double dHead = 360.0 - (atan2( dY, dX ) * 57.29578);
-//  double dAvg = 0.0;
 
-    dHead -= 90.0;
+    dHead += 90.0;
     if( dHead < 0 )
         dHead += 360.0;
     else if( dHead > 360.0 )
         dHead -= 360.0;
 
-    m_wtTelem.dHeading = dHead;
-/*
     m_headSamples.append( dHead );
-    // Keep a circular buffer of the last three headings and average them
-    if( m_headSamples.count() > 2 )
+    if( m_headSamples.count() == 4 )
     {
-        // If we crossed the 0/360 line we'll get an absurd difference that will throw off the average
-        if( fabs( dHead - m_headSamples.last() ) > 90.0 )
-            m_wtTelem.dHeading = dHead;
-        // Otherwise business as usual
-        else
-        {
-            foreach( dHead, m_headSamples )
-                dAvg += dHead;
-            m_wtTelem.dHeading = dAvg / 3.0;
-        }
+        dHead = (m_headSamples.first() + m_headSamples.at( 1 ) + m_headSamples.at( 2 ) + m_headSamples.last()) / 4.0;
         m_headSamples.removeFirst();
     }
-    else
-        m_wtTelem.dHeading = dHead;
-*/
+
+    m_wtTelem.dHeading = dHead;
 }
 
 
@@ -162,6 +156,7 @@ void StreamReader::timerEvent( QTimerEvent* )
     if( m_bHaveWTtelem && (m_lastPacketDateTime.secsTo( QDateTime::currentDateTime() ) > 10) )
     {
         m_bHaveWTtelem = false;
+        m_bReported = false;
         emit newWTStatus( false );
     }
 
@@ -326,6 +321,7 @@ void StreamReader::situationUpdate( const QString &qsMessage )
         situation.dAHRSSlipSkid = m_wtTelem.dAccelY;
         situation.dAHRSroll = m_wtTelem.dOrientZ;
         situation.dAHRSpitch = m_wtTelem.dOrientY;
+        situation.qsBADASPversion = m_wtTelem.qsFWversion;
     }
 
     while( situation.dAHRSGyroHeading > 360 )
@@ -441,7 +437,7 @@ void StreamReader::trafficUpdate( const QString &qsMessage )
         traffic.bHasADSB = false;
 
     if( iICAO > 0 )
-        emit newTraffic( iICAO, traffic );
+        emit newTraffic( traffic );
 }
 
 

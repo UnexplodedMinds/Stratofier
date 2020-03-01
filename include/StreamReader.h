@@ -37,6 +37,8 @@ public:
     void setBaroPress( double dBaro );
     void snapshotOrientation();
 
+    void setAirspeedCal( double dCal ) { m_dAirspeedCal = dCal; }
+
 protected:
     void timerEvent( QTimerEvent* ) override;
 
@@ -61,6 +63,7 @@ private:
     QUdpSocket    m_wtSocket;
 
     bool               m_bHaveWTtelem;
+    bool               m_bReported;
     double             m_dBaroPress;
     bool               m_bWTConnected;
     WingThingTelemetry m_wtTelem, m_wtLast;
@@ -68,11 +71,13 @@ private:
     QDateTime          m_lastPacketDateTime;
     int                m_iMagCalIndex;
     QList<double>      m_headSamples;
+    QList<double>      m_airspeedSamples;
 /*
     double             m_dBiasX, m_dBiasY, m_dBiasZ;
     double             m_dScaleX, m_dScaleY, m_dScaleZ;
 */
     double             m_dRollRef, m_dPitchRef, m_dRawRoll, m_dRawPitch;
+    double             m_dAirspeedCal;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -86,7 +91,7 @@ private slots:
 
 signals:
     void newSituation( StratuxSituation );
-    void newTraffic( int, StratuxTraffic );     // ICAO, Rest of traffic struct
+    void newTraffic( StratuxTraffic );          // ICAO, Rest of traffic struct
     void newStatus( bool, bool, bool, bool );   // Stratux available, AHRS available, GPS available, Traffic available
     void newWTStatus( bool );                   // Valid WingThing sensor data has been received
 };

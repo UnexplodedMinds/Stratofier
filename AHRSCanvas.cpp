@@ -50,14 +50,14 @@ extern QList<Airspace> g_airspaceCache;
 
 extern QSettings *g_pSet;
 
-StratuxSituation          g_situation;
-QMap<int, StratuxTraffic> g_trafficMap;
+StratuxSituation      g_situation;
+QList<StratuxTraffic> g_trafficList;
 
 extern Canvas::Units g_eUnitsAirspeed;
 
 bool g_bNoAirportsUpdate = false;
 
-QString g_qsStratofierVersion( "1.8.2.0" );
+QString g_qsStratofierVersion( "1.8.5.0" );
 
 QFuture<void> g_apt;
 
@@ -114,6 +114,12 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
     m_AltBug.load( ":/icons/resources/AltBug.png" );
     m_directIcon.load( ":/icons/resources/DirectIcon.png" );
 
+    m_trafficRed.load( ":/graphics/resources/TrafficRed.png" );
+    m_trafficYellow.load( ":/graphics/resources/TrafficYellow.png" );
+    m_trafficOrange.load( ":/graphics/resources/TrafficOrange.png" );
+    m_trafficGreen.load( ":/graphics/resources/TrafficGreen.png" );
+    m_trafficCyan.load( ":/graphics/resources/TrafficCyan.png" );
+
     loadSettings();
 
     // Quick and dirty way to ensure we're shown full screen before any calculations happen
@@ -148,7 +154,7 @@ void AHRSCanvas::init()
     m_pCanvas = new Canvas( width(), height(), m_bPortrait );
 
     CanvasConstants c = m_pCanvas->constants();
-    int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) );
+    int             iBugSize = static_cast<int>( c.dWa * (m_bPortrait ? 0.1333 : 0.08) ) / 2.0;
 
     m_headIcon = m_headIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
     m_windIcon = m_windIcon.scaled( iBugSize, iBugSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
@@ -184,6 +190,7 @@ void AHRSCanvas::loadSettings()
     m_dZoomNM = g_pSet->value( "ZoomNM", 10.0 ).toDouble();
     m_settings.bShowAllTraffic = g_pSet->value( "ShowAllTraffic", true ).toBool();
     m_settings.eShowAirports = static_cast<Canvas::ShowAirports>( g_pSet->value( "ShowAirports", 2 ).toInt() );
+    m_settings.bShowPrivate = g_pSet->value( "ShowPrivate", false ).toBool();
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.bShowAirspaces = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.bShowAltitudes = g_pSet->value( "ShowAltitudes", true ).toBool();
@@ -288,28 +295,25 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
 // Draw the traffic onto the heading indicator and the tail numbers on the side
 void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 {
-    QList<StratuxTraffic> trafficList = g_trafficMap.values();
-    StratuxTraffic        traffic;
-    QPen                  planePen( Qt::black, 15, Qt::SolidLine, Qt::RoundCap, Qt::BevelJoin );
-    double				  dPxPerNM = static_cast<double>( c->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
-    QLineF				  track, ball, info;
-	double                dAlt;
-	QString               qsSign;
-    QFontMetrics          smallMetrics( small );
-    int                   iBallPenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.01875 : 0.03125) );
-    int                   iCourseLinePenWidth = static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) );
-    int                   iCourseLineLength = static_cast<int>( c->dH * (m_bPortrait ? 0.0375 : 0.0625) );
-    QPainterPath          maskPath;
-    QColor                closenessColor( Qt::green );
-    double                deltaY;
+    StratuxTraffic traffic;
+    QPen           planePen( Qt::black, 15, Qt::SolidLine, Qt::RoundCap, Qt::BevelJoin );
+    double		   dPxPerNM = c->dHeadDiam / (m_dZoomNM * 2.0);     // Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    QLineF		   ball, info;
+    double         dAlt;
+    QString        qsSign;
+    QFontMetrics   smallMetrics( small );
+    QPainterPath   maskPath;
+    QColor         closenessColor( Qt::green );
+    QRectF         trafficRect( 0.0, 0.0, c->dW20, c->dW20 );
+    QPointF        unBall;
 
-    maskPath.addEllipse( 10.0 + (m_bPortrait ? 0 : c->dW),
-                         c->dH - c->dW,
-                         c->dW - c->dW20, c->dW - c->dW20 );
+    // Mask out everything except the heading indicator (use a 10px margin for the outer line and ticks)
+    maskPath.addEllipse( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 ),
+                         c->dHeadDiam2 - 10.0, c->dHeadDiam2 - 10.0 );
     pAhrs->setClipPath( maskPath );
 
     // Draw a large dot for each aircraft; the outer edge of the heading indicator is calibrated to be 20 NM out from your position
-	foreach( traffic, trafficList )
+    foreach( traffic, g_trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
         if( traffic.bHasADSB && (traffic.qsTail != m_settings.qsOwnshipID) )
@@ -324,51 +328,45 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
                 if( traffic.bOnGround )
                     closenessColor = Qt::cyan;
+                else if( dAltDistAbs > 2000 )
+                    closenessColor = Qt::green;
                 else if( (dAltDistAbs <= 2000) && (dAltDistAbs > 1000) )
                     closenessColor = Qt::yellow;
                 else if( (dAltDistAbs <= 1000) && (dAltDistAbs > 500) )
-                    closenessColor = QColor( 0xFF, 0xA5, 0x00 );
+                    closenessColor = QColor( 0xFF, 0xA5, 0x00 );    // Orange
                 else if( dAltDistAbs <= 500 )
                     closenessColor = Qt::red;
 
-                ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 ) );
-                ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dTrafficDist ) );
+                ball.setP1( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 ) );
+                ball.setP2( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 - dTrafficDist ) );
 
-			    // Traffic angle in reference to you (which clock position they're at)
+                // Traffic angle in reference to you (which clock position they're at regardless of their own course)
                 if( g_situation.bHaveWTData )
                     ball.setAngle( g_situation.dAHRSMagHeading - traffic.dBearing + 90.0 );
                 else
                     ball.setAngle( g_situation.dAHRSGyroHeading - traffic.dBearing + 90.0 );
-                // Qt Y coords are backward
-                deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
-                ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 + deltaY ) );
 
-			    // Draw the black part of the track line
-                planePen.setWidth( static_cast<int>( c->dH * (m_bPortrait ? 0.00625 : 0.010417) ) );
-                planePen.setColor( Qt::black );
-			    track.setP1( ball.p2() );
-                track.setP2( QPointF( ball.p2().x(), ball.p2().y() + iCourseLineLength ) );
-                track.setAngle( g_situation.dAHRSGyroHeading - traffic.dTrack  + 90.0 );
-                pAhrs->setPen( planePen );
-			    pAhrs->drawLine( track );
-
-                // Draw the dot
-                planePen.setWidth( iBallPenWidth );
-                planePen.setColor( Qt::black );
-                pAhrs->setPen( planePen );
-                pAhrs->drawPoint( ball.p2() );
-                planePen.setColor( closenessColor );
-                pAhrs->setPen( planePen );
-                pAhrs->drawPoint( ball.p2().x() - 2, ball.p2().y() - 2 );
-
-                // Draw the green part of the track line
-                planePen.setWidth( iCourseLinePenWidth );
-                planePen.setColor( closenessColor );
-                track.setP1( QPointF( ball.p2().x() - 2, ball.p2().y() - 2 ) );
-                track.setP2( QPointF( ball.p2().x() - 2, ball.p2().y() + iCourseLineLength - 2 ) );
-                track.setAngle( g_situation.dAHRSGyroHeading - traffic.dTrack + 90.0 );
-                pAhrs->setPen( planePen );
-                pAhrs->drawLine( track );
+                // Draw the arrow
+                trafficRect.moveCenter( ball.p2() );
+                pAhrs->translate( ball.p2() );
+                if( g_situation.bHaveWTData )
+                    pAhrs->rotate( g_situation.dAHRSMagHeading + traffic.dTrack - 90.0 );
+                else
+                    pAhrs->rotate( g_situation.dAHRSGyroHeading + traffic.dTrack - 90.0 );
+                unBall.setX( -ball.p2().x() );
+                unBall.setY( -ball.p2().y() );
+                pAhrs->translate( unBall );
+                if( traffic.bOnGround )
+                    pAhrs->drawPixmap( trafficRect.toRect(), m_trafficCyan );
+                else if( dAltDistAbs > 2000 )
+                    pAhrs->drawPixmap( trafficRect.toRect(), m_trafficGreen );
+                else if( (dAltDistAbs <= 2000) && (dAltDistAbs > 1000) )
+                    pAhrs->drawPixmap( trafficRect.toRect(), m_trafficYellow );
+                else if( (dAltDistAbs <= 1000) && (dAltDistAbs > 500) )
+                    pAhrs->drawPixmap( trafficRect.toRect(), m_trafficOrange );
+                else
+                    pAhrs->drawPixmap( trafficRect.toRect(), m_trafficRed );
+                pAhrs->resetTransform();
 
 			    // Draw the ID, numerical track heading and altitude delta
 			    dAlt = (traffic.dAlt - g_situation.dBaroPressAlt) / 100.0;
@@ -396,34 +394,40 @@ void AHRSCanvas::updateTraffic( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setClipping( false );
 
-    // TODO: Move these out to their own painters
-
     QString qsZoom = QString( "%1nm" ).arg( static_cast<int>( m_dZoomNM ) );
     QString qsMagDev = QString( "%1%2" ).arg( m_iMagDev ).arg( QChar( 0xB0 ) );
 
-    if( m_iMagDev < 0 )
-        qsMagDev.prepend( "   " );  // There will already be a negative symbol
-    else if( m_iMagDev > 0 )
-        qsMagDev.prepend( "   +" );
-    else
-        qsMagDev.prepend( "   " );
+    if( m_iMagDev > 0 )
+        qsMagDev.prepend( "+" );
 
     // Draw the zoom level
     pAhrs->setFont( tiny );
-    pAhrs->setPen( Qt::black );
-    QLineF zoomLine = (m_bPortrait ? QLineF( c->dW2, c->dH - c->dW2 - 20.0, c->dW, c->dH - c->dW2 - 20.0 )
-                                   : QLineF( c->dW + c->dW2, c->dH - c->dW2 - 10.0, c->dWa, c->dH - c->dW2 - 10.0 ));
-    zoomLine.setAngle( -40.0 );
-    pAhrs->drawText( zoomLine.p2().x() + 2.0, zoomLine.p2().y() + 2.0, qsZoom );
-    pAhrs->setPen( QColor( 80, 255, 80 ) );
-    pAhrs->drawText( zoomLine.p2(), qsZoom );
+    if( m_bPortrait )
+    {
+        pAhrs->setPen( Qt::black );
+        pAhrs->drawText( c->dW - c->dW10, c->dH - c->dH20 - (c->iTinyFontHeight * 2), qsZoom );
+        pAhrs->setPen( QColor( 80, 255, 80 ) );
+        pAhrs->drawText( c->dWa - c->dW10 + 2.0, c->dH - c->dH20 - (c->iTinyFontHeight * 2) + 2.0, qsZoom );
 
-    // Draw the magnetic deviation
-    zoomLine.setAngle( -50.0 );
-    pAhrs->setPen( Qt::black );
-    pAhrs->drawText( zoomLine.p2().x() + 2.0, zoomLine.p2().y() + 2.0, qsMagDev );
-    pAhrs->setPen( Qt::yellow );
-    pAhrs->drawText( zoomLine.p2(), qsMagDev );
+        // Draw the magnetic deviation
+        pAhrs->setPen( Qt::black );
+        pAhrs->drawText( c->dWa - c->dW10 - c->dW40 - c->dW80, c->dH - c->dH20 - c->iTinyFontHeight, qsMagDev );
+        pAhrs->setPen( Qt::yellow );
+        pAhrs->drawText( c->dWa - c->dW10 - c->dW40 - c->dW80 + 2.0, c->dH - c->dH20 - c->iTinyFontHeight + 2.0, qsMagDev );
+    }
+    else
+    {
+        pAhrs->setPen( Qt::black );
+        pAhrs->drawText( c->dWa - c->dW5, c->iTinyFontHeight, qsZoom );
+        pAhrs->setPen( QColor( 80, 255, 80 ) );
+        pAhrs->drawText( c->dWa - c->dW5 + 2.0, c->iTinyFontHeight + 2.0, qsZoom );
+
+        // Draw the magnetic deviation
+        pAhrs->setPen( Qt::black );
+        pAhrs->drawText( c->dWa - c->dW5, (c->iTinyFontHeight * 2.0), qsMagDev );
+        pAhrs->setPen( Qt::yellow );
+        pAhrs->drawText( c->dWa - c->dW5 + 2.0, (c->iTinyFontHeight * 2.0) + 2.0, qsMagDev );
+    }
 }
 
 
@@ -447,9 +451,21 @@ void AHRSCanvas::situation( StratuxSituation s )
 
 
 // Traffic update
-void AHRSCanvas::traffic( int iICAO, StratuxTraffic t )
+void AHRSCanvas::traffic( StratuxTraffic t )
 {
-    g_trafficMap.insert( iICAO, t );
+    int i;
+
+    // Remove the old aircraft entry
+    for( i = 0; i < g_trafficList.count(); i++ )
+    {
+        if( g_trafficList.at( i ).qsTail == t.qsTail )
+        {
+            g_trafficList.removeAt( i );
+            break;
+        }
+    }
+
+    g_trafficList.append( t );
     m_bUpdated = true;
     update();
 }
@@ -457,32 +473,28 @@ void AHRSCanvas::traffic( int iICAO, StratuxTraffic t )
 
 void AHRSCanvas::cullTrafficMap()
 {
-    if( g_trafficMap.count() == 0 )
+    if( g_trafficList.count() == 0 )
         return;
 
-    g_trafficMap.clear();
-/*
-    QMapIterator<int, StratuxTraffic> it( g_trafficMap );
-    bool                              bTrafficRemoved = true;
-    QDateTime                         now = QDateTime::currentDateTime();
+    bool           bTrafficRemoved = true;
+    QDateTime      now = QDateTime::currentDateTime();
+    StratuxTraffic thisTraffic;
+    int            i;
 
     // Each time this is updated, remove an old entry
     while( bTrafficRemoved )
     {
         bTrafficRemoved = false;
-        while( it.hasNext() )
+        for( i = 0; i < g_trafficList.count(); i++ )
         {
-            it.next();
-            // Anything older than 15 seconds discard
-            if( abs( it.value().lastActualReport.secsTo( now ) ) > 30.0 )
+            if( abs( g_trafficList.at( i ).lastActualReport.secsTo( now ) ) > 10.0 )
             {
-                g_trafficMap.remove( it.key() );
+                g_trafficList.removeAt( i );
                 bTrafficRemoved = true;
                 break;
             }
         }
     }
-*/
 }
 
 
@@ -673,12 +685,13 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             Overlays overlaysDlg( this );
 
             if( m_bPortrait )
-                overlaysDlg.setGeometry( c.dW2 - c.dW4, c.dH2 - c.dH8, c.dW2, c.dH2 + c.dH8 - c.dH20 );
+                overlaysDlg.setGeometry( c.dW2 - c.dW4, c.dH2 - c.dH8 - c.dH20, c.dW2, c.dH2 + c.dH8 );
             else
                 overlaysDlg.setGeometry( c.dW + c.dW2 - c.dW4, c.dH2 - c.dH4 - c.dH20, c.dW2, c.dH2 + c.dH4 );
 
             connect( &overlaysDlg, SIGNAL( trafficToggled( bool ) ), this, SLOT( showAllTraffic( bool ) ) );
             connect( &overlaysDlg, SIGNAL( showAirports( Canvas::ShowAirports ) ), this, SLOT( showAirports( Canvas::ShowAirports ) ) );
+            connect( &overlaysDlg, SIGNAL( showPrivate( bool ) ), this, SLOT( showPrivate( bool ) ) );
             connect( &overlaysDlg, SIGNAL( showRunways( bool ) ), this, SLOT( showRunways( bool ) ) );
             connect( &overlaysDlg, SIGNAL( showAirspaces( bool ) ), this, SLOT( showAirspaces( bool ) ) );
             connect( &overlaysDlg, SIGNAL( showAltitudes( bool ) ), this, SLOT( showAltitudes( bool ) ) );
@@ -909,6 +922,15 @@ void AHRSCanvas::showAirports( Canvas::ShowAirports eShow )
 }
 
 
+void AHRSCanvas::showPrivate( bool bShow )
+{
+    m_settings.bShowPrivate = bShow;
+    g_pSet->setValue( "ShowPrivate", bShow );
+    g_pSet->sync();
+    update();
+}
+
+
 void AHRSCanvas::showRunways( bool bShow )
 {
     m_settings.bShowRunways = bShow;
@@ -944,7 +966,7 @@ void AHRSCanvas::paintPortrait()
     QPolygon        shape;
     QPen            linePen( Qt::black );
     double          dPitchH = c.dH4 + (g_situation.dAHRSpitch / 22.5 * c.dH4);     // The visible portion is only 1/4 of the 90 deg range
-    double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 4.0) * c.dW2);
+    double          dSlipSkid = c.dW2 - ((g_situation.dAHRSSlipSkid / 8.0) * c.dW2);
     double          dPxPerVSpeed = c.dH2 / 40.0;
     double          dPxPerFt = static_cast<double>( m_AltTape.height() ) / 20000.0 * 0.99;
     double          dPxPerKnot = static_cast<double>( m_SpeedTape.height() ) / 300.0 * 0.99;
@@ -1046,9 +1068,8 @@ void AHRSCanvas::paintPortrait()
     QPainterPath maskPath, elipsePath;
 
     maskPath.addRect( 0.0, 0.0, c.dW, c.dH );
-    elipsePath.addEllipse( m_bPortrait ? 0.0 : c.dW,
-                           c.dH - c.dW,
-                           c.dW, c.dW );
+    elipsePath.addEllipse( QPointF( (m_bPortrait ? 0.0 : c.dW) + c.dW2, c.dH - 10.0 - c.dHeadDiam2 ),
+                           c.dHeadDiam2, c.dHeadDiam2 );
     maskPath = maskPath.subtracted( elipsePath );
     ahrs.setClipPath( maskPath );
 
@@ -1144,9 +1165,9 @@ void AHRSCanvas::paintPortrait()
 
     // Arrow for heading position above heading dial
     arrow.clear();
-    arrow.append( QPointF( c.dW2, c.dH - c.dW - 10.0 - c.dH80 ) );
-    arrow.append( QPointF( c.dW2 + c.dW40, c.dH - c.dW - 10.0 - c.dH40 ) );
-    arrow.append( QPointF( c.dW2 - c.dW40, c.dH - c.dW - 10.0 - c.dH40 ) );
+    arrow.append( QPointF( c.dW2, c.dH - c.dHeadDiam - 10.0 - c.dH80 ) );
+    arrow.append( QPointF( c.dW2 + c.dW40, c.dH - c.dHeadDiam - 10.0 - c.dH40 ) );
+    arrow.append( QPointF( c.dW2 - c.dW40, c.dH - c.dHeadDiam - 10.0 - c.dH40 ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
@@ -1162,102 +1183,19 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPixmap( c.dW2 - (c.dWNum * 3.0 / 2.0), arrow.boundingRect().y() - c.dHNum - c.dH40, num );
 
     // Draw the heading pixmap and rotate it to the current heading
-    ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
+    ahrs.translate( c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
     if( g_situation.bHaveWTData )
         ahrs.rotate( -g_situation.dAHRSMagHeading );
     else
         ahrs.rotate( -g_situation.dAHRSGyroHeading );
-    ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
-    ahrs.drawPixmap( 10, c.dH - c.dW - 10.0, c.dW - 20, c.dW - 20,  m_HeadIndicator );
+    ahrs.translate( -c.dW2, -(c.dH - 10.0 - c.dHeadDiam2) );
+    ahrs.drawPixmap( c.dW2 - c.dHeadDiam2, c.dH - 10.0 - c.dHeadDiam, c.dHeadDiam, c.dHeadDiam,  m_HeadIndicator );
     ahrs.resetTransform();
 
     drawDirectOrFromTo( &ahrs, &c );
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 20.0 - c.dW2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
-
-    // Draw the heading bug
-    if( m_iHeadBugAngle >= 0 )
-    {
-        ahrs.translate( c.dW2, c.dH - 20.0 - c.dW2 );
-        if( g_situation.bHaveWTData )
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
-        else
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - 20.0 - c.dW2) );
-        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_headIcon );
-
-        // If long press triggered crosswind component display and the wind bug is set
-        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
-        {
-            linePen.setWidth( c.iThinPen );
-            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
-            ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW2, c.dH - c.dW - 10.0, c.dW2, c.dH - 10.0 - c.dW2 );
-        }
-
-        ahrs.resetTransform();
-    }
-
-    // Draw the wind bug
-    if( m_iWindBugAngle >= 0 )
-    {
-        ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
-        if( g_situation.bHaveWTData )
-            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
-        else
-            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
-        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_windIcon );
-
-        QString      qsWind = QString::number( m_iWindBugSpeed );
-        QFontMetrics windMetrics( med );
-        QRect        windRect = windMetrics.boundingRect( qsWind );
-
-        ahrs.setFont( med );
-        ahrs.setPen( Qt::black );
-        ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - c.dW - c.dH160, qsWind );
-        ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - c.dW - c.dH160 - 1, qsWind );
-
-        // If long press triggered crosswind component display and the heading bug is set
-        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
-        {
-            linePen.setWidth( c.iThinPen );
-            linePen.setColor( Qt::cyan );
-            ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW2, c.dH - c.dW - 10, c.dW2, c.dH - 10.0 - c.dW2 );
-
-            // Draw the crosswind component calculated from heading vs wind
-            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
-            while( dAng > 180.0 )
-                dAng -= 360.0;
-            dAng = fabs( dAng );
-            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
-            double dCrossPos = c.dH - (c.dW / 1.3) - 10.0;
-            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
-
-            ahrs.resetTransform();
-            ahrs.translate( c.dW2, c.dH - c.dW2 - 10.0 );
-            if( g_situation.bHaveWTData )
-                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
-            else
-                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-            ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 10.0) );
-            ahrs.setFont( large );
-            ahrs.setPen( Qt::black );
-            ahrs.drawText( c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
-            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
-            ahrs.drawText( c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
-            ahrs.setFont( med );
-            ahrs.setPen( Qt::black );
-            ahrs.drawText( c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
-            ahrs.setPen( Qt::cyan );
-            ahrs.drawText( c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
-        }
-
-        ahrs.resetTransform();
-    }
+    ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 10.0 - c.dHeadDiam2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the altitude bug
     if( m_iAltBug >= 0 )
@@ -1336,25 +1274,25 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPixmap( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     // Draw the transparent overlay over the existing heading so the ticks and heading numbers are always visible
-    ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
+    ahrs.translate( c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
     if( g_situation.bHaveWTData )
         ahrs.rotate( -g_situation.dAHRSMagHeading );
     else
         ahrs.rotate( -g_situation.dAHRSGyroHeading );
-    ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
-    ahrs.drawPixmap( 10, c.dH - c.dW - 10.0, c.dW - 20, c.dW - 20,  m_HeadIndicatorOverlay );
+    ahrs.translate( -c.dW2, -(c.dH - 10.0 - c.dHeadDiam2) );
+    ahrs.drawPixmap( c.dW2 - c.dHeadDiam2, c.dH - 10.0 - c.dHeadDiam, c.dHeadDiam, c.dHeadDiam,  m_HeadIndicatorOverlay );
     ahrs.resetTransform();
 
     // Draw the heading bug
     if( m_iHeadBugAngle >= 0 )
     {
-        ahrs.translate( c.dW2, c.dH - 20.0 - c.dW2 );
+        ahrs.translate( c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
         if( g_situation.bHaveWTData )
             ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
         else
             ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - 20.0 - c.dW2) );
-        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_headIcon );
+        ahrs.translate( -c.dW2, -(c.dH - 10.0 - c.dHeadDiam2) );
+        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - 10.0 - c.dHeadDiam - (m_headIcon.height() / 2), m_headIcon );
 
         // If long press triggered crosswind component display and the wind bug is set
         if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
@@ -1362,7 +1300,7 @@ void AHRSCanvas::paintPortrait()
             linePen.setWidth( c.iThinPen );
             linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
             ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW2, c.dH - c.dW - 10.0, c.dW2, c.dH - 10.0 - c.dW2 );
+            ahrs.drawLine( c.dW2, c.dH - 10.0 - c.dHeadDiam, c.dW2, c.dH - 10.0 - c.dHeadDiam );
         }
 
         ahrs.resetTransform();
@@ -1371,23 +1309,23 @@ void AHRSCanvas::paintPortrait()
     // Draw the wind bug
     if( m_iWindBugAngle >= 0 )
     {
-        ahrs.translate( c.dW2, c.dH - c.dW2 - 20.0 );
+        ahrs.translate( c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
         if( g_situation.bHaveWTData )
             ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
         else
             ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -c.dW2, -(c.dH - c.dW2 - 20.0) );
-        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW + (m_headIcon.height() / 2), m_windIcon );
+        ahrs.translate( -c.dW2, -(c.dH - 10.0 - c.dHeadDiam2) );
+        ahrs.drawPixmap( c.dW2 - (m_headIcon.width() / 2), c.dH - 10.0 - c.dHeadDiam - (m_headIcon.height() / 2), m_windIcon );
 
         QString      qsWind = QString::number( m_iWindBugSpeed );
-        QFontMetrics windMetrics( med );
+        QFontMetrics windMetrics( tiny );
         QRect        windRect = windMetrics.boundingRect( qsWind );
 
-        ahrs.setFont( med );
+        ahrs.setFont( tiny );
         ahrs.setPen( Qt::black );
-        ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - c.dW - c.dH160, qsWind );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2), c.dH - c.dHeadDiam - c.dH160, qsWind );
         ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - c.dW - c.dH160 - 1, qsWind );
+        ahrs.drawText( c.dW2 - (windRect.width() / 2) - 1, c.dH - c.dHeadDiam - c.dH160 - 1, qsWind );
 
         // If long press triggered crosswind component display and the heading bug is set
         if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
@@ -1395,7 +1333,7 @@ void AHRSCanvas::paintPortrait()
             linePen.setWidth( c.iThinPen );
             linePen.setColor( Qt::cyan );
             ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW2, c.dH - c.dW - 10, c.dW2, c.dH - 10.0 - c.dW2 );
+            ahrs.drawLine( c.dW2, c.dH - 10 - c.dHeadDiam, c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
 
             // Draw the crosswind component calculated from heading vs wind
             double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
@@ -1531,15 +1469,14 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     pAhrs->drawText( 75, 95 + (iMedFontHeight * 3),  QString( "GPS Satellites Locked: %1" ).arg( g_situation.iGPSSats ) );
     pAhrs->drawText( 75, 95 + (iMedFontHeight * 4),  QString( "GPS Fix Quality: %1" ).arg( g_situation.iGPSFixQuality ) );
 
-    QList<StratuxTraffic> trafficList = g_trafficMap.values();
-    StratuxTraffic        traffic;
-    int                   iY = 0;
-    int                   iLine;
+    StratuxTraffic traffic;
+    int            iY = 0;
+    int            iLine;
 
     pAhrs->setFont( med_bu );
     pAhrs->drawText( m_bPortrait ? 75 : c->dW, m_bPortrait ? c->dH2 : 95, "Non-ADS-B Traffic" );
     pAhrs->setFont( small );
-    foreach( traffic, trafficList )
+    foreach( traffic, g_trafficList )
     {
         // If bearing and distance were able to be calculated then show relative position
         if( !traffic.bHasADSB && (!traffic.qsTail.isEmpty()) )
@@ -1558,6 +1495,8 @@ void AHRSCanvas::paintInfo( QPainter *pAhrs, CanvasConstants *c )
     pAhrs->setFont( med );
     pAhrs->setPen( Qt::blue );
     pAhrs->drawText( 75, m_bPortrait ? m_pCanvas->scaledV( 700.0 ) : m_pCanvas->scaledV( 390.0 ), QString( "Version: %1" ).arg( g_qsStratofierVersion ) );
+    if( g_situation.bHaveWTData )
+        pAhrs->drawText( 75, m_bPortrait ? m_pCanvas->scaledV( 750.0 ) : m_pCanvas->scaledV( 440.0 ), QString( "BADASP: %1" ).arg( g_situation.qsBADASPversion ) );
 }
 
 void AHRSCanvas::paintLandscape()
@@ -1681,110 +1620,27 @@ void AHRSCanvas::paintLandscape()
 
     // Arrow for heading position above heading dial
     arrow.clear();
-    arrow.append( QPointF( c.dW + c.dW2, c.dH - c.dW - c.dH80 ) );
-    arrow.append( QPointF( c.dW + c.dW2 + c.dW40, c.dH - c.dW - c.dH40 ) );
-    arrow.append( QPointF( c.dW + c.dW2 - c.dW40, c.dH - c.dW - c.dH40 ) );
+    arrow.append( QPointF( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 - c.dH80 ) );
+    arrow.append( QPointF( c.dW + c.dW2 + c.dW40, c.dH - 10.0 - c.dHeadDiam2 - c.dH40 ) );
+    arrow.append( QPointF( c.dW + c.dW2 - c.dW40, c.dH - 10.0 - c.dHeadDiam2 - c.dH40 ) );
     ahrs.setBrush( Qt::white );
     ahrs.setPen( Qt::black );
     ahrs.drawPolygon( arrow );
 
     // Draw the heading pixmap and rotate it to the current heading
-    ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
+    ahrs.translate( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
     if( g_situation.bHaveWTData )
         ahrs.rotate( -g_situation.dAHRSMagHeading );
     else
         ahrs.rotate( -g_situation.dAHRSGyroHeading );
-    ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
-    ahrs.drawPixmap( c.dW + 10, c.dH - c.dW, c.dW - 20, c.dW - 20,  m_HeadIndicator );
+    ahrs.translate( -(c.dW + c.dW2), -(c.dH - 10.0 - c.dHeadDiam2) );
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dHeadDiam2, c.dH - 10.0 - c.dHeadDiam, c.dHeadDiam, c.dHeadDiam, m_HeadIndicator );
     ahrs.resetTransform();
 
     drawDirectOrFromTo( &ahrs, &c );
 
     // Draw the central airplane
-    ahrs.drawPixmap( c.dW + c.dW2 - c.dW20, c.dH - c.dW2 - c.dW20 - 20.0, c.dW10, c.dW10, m_planeIcon );
-
-    // Draw the heading bug
-    if( m_iHeadBugAngle >= 0 )
-    {
-        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
-        if( g_situation.bHaveWTData )
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
-        else
-            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
-        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_headIcon );
-
-        // If long press triggered crosswind component display and the wind bug is set
-        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
-        {
-            linePen.setWidth( c.iThinPen );
-            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
-            ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW + c.dW2, c.dH - c.dW - 10.0, c.dW + c.dW2, c.dH - 10.0 - c.dW2 );
-        }
-
-        ahrs.resetTransform();
-    }
-
-    // Draw the wind bug
-    if( m_iWindBugAngle >= 0 )
-    {
-        ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 20.0 );
-        if( g_situation.bHaveWTData )
-            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
-        else
-            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
-        ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 20.0) );
-        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - c.dH10 - c.dW, m_windIcon );
-
-        QString      qsWind = QString::number( m_iWindBugSpeed );
-        QFontMetrics windMetrics( med );
-        QRect        windRect = windMetrics.boundingRect( qsWind );
-
-        ahrs.setFont( med );
-        ahrs.setPen( Qt::black );
-        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2), c.dH - c.dW - 3, qsWind );
-        ahrs.setPen( Qt::white );
-        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2) - 1, c.dH - c.dW - 4, qsWind );
-
-        // If long press triggered crosswind component display and the heading bug is set
-        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
-        {
-            linePen.setWidth( c.iThinPen );
-            linePen.setColor( Qt::cyan );
-            ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW + c.dW2, c.dH - c.dW - 10, c.dW + c.dW2, c.dH - 10.0 - c.dW2 );
-
-            // Draw the crosswind component calculated from heading vs wind
-            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
-            while( dAng > 180.0 )
-                dAng -= 360.0;
-            dAng = fabs( dAng );
-            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
-            double dCrossPos = c.dH - (c.dW / 1.3) - 10.0;
-            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
-
-            ahrs.resetTransform();
-            ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
-            if( g_situation.bHaveWTData )
-                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
-            else
-                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
-            ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
-            ahrs.setFont( large );
-            ahrs.setPen( Qt::black );
-            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
-            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
-            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
-            ahrs.setFont( med );
-            ahrs.setPen( Qt::black );
-            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
-            ahrs.setPen( Qt::cyan );
-            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
-        }
-
-        ahrs.resetTransform();
-    }
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dW20, c.dH - 10.0 - c.dHeadDiam2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
     // Draw the Altitude tape
     ahrs.fillRect( c.dW - c.dW5 - c.dW40, 0, c.dW5 + c.dW40, c.dH, QColor( 0, 0, 0, 100 ) );
@@ -1858,6 +1714,15 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0) + 1, c.dH2 + c.dH80 + 1, qsUnits );
     ahrs.setPen( Qt::white );
     ahrs.drawText( c.dW10 + c.dW40 + (c.dW80 / 2.0), c.dH2 + c.dH80, qsUnits );
+
+    // Arrow for heading position above heading dial
+    arrow.clear();
+    arrow.append( QPointF( c.dW + c.dW2, c.dH - c.dHeadDiam - 10.0 - c.dH80 ) );
+    arrow.append( QPointF( c.dW + c.dW2 + c.dW40, c.dH - c.dHeadDiam - 10.0 - c.dH40 ) );
+    arrow.append( QPointF( c.dW + c.dW2 - c.dW40, c.dH - c.dHeadDiam - 10.0 - c.dH40 ) );
+    ahrs.setBrush( Qt::white );
+    ahrs.setPen( Qt::black );
+    ahrs.drawPolygon( arrow );
 
     // Draw the heading value over the indicator
     ahrs.setPen( QPen( Qt::white, c.iThinPen ) );
@@ -1962,14 +1827,97 @@ void AHRSCanvas::paintLandscape()
     ahrs.drawPixmap( c.dW + c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
     // Draw the heading overlay so the markers aren't covered by other elements
-    ahrs.translate( c.dW + c.dW2, c.dH - c.dW2 - 10.0 );
+    ahrs.translate( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
     if( g_situation.bHaveWTData )
         ahrs.rotate( -g_situation.dAHRSMagHeading );
     else
         ahrs.rotate( -g_situation.dAHRSGyroHeading );
-    ahrs.translate( -(c.dW + c.dW2), -(c.dH - c.dW2 - 10.0) );
-    ahrs.drawPixmap( c.dW + 10, c.dH - c.dW, c.dW - 20, c.dW - 20,  m_HeadIndicatorOverlay );
+    ahrs.translate( -(c.dW + c.dW2), -(c.dH - 10.0 - c.dHeadDiam2) );
+    ahrs.drawPixmap( c.dW + c.dW2 - c.dHeadDiam2, c.dH - 10.0 - c.dHeadDiam, c.dHeadDiam, c.dHeadDiam,  m_HeadIndicatorOverlay );
     ahrs.resetTransform();
+
+    // Draw the heading bug
+    if( m_iHeadBugAngle >= 0 )
+    {
+        ahrs.translate( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+        ahrs.translate( -(c.dW + c.dW2), -(c.dH - 10.0 - c.dHeadDiam2) );
+        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - 10.0 - c.dHeadDiam, m_headIcon );
+
+        // If long press triggered crosswind component display and the wind bug is set
+        if( m_bShowCrosswind && (m_iWindBugAngle >= 0) )
+        {
+            linePen.setWidth( c.iThinPen );
+            linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam, c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam );
+        }
+
+        ahrs.resetTransform();
+    }
+
+    // Draw the wind bug
+    if( m_iWindBugAngle >= 0 )
+    {
+        ahrs.translate( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
+        if( g_situation.bHaveWTData )
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSMagHeading );
+        else
+            ahrs.rotate( m_iWindBugAngle - g_situation.dAHRSGyroHeading );
+        ahrs.translate( -(c.dW + c.dW2), -(c.dH - 10.0 - c.dHeadDiam2) );
+        ahrs.drawPixmap( c.dW + c.dW2 - (m_headIcon.width() / 2), c.dH - 10.0 - c.dHeadDiam, m_windIcon );
+
+        QString      qsWind = QString::number( m_iWindBugSpeed );
+        QFontMetrics windMetrics( tiny );
+        QRect        windRect = windMetrics.boundingRect( qsWind );
+
+        ahrs.setFont( tiny );
+        ahrs.setPen( Qt::black );
+        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2), c.dH - 10.0 - c.dHeadDiam, qsWind );
+        ahrs.setPen( Qt::white );
+        ahrs.drawText( c.dW + c.dW2 - (windRect.width() / 2) - 1, c.dH - 10.0 - c.dHeadDiam, qsWind );
+
+        // If long press triggered crosswind component display and the heading bug is set
+        if( m_bShowCrosswind && (m_iHeadBugAngle >= 0) )
+        {
+            linePen.setWidth( c.iThinPen );
+            linePen.setColor( Qt::cyan );
+            ahrs.setPen( linePen );
+            ahrs.drawLine( c.dW + c.dW2, c.dH - 10 - c.dHeadDiam, c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam );
+
+            // Draw the crosswind component calculated from heading vs wind
+            double dAng = fabs( static_cast<double>( m_iWindBugAngle ) - static_cast<double>( m_iHeadBugAngle ) );
+            while( dAng > 180.0 )
+                dAng -= 360.0;
+            dAng = fabs( dAng );
+            double dCrossComp = fabs( static_cast<double>( m_iWindBugSpeed ) * sin( dAng * ToRad ) );
+            double dCrossPos = c.dH - (c.dW / 1.3) - 10.0;
+            QString qsCrossAng = QString( "%1%2" ).arg( static_cast<int>( dAng ) ).arg( QChar( 176 ) );
+
+            ahrs.resetTransform();
+            ahrs.translate( c.dW + c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
+            if( g_situation.bHaveWTData )
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSMagHeading );
+            else
+                ahrs.rotate( m_iHeadBugAngle - g_situation.dAHRSGyroHeading );
+            ahrs.translate( -(c.dW + c.dW2), -(c.dH - 10.0 - c.dHeadDiam2) );
+            ahrs.setFont( large );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setPen( QColor( 0xFF, 0x90, 0x01 ) );
+            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos - 2.0, QString::number( static_cast<int>( dCrossComp ) ) );
+            ahrs.setFont( med );
+            ahrs.setPen( Qt::black );
+            ahrs.drawText( c.dW + c.dW2 + 5.0, dCrossPos + c.iMedFontHeight - 5, qsCrossAng );
+            ahrs.setPen( Qt::cyan );
+            ahrs.drawText( c.dW + c.dW2 + 3.0, dCrossPos + c.iMedFontHeight - 7, qsCrossAng );
+        }
+
+        ahrs.resetTransform();
+    }
 
     if( (m_iTimerMin >= 0) && (m_iTimerSec >= 0) )
         paintTimer( &ahrs, &c );
@@ -2084,9 +2032,9 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
 
     pAhrs->setFont( tiny );
 
-    maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : c->dW),
-                         c->dH - c->dW,
-                         c->dW - 40.0, c->dW - 40.0 );
+    maskPath.addEllipse( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2,
+                                  c->dH - 10.0 - c->dHeadDiam2 ),
+                         c->dHeadDiam2, c->dHeadDiam2 );
     pAhrs->setClipPath( maskPath );
 
     apPen.setWidth( c->iThinPen );
@@ -2098,19 +2046,21 @@ void AHRSCanvas::updateAirports( QPainter *pAhrs, CanvasConstants *c )
             continue;
         else if( (!ap.bGrass) && (m_settings.eShowAirports == Canvas::ShowGrassAirports) )
             continue;
+        else if( (ap.qsID == "R") && (!m_settings.bShowPrivate) )
+            continue;
 
         apRect = apMetrics.boundingRect( ap.qsID );
 
         dAPDist = ap.bd.dDistance * dPxPerNM;
 
-        ball.setP1( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 ) );
-        ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 + dAPDist ) );
+        ball.setP1( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dHeadDiam2 - 10.0 ) );
+        ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dHeadDiam2 - 10.0 + dAPDist ) );
 
         // Airport angle in reference to you (which clock position it's at)
         ball.setAngle( ap.bd.dBearing - dHead - 90.0 );
         // Qt Y coords are backward
-        deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
-        ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 - deltaY ) );
+        deltaY = ball.p2().y() - (c->dH - (c->dHeadDiam / 10.0) - 10.0);
+        ball.setP2( QPointF( ball.p2().x(), c->dH - c->dHeadDiam2 - 10.0 - deltaY ) );
 
         apPen.setWidth( c->iThinPen );
         apPen.setColor( Qt::black );
@@ -2160,7 +2110,7 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
 
     Airspace     as;
     QLineF       ball;
-    double	     dPxPerNM = static_cast<double>( c->dW - 30.0 ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
+    double	     dPxPerNM = static_cast<double>( c->dHeadDiam ) / (m_dZoomNM * 2.0);	// Pixels per nautical mile; the outer limit of the heading indicator is calibrated to the zoom level in NM
     double       dASDist;
     QPen         asPen( Qt::yellow );
     QPainterPath maskPath;
@@ -2168,9 +2118,8 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
     QPolygonF    airspacePoly;
     double       deltaY;
 
-    maskPath.addEllipse( 20.0 + (m_bPortrait ? 0 : c->dW),
-                         c->dH - c->dW,
-                         c->dW - 40.0, c->dW - 40.0 );
+    maskPath.addEllipse( QPointF( (m_bPortrait ? 0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 ),
+                         c->dHeadDiam2, c->dHeadDiam2 );
     pAhrs->setClipPath( maskPath );
 
     asPen.setWidth( c->iThinPen );
@@ -2182,8 +2131,8 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
         {
             dASDist = bd.dDistance * dPxPerNM;
 
-            ball.setP1( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 ) );
-            ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - c->dW2 - 30.0 - dASDist ) );
+            ball.setP1( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 ) );
+            ball.setP2( QPointF( (m_bPortrait ? 0.0 : c->dW) + c->dW2, c->dH - 10.0 - c->dHeadDiam2 - dASDist ) );
 
             // Airspace polygon point angle in reference to you (which clock position it's at)
             if( g_situation.bHaveWTData )
@@ -2191,8 +2140,8 @@ void AHRSCanvas::updateAirspaces( QPainter *pAhrs, CanvasConstants *c )
             else
                 ball.setAngle( bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
             // Qt Y coords are backward
-            deltaY = ball.p2().y() - (c->dH - c->dW2 - 30.0);
-            ball.setP2( QPointF( ball.p2().x(), c->dH - c->dW2 - 30.0 - deltaY ) );
+            deltaY = ball.p2().y() - (c->dH - 10.0 - c->dHeadDiam2);
+            ball.setP2( QPointF( ball.p2().x(), c->dH - 10.0 - c->dHeadDiam2 - deltaY ) );
             airspacePoly.append( ball.p2() );
         }
         pAhrs->setBrush( Qt::NoBrush );

@@ -89,7 +89,7 @@ void MenuDialog::settings()
 {
     CanvasConstants c = static_cast<AHRSMainWin *>( parent() )->disp()->canvas()->constants();
     QString         qsCurrIP = g_pSet->value( "StratuxIP", "192.168.10.1" ).toString();
-    SettingsDialog  dlg( this, &c );
+    SettingsDialog  dlg( this, static_cast<AHRSMainWin *>( parent() )->disp()->canvas(), &c );
 
     // Scale the menu dialog according to screen resolution
     dlg.setMinimumWidth( static_cast<int>( c.dW ) );
@@ -104,7 +104,8 @@ void MenuDialog::settings()
         static_cast<AHRSMainWin *>( parent() )->streamReader()->connectStreams();
     }
 
+    static_cast<AHRSMainWin *>( parent() )->streamReader()->setAirspeedCal( g_pSet->value( "AirspeedCal", 1.0 ).toDouble() );
     emit magDev( g_pSet->value( "MagDev", 0 ).toInt() );
-    emit setSwitchableTanks( g_pSet->value( "DualTanks" ).toBool() );
+    emit setSwitchableTanks( g_pSet->value( "DualTanks", true ).toBool() );
     emit settingsClosed();
 }
