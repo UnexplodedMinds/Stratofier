@@ -40,7 +40,6 @@ QFont large( "Droid Sans", 24, QFont::Bold   );
 
 
 Canvas::Units g_eUnitsAirspeed = Canvas::Knots;
-bool          g_bDayMode = true;
 
 
 // Setup minimal UI elements and make the connections

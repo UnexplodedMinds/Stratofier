@@ -55,6 +55,7 @@ RCC_DIR = ./gen/rcc
 SOURCES += main.cpp \
            StreamReader.cpp \
            AHRSCanvas.cpp \
+           AHRSDraw.cpp \
            AHRSMainWin.cpp \
            BugSelector.cpp \
            Keypad.cpp \
@@ -75,6 +76,7 @@ SOURCES += main.cpp \
 HEADERS += StratuxStreams.h \
            StreamReader.h \
            AHRSCanvas.h \
+           AHRSDraw.h \
            AHRSMainWin.h \
            BugSelector.h \
            Keypad.h \

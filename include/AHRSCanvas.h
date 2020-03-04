@@ -11,9 +11,6 @@ Stratofier Stratux AHRS Display
 #include <QMap>
 #include <QList>
 #include <QDateTime>
-#include <QGestureEvent>
-#include <QSwipeGesture>
-#include <QPinchGesture>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
@@ -59,24 +56,13 @@ protected:
     void timerEvent( QTimerEvent *pEvent );
 
 private:
-    void updateTraffic( QPainter *pAhrs, CanvasConstants *c );
-    void updateAirports( QPainter *pAhrs, CanvasConstants *c );
-    void updateAirspaces( QPainter *pAhrs, CanvasConstants *c );
     void cullTrafficMap();
     void zoomIn();
     void zoomOut();
     void handleScreenPress( const QPoint &pressPt );
     void paintPortrait();
     void paintLandscape();
-    void paintInfo( QPainter *pAhrs, CanvasConstants *c );
-    void paintTimer( QPainter *pAhrs, CanvasConstants *c );
-    void paintSwitchNotice( QPainter *pAhrs, CanvasConstants *c );
-    void paintTemp( QPainter *pAhrs, CanvasConstants *c );
     void loadSettings();
-    void drawDirectOrFromTo( QPainter *pAhrs, CanvasConstants *pC );
-    void drawSlipSkid( QPainter *pAhrs, CanvasConstants *pC, double dSlipSkid );
-    void drawCurrAlt( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum );
-    void drawCurrSpeed( QPainter *pAhrs, CanvasConstants *pC, QPixmap *pNum, bool bGS = false );
     void swipeLeft();
     void swipeRight();
     void swipeUp();
