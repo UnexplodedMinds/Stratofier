@@ -76,22 +76,18 @@ void StreamReader::wtDataAvail()
 
     // Format coming from the WingThing is:
     // <Firmware Version>,<Airspeed>,<Altitude>,<Temp>,<Mag X>,<Mag Y>,<Mag Z>,<Orient X>,<Orient Y>,<Orient Z>,<Accel X>,<Accel Y>,<Accel Z>
-    QString     qsBuffer( sensorData.data() );
-    QStringList qslFields = qsBuffer.split( ',' );
-    double      dAS;
+    QString               qsBuffer( sensorData.data() );
+    QStringList           qslFields = qsBuffer.split( ',' );
+    double                dAS;
+    QPair<double, double> orient;
 
     // Firmware Version (e.g. 213), Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Mag X, Mag Y, Mag Z
     if( qslFields.count() == 13 )
     {
         m_wtTelem.qsFWversion = qslFields.first();
+
         dAS = qslFields.at( 1 ).toDouble() / 8192.0 * 173.7952 * m_dAirspeedCal;    // Ratio of sensor value over sensor maximum times the rated maximum speed times a calibration factor
         m_airspeedSamples.append( dAS );
-        if( m_airspeedSamples.count() == 4 )
-        {
-            dAS = (m_airspeedSamples.first() + m_airspeedSamples.at( 1 ) + m_airspeedSamples.at( 2 ) + m_airspeedSamples.last()) / 4.0;
-            m_airspeedSamples.removeFirst();
-        }
-        m_wtTelem.dAirspeed = dAS;
 
         m_wtTelem.dAltitude = qslFields.at( 2 ).toDouble();
         m_wtTelem.dTemp = qslFields.at( 3 ).toDouble();
@@ -100,10 +96,12 @@ void StreamReader::wtDataAvail()
         m_wtTelem.dMagZ = qslFields.at( 6 ).toDouble();
         calcHeading( m_wtTelem.dMagX, m_wtTelem.dMagY, m_wtTelem.dMagZ );   // m_wtTelem.dHeading will be set in the function
         m_wtTelem.dOrientX = qslFields.at( 7 ).toDouble();                  // Yaw  0 to 360 (not currently used)
-        m_dRawPitch = qslFields.at( 8 ).toDouble();
+
+        m_dRawPitch = qslFields.at( 8 ).toDouble() / 4.0;
         m_dRawRoll = qslFields.at( 9 ).toDouble();
-        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;     // Pitch -90 to 90, negative is down
-        m_wtTelem.dOrientZ = m_dRawRoll - m_dRollRef;       // Roll -90 to 90, negative is left
+        m_pitchSamples.append( m_dRawPitch );
+        m_rollSamples.append( m_dRawRoll );
+
         m_wtTelem.dAccelX = qslFields.at( 10 ).toDouble();
         m_wtTelem.dAccelY = qslFields.at( 11 ).toDouble();
         m_wtTelem.dAccelZ = qslFields.last().toDouble();
@@ -112,6 +110,19 @@ void StreamReader::wtDataAvail()
         m_lastPacketDateTime = QDateTime::currentDateTime();
 
         m_wtLast = m_wtTelem;
+
+        if( m_airspeedSamples.count() == 4 )
+        {
+            dAS = (m_airspeedSamples.first() + m_airspeedSamples.at( 1 ) + m_airspeedSamples.at( 2 ) + m_airspeedSamples.last()) / 4.0;
+            m_airspeedSamples.removeFirst();
+            m_dRawRoll = (m_rollSamples.first() + m_rollSamples.at( 1 ) + m_rollSamples.at( 2 ) + m_rollSamples.last()) / 4.0;
+            m_rollSamples.removeFirst();
+            m_dRawPitch = (m_pitchSamples.first() + m_pitchSamples.at( 1 ) + m_pitchSamples.at( 2 ) + m_pitchSamples.last()) / 4.0;
+            m_pitchSamples.removeFirst();
+        }
+        m_wtTelem.dAirspeed = dAS;
+        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;     // Pitch -90 to 90, negative is down
+        m_wtTelem.dOrientZ = m_dRawRoll - m_dRollRef;       // Roll -90 to 90, negative is left
 
         // Don't rapid fire this signal
         if( !m_bReported )

@@ -9,6 +9,7 @@ Stratofier Stratux AHRS Display
 #include <QObject>
 #include <QWebSocket>
 #include <QUdpSocket>
+#include <QPair>
 
 #include "StratuxStreams.h"
 #include "Canvas.h"
@@ -72,10 +73,9 @@ private:
     int                m_iMagCalIndex;
     QList<double>      m_headSamples;
     QList<double>      m_airspeedSamples;
-/*
-    double             m_dBiasX, m_dBiasY, m_dBiasZ;
-    double             m_dScaleX, m_dScaleY, m_dScaleZ;
-*/
+    QList<double>      m_pitchSamples;
+    QList<double>      m_rollSamples;
+
     double             m_dRollRef, m_dPitchRef, m_dRawRoll, m_dRawPitch;
     double             m_dAirspeedCal;
 
