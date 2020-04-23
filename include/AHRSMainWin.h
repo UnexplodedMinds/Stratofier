@@ -25,7 +25,7 @@ class AHRSMainWin : public QMainWindow, public Ui::AHRSMainWin
     Q_OBJECT
 
 public:
-    explicit AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream, bool bShowSplash );
+    explicit AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream );
     ~AHRSMainWin();
 
     bool          menuActive() { return (m_pMenuDialog != nullptr); }

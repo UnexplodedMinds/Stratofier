@@ -107,5 +107,6 @@ void MenuDialog::settings()
     static_cast<AHRSMainWin *>( parent() )->streamReader()->setAirspeedCal( g_pSet->value( "AirspeedCal", 1.0 ).toDouble() );
     emit magDev( g_pSet->value( "MagDev", 0 ).toInt() );
     emit setSwitchableTanks( g_pSet->value( "DualTanks", true ).toBool() );
+    emit halfMode( g_pSet->value( "HalfMode" ).toBool() );
     emit settingsClosed();
 }

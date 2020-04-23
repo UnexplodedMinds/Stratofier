@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
-    <height>241</height>
+    <width>638</width>
+    <height>225</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -124,7 +124,7 @@
   <property name="styleSheet">
    <string notr="true">QDialog
 {
-	border: 2px solid CornflowerBlue;
+	border: 5px solid CornflowerBlue;
 	background-color: black;
 }
 
@@ -133,18 +133,34 @@ QPushButton
 	border: none;
 	background-color: DimGray;
 	color: white;
-	margin: 2px;
+	margin: 0px;
 }
+
 QPushButton::pressed
 {
 	border: none;
 	background-color: LightGray;
 	color: black;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <property name="spacing">
+    <number>1</number>
+   </property>
    <item row="2" column="3">
     <widget class="QPushButton" name="pN">
      <property name="sizePolicy">
@@ -160,6 +176,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>N</string>
@@ -182,6 +201,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>T</string>
      </property>
@@ -202,6 +224,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>Q</string>
@@ -224,6 +249,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>W</string>
      </property>
@@ -244,6 +272,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>E</string>
@@ -266,6 +297,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>O</string>
      </property>
@@ -286,6 +320,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>.</string>
@@ -308,6 +345,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>X</string>
      </property>
@@ -328,6 +368,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>P</string>
@@ -350,6 +393,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>F</string>
      </property>
@@ -370,6 +416,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>Y</string>
@@ -392,6 +441,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>H</string>
      </property>
@@ -412,6 +464,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>S</string>
@@ -434,6 +489,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>I</string>
      </property>
@@ -454,6 +512,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>L</string>
@@ -476,6 +537,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>M</string>
      </property>
@@ -496,6 +560,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>R</string>
@@ -518,6 +585,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>D</string>
      </property>
@@ -538,6 +608,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>G</string>
@@ -560,6 +633,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>C</string>
      </property>
@@ -580,6 +656,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>U</string>
@@ -602,6 +681,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Z</string>
      </property>
@@ -622,6 +704,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>B</string>
@@ -644,6 +729,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>A</string>
      </property>
@@ -664,6 +752,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>SPACE</string>
@@ -686,6 +777,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>J</string>
      </property>
@@ -706,6 +800,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>1</string>
@@ -728,6 +825,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>2</string>
      </property>
@@ -748,6 +848,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>3</string>
@@ -770,6 +873,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>4</string>
      </property>
@@ -790,6 +896,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>5</string>
@@ -812,6 +921,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>6</string>
      </property>
@@ -832,6 +944,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>7</string>
@@ -854,6 +969,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>8</string>
      </property>
@@ -874,6 +992,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>9</string>
@@ -896,6 +1017,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>0</string>
      </property>
@@ -916,6 +1040,26 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: none;
+	background-color: SlateBlue;
+	color: white;
+	margin: 0px;
+}
+QPushButton::pressed
+{
+	border: none;
+	background-color: LightGray;
+	color: black;
+	margin: 0px;
+}
+</string>
      </property>
      <property name="icon">
       <iconset resource="../AHRSResources.qrc">
@@ -939,6 +1083,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>K</string>
      </property>
@@ -960,6 +1107,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>V</string>
      </property>
@@ -980,6 +1130,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton

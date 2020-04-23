@@ -97,37 +97,37 @@
 	border: none;
 	background-color: DimGray;
 	color: white;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	background-color: LightGray;
 	color: black;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <item>
     <widget class="QLabel" name="m_pTitleLabel">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -135,13 +135,13 @@ QPushButton::pressed
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="font">

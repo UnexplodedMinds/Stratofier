@@ -115,19 +115,22 @@ QComboBox
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
-   <property name="spacing">
-    <number>5</number>
+   <property name="horizontalSpacing">
+    <number>0</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>1</number>
    </property>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="m_pTitleLabel">
@@ -140,13 +143,13 @@ QComboBox
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="font">
@@ -161,7 +164,7 @@ QComboBox
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLabel { background-color: LightGray; color: black; }</string>
+      <string notr="true">QLabel { background-color: LightGray; color: black; margin: 0px; }</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -205,12 +208,14 @@ QComboBox
 	border: none;
 	background-color: RoyalBlue;
 	color: white;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	background-color: CornflowerBlue;
 	color: black;
+	margin: 0px;
 }
 </string>
      </property>
@@ -234,6 +239,9 @@ QPushButton::pressed
       <font>
        <family>Droid Sans</family>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>

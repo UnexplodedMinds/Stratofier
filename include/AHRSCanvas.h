@@ -86,6 +86,7 @@ private:
     bool      m_bShowGPSDetails;
     double    m_dZoomNM;
     bool      m_bPortrait;
+    bool      m_bHalfMode;
     bool      m_bLongPress;
     QDateTime m_longPressStart;
     bool      m_bShowCrosswind;
@@ -117,6 +118,8 @@ private:
     FuelTanks          m_tanks;
 
     double m_dBaroPress;
+
+    QDateTime m_lastTrafficUpdate;
 
 private slots:
     void orient2();

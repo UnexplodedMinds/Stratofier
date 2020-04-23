@@ -43,7 +43,7 @@ Canvas::Units g_eUnitsAirspeed = Canvas::Knots;
 
 
 // Setup minimal UI elements and make the connections
-AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream, bool bShowSplash )
+AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream )
     : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
       m_pStratuxStream( pStream ),
       m_bStartup( true ),
@@ -65,13 +65,9 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
 
     setupUi( this );
 
-    if( !bShowSplash )
-    {
-        delete m_pSplashLabel;
-        m_pSplashLabel = nullptr;
-    }
-
     m_pAHRSDisp->setPortrait( bPortrait );
+
+    m_pSplashLabel->resize( 250 * width() / 640, 318 * height() / 800 );
 
     m_lastStatusUpdate = QDateTime::currentDateTime();
 
@@ -90,8 +86,7 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
 
     m_iReconnectTimer = startTimer( 5000 ); // Forever timer to periodically check if we need to reconnect
 
-    if( bShowSplash )
-        QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
+    QTimer::singleShot( 5000, this, SLOT( splashOff() ) );
 }
 
 
@@ -124,8 +119,8 @@ void AHRSMainWin::splashOff()
 // Status stream is received here instead of the canvas since here is where the indicators are
 void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic )
 {
-    QString qsOn( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
-    QString qsOff( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
+    QString qsOn( "QLabel { border: none; background-color: LimeGreen; color: black; margin: 0px; }" );
+    QString qsOff( "QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }" );
 
     m_pStatusIndicator->setStyleSheet( bStratux ? qsOn : qsOff );
     m_pAHRSIndicator->setStyleSheet( bAHRS ? qsOn : qsOff );
@@ -140,9 +135,9 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 void AHRSMainWin::WTUpdate( bool bValid )
 {
     if( bValid )
-        m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LimeGreen; color: black; }" );
+        m_pSensIndicator->setStyleSheet( "QLabel { border: none; background-color: LimeGreen; color: black; margin: 0px; }" );
     else
-        m_pSensIndicator->setStyleSheet( "QLabel { border: 2px solid black; background-color: LightCoral; color: black; }" );
+        m_pSensIndicator->setStyleSheet( "QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }" );
 }
 
 
@@ -262,7 +257,7 @@ void AHRSMainWin::timerEvent( QTimerEvent *pEvent )
         if( m_lastStatusUpdate.secsTo( QDateTime::currentDateTime() ) > 10 )
         {
             m_pStratuxStream->disconnectStreams();
-            m_pStratuxStream->connectStreams();
+            QTimer::singleShot( 1000, m_pStratuxStream, SLOT( connectStreams() ) );
         }
     }
     else if( pEvent->timerId() == m_iTimerTimer )

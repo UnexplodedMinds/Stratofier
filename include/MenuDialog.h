@@ -40,6 +40,7 @@ signals:
     void stopFuelFlow();
     void unitsAirspeed();
     void setSwitchableTanks( bool );
+    void halfMode( bool );
     void settingsClosed();
     void magDev( int );
 };

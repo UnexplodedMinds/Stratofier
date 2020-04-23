@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 
     qInfo() << "Starting Stratofier";
     g_pStratuxStream = new StreamReader( qsIP );
-    pMainWin = new AHRSMainWin( qsIP, bPortrait, g_pStratuxStream, true );
+    pMainWin = new AHRSMainWin( qsIP, bPortrait, g_pStratuxStream );
     // This is the normal mode for a dedicated Raspberry Pi touchscreen or on Android
     if( bMax )
         pMainWin->showMaximized();

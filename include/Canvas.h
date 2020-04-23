@@ -94,6 +94,7 @@ struct Airport
     BearingDist      bd;
     QList<int>       runways;
     QList<Frequency> frequencies;
+    QPointF          logicalPt;
 };
 
 
@@ -213,6 +214,7 @@ struct StratofierSettings
     bool                       bShowAllTraffic;
     int                        iCurrDataSet;
     bool                       bSwitchableTanks;
+    bool                       bHalfMode;
     QString                    qsStratuxIP;
     bool                       bShowRunways;
     bool                       bShowAirspaces;

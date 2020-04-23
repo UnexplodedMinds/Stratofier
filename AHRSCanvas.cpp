@@ -52,7 +52,7 @@ extern Canvas::Units g_eUnitsAirspeed;
 
 bool g_bNoAirportsUpdate = false;
 
-QString g_qsStratofierVersion( "1.8.5.1" );
+QString g_qsStratofierVersion( "1.8.6.4" );
 
 QFuture<void> g_apt;
 
@@ -88,7 +88,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_SwipeStart( 0, 0 ),
       m_iSwiping( 0 ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
-      m_dBaroPress( 29.92 )
+      m_dBaroPress( 29.92 ),
+      m_lastTrafficUpdate( QDateTime::currentDateTime() )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -221,6 +222,12 @@ void AHRSCanvas::timerEvent( QTimerEvent *pEvent )
 
     cullTrafficMap();
 
+    if( m_lastTrafficUpdate.secsTo( qdtNow ) > 30 )
+    {
+        static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->streamReader()->disconnectStreams();
+        QTimer::singleShot( 1000, static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->streamReader(), SLOT( connectStreams() ) );
+    }
+
     // If we have a valid GPS position, run the list of airports within range by threading it so it doesn't interfere with the display update
     if( (g_situation.dGPSlat != 0.0) && (g_situation.dGPSlong != 0.0) )
     {
@@ -312,7 +319,8 @@ void AHRSCanvas::situation( StratuxSituation s )
 // Traffic update
 void AHRSCanvas::traffic( StratuxTraffic t )
 {
-    int i;
+    int     i;
+    QString qsTail;
 
     // Remove the old aircraft entry
     for( i = 0; i < g_trafficList.count(); i++ )
@@ -327,6 +335,7 @@ void AHRSCanvas::traffic( StratuxTraffic t )
     g_trafficList.append( t );
     m_bUpdated = true;
     update();
+    m_lastTrafficUpdate = QDateTime::currentDateTime();
 }
 
 
@@ -346,7 +355,7 @@ void AHRSCanvas::cullTrafficMap()
         bTrafficRemoved = false;
         for( i = 0; i < g_trafficList.count(); i++ )
         {
-            if( abs( g_trafficList.at( i ).lastActualReport.secsTo( now ) ) > 10.0 )
+            if( abs( g_trafficList.at( i ).lastActualReport.secsTo( now ) ) > 30.0 )
             {
                 g_trafficList.removeAt( i );
                 bTrafficRemoved = true;

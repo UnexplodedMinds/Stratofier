@@ -97,32 +97,32 @@
 	border: none;
 	color: white;
 	background-color: DimGray;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: LightGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <item>
     <widget class="QPushButton" name="m_pOverlaysButton">
@@ -140,20 +140,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	color: black;
 	background-color: greenYellow;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: forestGreen;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -196,14 +199,14 @@ QPushButton::pressed
 	border: none;
 	color: black;
 	background-color: DarkGoldenrod;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: LightGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -240,20 +243,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	color: black;
 	background-color: CornflowerBlue;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: LightGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -287,20 +293,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	color: black;
 	background-color: Aquamarine;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: LightGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -334,20 +343,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	color: black;
 	background-color: Plum;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: Lavender;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -381,20 +393,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	color: black;
 	background-color: lightGray;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: dimGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>
@@ -428,20 +443,23 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
 	border: none;
 	background-color: RoyalBlue;
 	color: white;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	background-color: CornflowerBlue;
 	color: black;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
      </property>

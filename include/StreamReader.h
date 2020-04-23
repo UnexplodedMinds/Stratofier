@@ -26,8 +26,6 @@ public:
     explicit StreamReader( const QString &qsIP );
     ~StreamReader();
 
-    void connectStreams();
-    void disconnectStreams();
     bool isConnected() { return m_bConnected; }
 
     static void initTraffic( StratuxTraffic &traffic );
@@ -39,6 +37,10 @@ public:
     void snapshotOrientation();
 
     void setAirspeedCal( double dCal ) { m_dAirspeedCal = dCal; }
+
+public slots:
+    void connectStreams();
+    void disconnectStreams();
 
 protected:
     void timerEvent( QTimerEvent* ) override;

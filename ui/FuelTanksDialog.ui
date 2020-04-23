@@ -110,16 +110,19 @@ QPushButton::pressed
   </property>
   <layout class="QGridLayout" name="m_pFuelGridLayout">
    <property name="leftMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>1</number>
    </property>
    <item row="9" column="4">
     <widget class="QLabel" name="label_10">
@@ -151,6 +154,9 @@ QPushButton::pressed
    </item>
    <item row="7" column="0" colspan="5">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>1</number>
+     </property>
      <item>
       <widget class="QPushButton" name="m_pStartLeftButton">
        <property name="sizePolicy">
@@ -172,6 +178,9 @@ QPushButton::pressed
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton
@@ -1094,7 +1103,7 @@ QPushButton::pressed
    <item row="0" column="0" colspan="5">
     <widget class="QLabel" name="m_pTitleLabel">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -1102,13 +1111,13 @@ QPushButton::pressed
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
      <property name="font">

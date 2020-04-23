@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>910</height>
+    <width>640</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -101,7 +101,7 @@
 	border: 2px solid black;
 	background-color: DimGray;
 	color: white;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
@@ -175,7 +175,7 @@
    </property>
    <layout class="QVBoxLayout" name="m_pMainLayout">
     <property name="spacing">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="leftMargin">
      <number>0</number>
@@ -265,13 +265,40 @@
        <bool>true</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="m_pSplashLabel">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>318</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>250</width>
+           <height>318</height>
+          </size>
          </property>
          <property name="styleSheet">
           <string notr="true">QLabel
@@ -297,7 +324,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>0</number>
+       <number>1</number>
       </property>
       <item>
        <widget class="QLabel" name="m_pStatusIndicator">
@@ -321,8 +348,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+         <string notr="true">QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
@@ -351,8 +381,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+         <string notr="true">QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
@@ -381,8 +414,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+         <string notr="true">QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }</string>
         </property>
         <property name="text">
          <string>TFC</string>
@@ -408,8 +444,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+         <string notr="true">QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }</string>
         </property>
         <property name="text">
          <string>GPS</string>
@@ -435,8 +474,11 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QLabel { border: 2px solid black; background-color: LightCoral; color: black; }</string>
+         <string notr="true">QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }</string>
         </property>
         <property name="text">
          <string>SENS</string>

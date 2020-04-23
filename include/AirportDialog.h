@@ -24,13 +24,15 @@ public:
 
 private:
     void updateAirports();
+    void toggle( QObject *pObj );
 
     CanvasConstants *m_pC;
     bool             m_bAllAirports;
     QString          m_qsSel;
+    double           m_dDist;
 
 private slots:
-    void within( int iDist );
+    void within();
     void airportsType();
     void airportSelected( QTableWidgetItem *pItem );
 };

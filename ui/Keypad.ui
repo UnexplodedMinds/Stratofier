@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>411</width>
     <height>300</height>
    </rect>
   </property>
@@ -97,32 +97,32 @@
 	border: none;
 	background-color: DimGray;
 	color: white;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	background-color: LightGray;
 	color: black;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
   <layout class="QGridLayout" name="gridLayout" rowminimumheight="34,0,0,0,0,0">
    <property name="leftMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="spacing">
-    <number>0</number>
+    <number>1</number>
    </property>
    <item row="0" column="0" colspan="4">
     <widget class="QLabel" name="m_pTitleLabel">
@@ -135,7 +135,13 @@ QPushButton::pressed
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>40</height>
       </size>
      </property>
      <property name="font">
@@ -179,6 +185,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>3</string>
      </property>
@@ -205,6 +214,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>8</string>
@@ -432,6 +444,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton
 {
@@ -538,6 +553,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>7</string>
      </property>
@@ -564,6 +582,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>2</string>
@@ -837,6 +858,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>6</string>
      </property>
@@ -890,6 +914,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>5</string>
@@ -986,7 +1013,7 @@ QPushButton::pressed
       <bool>true</bool>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="lineWidth">
       <number>2</number>
@@ -1011,6 +1038,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>0</string>
@@ -1044,6 +1074,27 @@ QPushButton::pressed
          <bold>true</bold>
         </font>
        </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton
+{
+	border: none;
+	background-color: SlateBlue;
+	color: white;
+	margin: 0px;
+}
+
+QPushButton::pressed
+{
+	border: none;
+	background-color: LightGray;
+	color: black;
+	margin: 0px;
+}
+</string>
+       </property>
        <property name="icon">
         <iconset resource="../AHRSResources.qrc">
          <normaloff>:/icons/resources/Backspace.png</normaloff>:/icons/resources/Backspace.png</iconset>
@@ -1071,6 +1122,9 @@ QPushButton::pressed
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
        <property name="text">
         <string>.</string>

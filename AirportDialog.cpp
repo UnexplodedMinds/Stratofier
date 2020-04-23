@@ -19,17 +19,20 @@ extern StratuxSituation g_situation;
 AirportDialog::AirportDialog( QWidget *pParent, CanvasConstants *pC, const QString &qsTitle )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
       m_pC( pC ),
-      m_bAllAirports( false )
+      m_bAllAirports( false ),
+      m_dDist( 25.0 )
 {
     setupUi( this );
     m_pTitleLabel->setText( qsTitle );
 
     QScroller::grabGesture( m_pAirportsTable, QScroller::LeftMouseButtonGesture );
 
-    m_pDistCombo->setMinimumHeight( static_cast<int>( pC->dH10 ) );
     m_pCancelButton->setMinimumHeight( static_cast<int>( pC->dH10 ) );
 
-    connect( m_pDistCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( within( int ) ) );
+    connect( m_pRange25, SIGNAL( clicked() ), this, SLOT( within() ) );
+    connect( m_pRange50, SIGNAL( clicked() ), this, SLOT( within() ) );
+    connect( m_pRange100, SIGNAL( clicked() ), this, SLOT( within() ) );
+    connect( m_pRange200, SIGNAL( clicked() ), this, SLOT( within() ) );
     connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airportsType() ) );
 
     connect( m_pAirportsTable, SIGNAL( itemPressed( QTableWidgetItem*) ), this, SLOT( airportSelected( QTableWidgetItem* ) ) );
@@ -43,38 +46,64 @@ AirportDialog::~AirportDialog()
 }
 
 
-void AirportDialog::within( int iDist )
+void AirportDialog::within()
 {
-    Q_UNUSED( iDist )
+    QObject *pObj = sender();
 
+    // Should never happen
+    if( pObj == nullptr )
+        return;
+
+    QString qsObj = pObj->objectName();
+
+    // Should also never happen
+    if( qsObj.isEmpty() )
+        return;
+
+    if( qsObj == "m_pRange25" )
+        m_dDist = 25.0;
+    else if( qsObj == "m_pRange50" )
+        m_dDist = 50.0;
+    else if( qsObj == "m_pRange100" )
+        m_dDist = 100.0;
+    else
+        m_dDist = 200.0;
+
+    toggle( pObj );
     updateAirports();
+}
+
+
+void AirportDialog::toggle( QObject *pObj )
+{
+    QString      qsOn = "QPushButton { border: none; background-color: CornflowerBlue; }";
+    QString      qsOff = "QPushButton { border: none; background-color: DimGray; }";
+    QPushButton *pBtn = qobject_cast<QPushButton *>( pObj );
+
+    m_pRange25->setStyleSheet( qsOff );
+    m_pRange50->setStyleSheet( qsOff );
+    m_pRange100->setStyleSheet( qsOff );
+    m_pRange200->setStyleSheet( qsOff );
+    pBtn->setStyleSheet( qsOn );
 }
 
 
 void AirportDialog::updateAirports()
 {
-    Airport ap;
-    double  dDist = 25.0;
-    int     iCurrIndex = m_pDistCombo->currentIndex();
+    Airport      ap;
     QFontMetrics lineMetric( m_pAirportsTable->font() );
     int          iRowHeight = static_cast<int>( static_cast<double>( lineMetric.boundingRect( "K" ).height() * 1.5 ) );
-
-    if( iCurrIndex == 1 )
-        dDist = 50.0;
-    else if( iCurrIndex == 2 )
-        dDist = 100.0;
-    else if( iCurrIndex == 3 )
-        dDist = 200.0;
 
     // Clear the table
     while( m_pAirportsTable->rowCount() > 0 )
         m_pAirportsTable->removeRow( 0 );
+
     // Populate the table
     foreach( ap, g_airportCache )
     {
         ap.bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
 
-        if( ap.bd.dDistance <= dDist )
+        if( ap.bd.dDistance <= m_dDist )
         {
             if( m_bAllAirports || ((!m_bAllAirports) && (ap.qsID != "R")) )
             {

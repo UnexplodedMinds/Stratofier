@@ -97,32 +97,32 @@
 	border: none;
 	color: white;
 	background-color: DimGray;
-	margin: 2px;
+	margin: 0px;
 }
 QPushButton::pressed
 {
 	border: none;
 	color: black;
 	background-color: LightGray;
-	margin: 2px;
+	margin: 0px;
 }
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <item>
     <widget class="QPushButton" name="m_pAirportsButton">
@@ -139,6 +139,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>ALL AIRPORTS</string>
@@ -169,6 +172,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>PRIVATE</string>
@@ -204,6 +210,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>RUNWAYS</string>
      </property>
@@ -237,6 +246,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>AIRSPACES</string>
@@ -272,6 +284,9 @@ QPushButton::pressed
        <bold>true</bold>
       </font>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>ALTITUDES</string>
      </property>
@@ -305,6 +320,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>CLOSE TRAFFIC</string>
@@ -341,6 +359,9 @@ QPushButton::pressed
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton

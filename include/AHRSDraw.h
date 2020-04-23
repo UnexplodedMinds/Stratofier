@@ -52,6 +52,9 @@ public:
     void paintInfo();
     void paintTimer( int iTimerMin, int iTimerSec );
 
+private:
+    void maskHeading();
+
     QPainter           *m_pAHRS;
     CanvasConstants    *m_pC;
     Canvas             *m_pCanvas;
