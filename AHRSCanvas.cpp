@@ -52,7 +52,7 @@ extern Canvas::Units g_eUnitsAirspeed;
 
 bool g_bNoAirportsUpdate = false;
 
-QString g_qsStratofierVersion( "1.8.6.4" );
+QString g_qsStratofierVersion( "1.8.7.0" );
 
 QFuture<void> g_apt;
 

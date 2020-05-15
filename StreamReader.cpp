@@ -79,7 +79,6 @@ void StreamReader::wtDataAvail()
     QString               qsBuffer( sensorData.data() );
     QStringList           qslFields = qsBuffer.split( ',' );
     double                dAS;
-    QPair<double, double> orient;
 
     // Firmware Version (e.g. 213), Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Mag X, Mag Y, Mag Z
     if( qslFields.count() == 13 )
