@@ -91,6 +91,23 @@ void TrafficMath::updateNearbyAirports( QList<Airport> *pAirports, Airport *pDir
 }
 
 
+Airport TrafficMath::getCurrentAirport()
+{
+    Airport ap;
+
+    foreach( ap, g_airportCache )
+    {
+        ap.bd = TrafficMath::haversine( g_situation.dGPSlat, g_situation.dGPSlong, ap.dLat, ap.dLong );
+
+        // The first airport within 2 NM of ownship
+        if( ap.bd.dDistance <= 2 )
+            break;
+    }
+
+    return ap;
+}
+
+
 void TrafficMath::updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDist )
 {
     Airspace    as;

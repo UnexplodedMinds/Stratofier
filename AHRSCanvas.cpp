@@ -52,7 +52,7 @@ extern Canvas::Units g_eUnitsAirspeed;
 
 bool g_bNoAirportsUpdate = false;
 
-QString g_qsStratofierVersion( "1.8.7.0" );
+QString g_qsStratofierVersion( "1.8.9.0" );
 
 QFuture<void> g_apt;
 
@@ -89,7 +89,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iSwiping( 0 ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
       m_dBaroPress( 29.92 ),
-      m_lastTrafficUpdate( QDateTime::currentDateTime() )
+      m_lastTrafficUpdate( QDateTime::currentDateTime() ),
+      m_bDark( false )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -288,10 +289,18 @@ void AHRSCanvas::paintEvent( QPaintEvent *pEvent )
     if( (!m_bInitialized) || (pEvent == 0) )
         return;
 
+    // Paint per orientation
     if( m_bPortrait )
         paintPortrait();
     else
         paintLandscape();
+
+    if( m_bDark )
+    {
+        QPainter darkPainter( this );
+
+        darkPainter.fillRect( rect(), QColor( 0, 0, 0, 200 ) );
+    }
 }
 
 
@@ -499,11 +508,15 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         else
             bugSel.setGeometry( c.dW + c.dW2 - c.dW4, c.dH20, c.dW2, c.dH - c.dH10 );
 
+        dark( true );
         iButton = bugSel.exec();
 
         // Cancelled (do nothing)
         if( iButton == QDialog::Rejected )
+        {
+            dark( false );
             return;
+        }
         // Airport details requested
         else if( iButton == static_cast<int>( BugSelector::Airports ) )
         {
@@ -536,6 +549,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
 
                     detailsDlg.exec();
                     g_bNoAirportsUpdate = false;
+                    dark( false );
                     return;
                 }
             }
@@ -546,6 +560,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
         {
             m_iHeadBugAngle = -1;
             m_iWindBugAngle = -1;
+            dark( false );
             return;
         }
         else if( iButton == static_cast<int>( BugSelector::Overlays ) )
@@ -565,6 +580,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             connect( &overlaysDlg, SIGNAL( showAltitudes( bool ) ), this, SLOT( showAltitudes( bool ) ) );
 
             overlaysDlg.exec();
+            dark( false );
             return;
         }
         else if( iButton == static_cast<int>( BugSelector::BaroPress ) )
@@ -577,6 +593,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
                 m_dBaroPress = baro.value();
                 static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->streamReader()->setBaroPress( m_dBaroPress );
             }
+            dark( false );
             return;
         }
 
@@ -606,6 +623,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
                 keypad.exec();
                 m_iWindBugSpeed = keypad.value();
             }
+            dark( false );
         }
         else
         {   // Heading bug
@@ -614,6 +632,7 @@ void AHRSCanvas::handleScreenPress( const QPoint &pressPt )
             // Wind bug
             else if( iButton == QDialog::Rejected )
                 m_iWindBugAngle = -1;
+            dark( false );
         }
     }
     else if( directRect.contains( pressPt ) )
@@ -1832,3 +1851,12 @@ const QString AHRSCanvas::speedUnits()
 
     return qsUnits;
 }
+
+
+void AHRSCanvas::dark( bool bDark )
+{
+    m_bDark = bDark;
+    repaint();
+    QApplication::processEvents();
+}
+

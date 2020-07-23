@@ -17,17 +17,19 @@ class MenuDialog : public QDialog, public Ui::MenuDialog
     Q_OBJECT
 
 public:
-    explicit MenuDialog( QWidget *pParent, bool bPortrait );
+    explicit MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording );
     ~MenuDialog();
 
 private:
     Canvas::ShowAirports m_eShowAirports;
     bool                 m_bPortrait;
+    bool                 m_bRecording;
 
 private slots:
     void fuel();
     void settings();
     void help();
+    void recordFlight();
 
 signals:
     void resetLevel();
@@ -43,6 +45,7 @@ signals:
     void halfMode( bool );
     void settingsClosed();
     void magDev( int );
+    void recordFlight( bool );
 };
 
 #endif // __MENUDIALOG_H__

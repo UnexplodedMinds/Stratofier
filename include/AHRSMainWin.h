@@ -58,6 +58,9 @@ private:
     bool          m_bTimerActive;
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
+    bool          m_bRecording;
+
+    QList<TrackPoint> m_Track;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -75,6 +78,7 @@ private slots:
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
     void magDev( int iMagDev );
+    void recordFlight( bool bRec );
 };
 
 #endif // __AHRSMAINWIN_H__

@@ -18,11 +18,12 @@ public:
     static double      radiansRel( double dAng );
     static double      degHeading( double dAng );
 
-    static void cacheAirports();
-    static void cacheAirspaces();
-    static void updateNearbyAirports( QList<Airport> *pAirports, Airport *pDirect, Airport *pFrom, Airport *pTo, double dDist );
-    static void updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDist );
-    static int  findAirport( Airport *pAirport, QList<Airport> *apList );
+    static void    cacheAirports();
+    static void    cacheAirspaces();
+    static void    updateNearbyAirports( QList<Airport> *pAirports, Airport *pDirect, Airport *pFrom, Airport *pTo, double dDist );
+    static Airport getCurrentAirport();
+    static void    updateNearbyAirspaces( QList<Airspace> *pAirspaces, double dDist );
+    static int     findAirport( Airport *pAirport, QList<Airport> *apList );
 };
 
 #endif // TRAFFICMATH_H

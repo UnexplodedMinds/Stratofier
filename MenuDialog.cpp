@@ -22,14 +22,19 @@ extern QSettings    *g_pSet;
 extern Canvas::Units g_eUnitsAirspeed;
 
 
-MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
+MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
-      m_bPortrait( bPortrait )
+      m_bPortrait( bPortrait ),
+      m_bRecording( bRecording )
 {
     CanvasConstants c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
     int             iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
 
     setupUi( this );
+    if( m_bRecording )
+        m_pRecFlightButton->setText( "STOP" );
+    else
+        m_pRecFlightButton->setText( "RECORD" );
 
     QList<QPushButton*> kids = findChildren<QPushButton *>();
     QPushButton        *pKid;
@@ -53,11 +58,13 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
     connect( m_pHelpButton, SIGNAL( clicked() ), this, SLOT( help() ) );
+    connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( recordFlight() ) );
 }
 
 
 MenuDialog::~MenuDialog()
 {
+    static_cast<AHRSMainWin *>( parent() )->disp()->dark( false );
     emit magDev( g_pSet->value( "MagDev", 0 ).toInt() );
 }
 
@@ -110,3 +117,17 @@ void MenuDialog::settings()
     emit halfMode( g_pSet->value( "HalfMode" ).toBool() );
     emit settingsClosed();
 }
+
+
+void MenuDialog::recordFlight()
+{
+    if( m_bRecording )
+        m_pRecFlightButton->setText( "RECORD" );
+    else
+        m_pRecFlightButton->setText( "STOP" );
+
+    m_bRecording = (!m_bRecording);
+
+    emit recordFlight( m_bRecording );
+}
+

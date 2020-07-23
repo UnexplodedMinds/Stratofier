@@ -7,6 +7,7 @@ Stratofier Stratux AHRS Display
 #define __SETTINGSDIALOG_H__
 
 #include <QDialog>
+#include <QUrl>
 
 #include "ui_SettingsDialog.h"
 #include "Canvas.h"

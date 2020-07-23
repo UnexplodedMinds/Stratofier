@@ -453,7 +453,7 @@ QPushButton::pressed
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>50</height>
       </size>
      </property>
      <property name="font">

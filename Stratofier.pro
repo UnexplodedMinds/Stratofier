@@ -18,6 +18,8 @@ CONFIG += mobility
 VPATH += $$PWD/android
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
+ANDROID_NDK_PLATFORM = android-21
+
 DISTFILES += AndroidManifest.xml \
              gradle/wrapper/gradle-wrapper.jar \
              gradlew \

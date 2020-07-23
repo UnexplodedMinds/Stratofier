@@ -33,6 +33,7 @@ public:
     int     magDev() { return m_iMagDev; }
     void    setMagDev( int iMagDev );
     void    setSwitchableTanks( bool bSwitchable );
+    void    dark( bool bDark );
 
     bool m_bFuelFlowStarted;
 
@@ -71,6 +72,7 @@ private:
 
     Canvas   *m_pCanvas;
 
+    bool      m_bDark;
     bool      m_bInitialized;
     QPixmap   m_planeIcon;
     QPixmap   m_headIcon;

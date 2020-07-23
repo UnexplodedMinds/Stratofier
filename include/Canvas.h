@@ -76,6 +76,14 @@ struct BearingDist
 };
 
 
+struct TrackPoint
+{
+    double dLat;
+    double dLong;
+    double dAlt;
+};
+
+
 struct Frequency
 {
     QString qsDescription;

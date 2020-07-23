@@ -19,12 +19,16 @@ Stratofier Stratux AHRS Display
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QByteArray>
+#include <QDomDocument>
+#include <QDomElement>
+#include <QDomNode>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
 #include "MenuDialog.h"
 #include "Canvas.h"
 #include "Keypad.h"
+#include "Builder.h"
 
 
 extern QSettings *g_pSet;
@@ -53,7 +57,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
       m_iTimerSeconds( 0 ),
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
-      m_iTimerTimer( -1 )
+      m_iTimerTimer( -1 ),
+      m_bRecording( false )
 {
     m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
 
@@ -148,11 +153,12 @@ void AHRSMainWin::menu()
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
 
-        m_pMenuDialog = new MenuDialog( this, m_bPortrait );
+        m_pMenuDialog = new MenuDialog( this, m_bPortrait, m_bRecording );
 
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW4 ) );
         m_pMenuDialog->setGeometry( c.dW - c.dW2, 0.0, static_cast<int>( c.dW2 ), static_cast<int>( c.dH ) );
+        m_pAHRSDisp->dark( true );
         m_pMenuDialog->show();
         connect( m_pMenuDialog, SIGNAL( resetLevel() ), this, SLOT( resetLevel() ) );
         connect( m_pMenuDialog, SIGNAL( resetGMeter() ), this, SLOT( resetGMeter() ) );
@@ -166,6 +172,7 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
         connect( m_pMenuDialog, SIGNAL( magDev( int ) ), this, SLOT( magDev( int ) ) );
+        connect( m_pMenuDialog, SIGNAL( recordFlight( bool ) ), this, SLOT( recordFlight( bool ) ) );
     }
     else
     {
@@ -379,6 +386,99 @@ void AHRSMainWin::setSwitchableTanks( bool bSwitchable )
 void AHRSMainWin::magDev( int iMagDev )
 {
     m_pAHRSDisp->setMagDev( iMagDev );
+}
+
+
+void AHRSMainWin::recordFlight( bool bRec )
+{
+
+    if( bRec )
+        m_Track.clear();
+    else
+    {
+        QString qsInternal;
+        Airport ap = TrafficMath::getCurrentAirport();
+
+        Builder::getStorage( &qsInternal );
+        qsInternal.append( QString( "/data/space.skyfun.stratofier/Stratofier_%1_%2.kml" ).arg( ap.qsID ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );
+
+        TrackPoint   tp;
+        QDomDocument kml;
+        QDomElement  xRoot, xDoc, xPlacemark, xStyle, xP, xL;
+        QDomNode     xDocNode, xPlacemarkNode, xStyleNode;
+        QDomText     nameText;
+        QFile        track( qsInternal );
+        QString      qsTrack;
+
+        kml.setContent( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                 "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
+                                 "<Document>\n"
+                                 "<Style id=\"stratofier_track\"><LineStyle><color>ff0055ff</color><width>3</width></LineStyle></Style>\n"
+                                 "<StyleMap id=\"m_stratofier_track\"><Pair><key>normal</key><styleUrl>stratofier_track</styleUrl></Pair></StyleMap>\n"
+                                 "</Document>\n"
+                                 "</kml>\n" ).toLatin1() );
+
+        if( track.open( QIODevice::WriteOnly ) )
+        {
+            xRoot = kml.documentElement();  // <klm>
+            xDocNode = xRoot.firstChild();  // <Document>
+            xDoc = xDocNode.toElement();
+            xPlacemark = kml.createElement( "name" );
+            nameText = kml.createTextNode( QString( "Stratofier_%1_%2.kml" ).arg( ap.qsID ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );
+            xPlacemark.appendChild( nameText );
+            xStyleNode = xDoc.firstChild();
+            xDoc.insertBefore( xPlacemarkNode, xStyleNode );
+
+            xPlacemark = kml.createElement( "Placemark" );
+            xDoc.appendChild( xPlacemark );
+
+            xP = kml.createElement( "name" );
+            nameText = kml.createTextNode( "Track" );
+            xP.appendChild( nameText );
+            xPlacemark.appendChild( xP );
+
+            xP = kml.createElement( "description" );
+            nameText = kml.createTextNode( "Recorded by Stratofier" );
+            xP.appendChild( nameText );
+            xPlacemark.appendChild( xP );
+
+            xP = kml.createElement( "styleUrl" );
+            nameText = kml.createTextNode( "#m_stratofier_track" );
+            xP.appendChild( nameText );
+            xPlacemark.appendChild( xP );
+
+            xL = kml.createElement( "LineString" );
+            xPlacemark.appendChild( xL );
+
+            xP = kml.createElement( "extrude" );
+            nameText = kml.createTextNode( "1" );
+            xP.appendChild( nameText );
+            xL.appendChild( xP );
+
+            xP = kml.createElement( "tesselate" );
+            nameText = kml.createTextNode( "1" );
+            xP.appendChild( nameText );
+            xL.appendChild( xP );
+
+            xP = kml.createElement( "altitudeMode" );
+            nameText = kml.createTextNode( "absolute" );
+            xP.appendChild( nameText );
+            xL.appendChild( xP );
+
+            foreach( tp, m_Track )
+                qsTrack.append( QString( "%1,%2,%3\n" ).arg( tp.dLat ).arg( tp.dLong ).arg( tp.dAlt ) );
+
+            xP = kml.createElement( "coordinates" );
+            nameText = kml.createTextNode( qsTrack );
+            xP.appendChild( nameText );
+            xL.appendChild( xP );
+
+            track.write( kml.toString( 4 ).toLatin1() );
+            track.close();
+        }
+    }
+
+    m_bRecording = bRec;
 }
 
 
