@@ -441,7 +441,7 @@ void AHRSDraw::updateTraffic()
                 // Draw the arrow
                 trafficRect.moveCenter( ball.p2() );
                 m_pAHRS->translate( ball.p2() );
-                m_pAHRS->rotate( traffic.dTrack - 90.0 );
+                m_pAHRS->rotate( traffic.dTrack - 90.0 + static_cast<double>( m_iMagDev ) );
                 unBall.setX( -ball.p2().x() );
                 unBall.setY( -ball.p2().y() );
                 m_pAHRS->translate( unBall );

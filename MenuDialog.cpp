@@ -58,7 +58,7 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording )
     connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
     connect( m_pHelpButton, SIGNAL( clicked() ), this, SLOT( help() ) );
-    connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( recordFlight() ) );
+    connect( m_pRecFlightButton, SIGNAL( clicked() ), this, SLOT( recordFlight() ) );
 }
 
 
