@@ -99,6 +99,6 @@ for that manually.  The Android version has no shutdown button in the menu.
 
 The full user manual is available at:
 
-http://unexplodedminds.com/?page_id=175
+http://skyfun.space/?page_id=175
 
 Enjoy!
