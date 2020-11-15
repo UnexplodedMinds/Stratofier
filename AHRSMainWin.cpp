@@ -57,7 +57,7 @@ Canvas::Units g_eUnitsAirspeed = Canvas::Knots;
 
 // Setup minimal UI elements and make the connections
 AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream )
-    : QMainWindow( Q_NULLPTR, Qt::Window | (qApp->arguments().contains( "initdisp=std" ) ? Qt::Widget : Qt::FramelessWindowHint) ),
+    : QMainWindow( Q_NULLPTR, Qt::Window | (qApp->arguments().contains( "window" ) ? Qt::Widget : Qt::FramelessWindowHint) ),
       m_pStratuxStream( pStream ),
       m_bStartup( true ),
       m_pMenuDialog( nullptr ),
@@ -165,8 +165,6 @@ void AHRSMainWin::senderConnected()
     QString qsFilename;
     QString qsInternal;
 
-    qDebug() << "SENDER CONNECTED";
-
     // Find the next log file
     Builder::getStorage( &qsInternal );
     qsInternal.append( "/data/space.skyfun.stratofier" );
@@ -203,12 +201,10 @@ void AHRSMainWin::senderConnected()
     // Still nothing to do
     if( m_iBufferSize == 0 )
     {
-        qDebug() << "NO FILES TO SEND";
         m_pSender->disconnectFromHost();
         return;
     }
 
-    qDebug() << "SENDING A TOTAL OF" << buffer.size();
     connect( m_pSender, SIGNAL( bytesWritten( qint64 ) ), this, SLOT( senderWritten( qint64 ) ) );
     m_pSender->write( buffer );
 }
@@ -217,13 +213,9 @@ void AHRSMainWin::senderConnected()
 // Note we don't care how many were written since the packets are small
 void AHRSMainWin::senderWritten( qint64 sent )
 {
-    qDebug() << "SENT" << sent;
-
     m_iSent += sent;
     if( m_iSent >= m_iBufferSize )
     {
-        qDebug() << "EVERYTHING SENT";
-
         QString qsInternal;
 
         Builder::getStorage( &qsInternal );
@@ -236,10 +228,7 @@ void AHRSMainWin::senderWritten( qint64 sent )
         foreach( file, files )
         {
             if( file.fileName().endsWith( ".srd" ) )
-            {
                 QFile::remove( file.absoluteFilePath() );
-                qDebug() << "REMOVED FILE" << file.absoluteFilePath();
-            }
         }
 
         m_pSender->disconnectFromHost();

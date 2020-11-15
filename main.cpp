@@ -42,6 +42,7 @@ int main( int argc, char *argv[] )
     bool         bPortrait = true;
     AHRSMainWin *pMainWin = 0;
     QString      qsCurrWorkPath( "/home/pi/Stratofier" );  // If you put Stratofier anywhere else, specify home=<whatever> as an argument when running
+    bool         bWindowed = false;
 
 #if defined( Q_OS_ANDROID )
     ScreenLocker locker;    // Keeps screen on until app exit where it's destroyed.
@@ -64,6 +65,8 @@ int main( int argc, char *argv[] )
                 bPortrait = (qsVal == "portrait");
             else if( qsToken == "home" )
                 qsCurrWorkPath = qsVal;
+            else if( qsArg == "windowed" )
+                bWindowed = true;
         }
     }
 
@@ -101,9 +104,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->setGeometry( 50, 50, /* 768, 1024 */ 1024, 1820 );
+            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 1024, 1820 );
         else
-            pMainWin->setGeometry( 50, 50, /* 1024, 768 */ 1820, 1024 );
+            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 1820, 1024 );
 	}
 
     guiApp.exec();
