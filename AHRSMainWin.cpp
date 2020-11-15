@@ -22,6 +22,15 @@ Stratofier Stratux AHRS Display
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomNode>
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QProgressDialog>
+#include <QDir>
+#include <QFileInfoList>
+#include <QFileInfo>
+#include <QTcpSocket>
+#include <QByteArray>
+#include <QThread>
 
 #include "AHRSMainWin.h"
 #include "AHRSCanvas.h"
@@ -48,7 +57,7 @@ Canvas::Units g_eUnitsAirspeed = Canvas::Knots;
 
 // Setup minimal UI elements and make the connections
 AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pStream )
-    : QMainWindow( Q_NULLPTR, Qt::Window | Qt::FramelessWindowHint ),
+    : QMainWindow( Q_NULLPTR, Qt::Window | (qApp->arguments().contains( "initdisp=std" ) ? Qt::Widget : Qt::FramelessWindowHint) ),
       m_pStratuxStream( pStream ),
       m_bStartup( true ),
       m_pMenuDialog( nullptr ),
@@ -58,7 +67,8 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
       m_iTimerTimer( -1 ),
-      m_bRecording( false )
+      m_bRecording( false ),
+      m_iSent( 0 )
 {
     m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
 
@@ -111,13 +121,129 @@ AHRSMainWin::~AHRSMainWin()
 
     delete m_pAHRSDisp;
     m_pAHRSDisp = nullptr;
+
+    delete m_pHostListener;
+    m_pHostListener = nullptr;
 }
 
 
 void AHRSMainWin::splashOff()
 {
+    QList<QHostAddress> myAddresses = QHostInfo::fromName( QHostInfo::localHostName() ).addresses();
+
     delete m_pSplashLabel;
     m_pSplashLabel = nullptr;
+
+    m_pHostListener = new QUdpSocket( this );
+    connect( m_pHostListener, SIGNAL( readyRead() ), this, SLOT( downloaderConnected() ) );
+    if( !myAddresses.isEmpty() )
+        m_pHostListener->bind( myAddresses.last(), 19999 );
+}
+
+
+void AHRSMainWin::downloaderConnected()
+{
+    if( m_pHostListener->hasPendingDatagrams() )
+    {
+        char    addr[64];
+
+        // Disconnect the listener
+        disconnect( m_pHostListener, SIGNAL( readyRead() ), this, SLOT( downloaderConnected() ) );
+
+        // Get the datagram announcement; all we really care about is the address it came from
+        m_pHostListener->readDatagram( addr, 64, &m_hostAddress );
+
+        m_pSender = new QTcpSocket( this );
+        connect( m_pSender, SIGNAL( connected() ), this, SLOT( senderConnected() ) );
+        m_pSender->connectToHost( m_hostAddress, 19998 );
+    }
+}
+
+
+void AHRSMainWin::senderConnected()
+{
+    QString qsFilename;
+    QString qsInternal;
+
+    qDebug() << "SENDER CONNECTED";
+
+    // Find the next log file
+    Builder::getStorage( &qsInternal );
+    qsInternal.append( "/data/space.skyfun.stratofier" );
+
+    QDir          logsDir( qsInternal );
+    QFileInfoList files = logsDir.entryInfoList( QDir::Files );
+    QFileInfo     file;
+    QByteArray    buffer;
+    QFile         logFile;
+
+    // Nothing to do
+    if( files.isEmpty() )
+    {
+        m_pSender->disconnectFromHost();
+        return;
+    }
+
+    foreach( file, files )
+    {
+        if( file.fileName().endsWith( ".srd" ) )
+        {
+            QString qsFilename = "F:" + file.fileName() + "\n";
+
+            buffer.append( qsFilename.toLatin1() );
+            logFile.setFileName( file.absoluteFilePath() );
+            logFile.open( QIODevice::ReadOnly );
+            buffer.append( logFile.readAll() );
+            logFile.close();
+        }
+    }
+
+    m_iBufferSize = buffer.size();
+
+    // Still nothing to do
+    if( m_iBufferSize == 0 )
+    {
+        qDebug() << "NO FILES TO SEND";
+        m_pSender->disconnectFromHost();
+        return;
+    }
+
+    qDebug() << "SENDING A TOTAL OF" << buffer.size();
+    connect( m_pSender, SIGNAL( bytesWritten( qint64 ) ), this, SLOT( senderWritten( qint64 ) ) );
+    m_pSender->write( buffer );
+}
+
+
+// Note we don't care how many were written since the packets are small
+void AHRSMainWin::senderWritten( qint64 sent )
+{
+    qDebug() << "SENT" << sent;
+
+    m_iSent += sent;
+    if( m_iSent >= m_iBufferSize )
+    {
+        qDebug() << "EVERYTHING SENT";
+
+        QString qsInternal;
+
+        Builder::getStorage( &qsInternal );
+        qsInternal.append( "/data/space.skyfun.stratofier" );
+
+        QDir          logsDir( qsInternal );
+        QFileInfoList files = logsDir.entryInfoList( QDir::Files );
+        QFileInfo     file;
+
+        foreach( file, files )
+        {
+            if( file.fileName().endsWith( ".srd" ) )
+            {
+                QFile::remove( file.absoluteFilePath() );
+                qDebug() << "REMOVED FILE" << file.absoluteFilePath();
+            }
+        }
+
+        m_pSender->disconnectFromHost();
+    }
 }
 
 
@@ -232,6 +358,8 @@ void AHRSMainWin::upgradeStratofier()
 
 void AHRSMainWin::shutdownStratofier()
 {
+    if( m_bRecording )
+        recordFlight( false );
     qApp->exit( 0 );
 }
 
@@ -391,91 +519,43 @@ void AHRSMainWin::magDev( int iMagDev )
 
 void AHRSMainWin::recordFlight( bool bRec )
 {
-
     if( bRec )
+    {
+        // Probably not necessary but doesn't hurt either
         m_Track.clear();
+    }
     else
     {
         QString qsInternal;
         Airport ap = TrafficMath::getCurrentAirport();
 
         Builder::getStorage( &qsInternal );
-        qsInternal.append( QString( "/data/space.skyfun.stratofier/Stratofier_%1_%2.kml" ).arg( ap.qsID ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );
+        qsInternal.append( QString( "/data/space.skyfun.stratofier/Stratofier_%1.srd" ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );  // SRD = Stratofier Raw Data
 
         TrackPoint   tp;
-        QDomDocument kml;
-        QDomElement  xRoot, xDoc, xPlacemark, xStyle, xP, xL;
-        QDomNode     xDocNode, xPlacemarkNode, xStyleNode;
-        QDomText     nameText;
         QFile        track( qsInternal );
         QString      qsTrack;
 
-        kml.setContent( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                 "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
-                                 "<Document>\n"
-                                 "<Style id=\"stratofier_track\"><LineStyle><color>ff0055ff</color><width>3</width></LineStyle></Style>\n"
-                                 "<StyleMap id=\"m_stratofier_track\"><Pair><key>normal</key><styleUrl>stratofier_track</styleUrl></Pair></StyleMap>\n"
-                                 "</Document>\n"
-                                 "</kml>\n" ).toLatin1() );
-
         if( track.open( QIODevice::WriteOnly ) )
         {
-            xRoot = kml.documentElement();  // <klm>
-            xDocNode = xRoot.firstChild();  // <Document>
-            xDoc = xDocNode.toElement();
-            xPlacemark = kml.createElement( "name" );
-            nameText = kml.createTextNode( QString( "Stratofier_%1_%2.kml" ).arg( ap.qsID ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );
-            xPlacemark.appendChild( nameText );
-            xStyleNode = xDoc.firstChild();
-            xDoc.insertBefore( xPlacemarkNode, xStyleNode );
-
-            xPlacemark = kml.createElement( "Placemark" );
-            xDoc.appendChild( xPlacemark );
-
-            xP = kml.createElement( "name" );
-            nameText = kml.createTextNode( "Track" );
-            xP.appendChild( nameText );
-            xPlacemark.appendChild( xP );
-
-            xP = kml.createElement( "description" );
-            nameText = kml.createTextNode( "Recorded by Stratofier" );
-            xP.appendChild( nameText );
-            xPlacemark.appendChild( xP );
-
-            xP = kml.createElement( "styleUrl" );
-            nameText = kml.createTextNode( "#m_stratofier_track" );
-            xP.appendChild( nameText );
-            xPlacemark.appendChild( xP );
-
-            xL = kml.createElement( "LineString" );
-            xPlacemark.appendChild( xL );
-
-            xP = kml.createElement( "extrude" );
-            nameText = kml.createTextNode( "1" );
-            xP.appendChild( nameText );
-            xL.appendChild( xP );
-
-            xP = kml.createElement( "tesselate" );
-            nameText = kml.createTextNode( "1" );
-            xP.appendChild( nameText );
-            xL.appendChild( xP );
-
-            xP = kml.createElement( "altitudeMode" );
-            nameText = kml.createTextNode( "absolute" );
-            xP.appendChild( nameText );
-            xL.appendChild( xP );
-
             foreach( tp, m_Track )
-                qsTrack.append( QString( "%1,%2,%3\n" ).arg( tp.dLat ).arg( tp.dLong ).arg( tp.dAlt ) );
+            {
+                qsTrack.append( QString( "%1,%2,%3,%4,%5,%6,%7\n" )
+                                    .arg( tp.timestamp.toString( Qt::ISODate ) )
+                                    .arg( tp.dLat )
+                                    .arg( tp.dLong )
+                                    .arg( tp.dAlt )
+                                    .arg( tp.dPitch )
+                                    .arg( tp.dRoll )
+                                    .arg( tp.dHead ) );
+            }
 
-            xP = kml.createElement( "coordinates" );
-            nameText = kml.createTextNode( qsTrack );
-            xP.appendChild( nameText );
-            xL.appendChild( xP );
-
-            track.write( kml.toString( 4 ).toLatin1() );
+            track.write( qsTrack.toLatin1() );
             track.close();
         }
+
+        // We're done so free the memory
+        m_Track.clear();
     }
 
     m_bRecording = bRec;
@@ -485,5 +565,11 @@ void AHRSMainWin::recordFlight( bool bRec )
 void AHRSMainWin::settingsClosed()
 {
     QTimer::singleShot( 100, this, SLOT( menu() ) );
+}
+
+
+void AHRSMainWin::appendTrackPt( TrackPoint tp )
+{
+    m_Track.append( tp );
 }
 

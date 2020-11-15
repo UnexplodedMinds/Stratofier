@@ -16,6 +16,7 @@ Stratofier Stratux AHRS Display
 #include <QVariant>
 #include <QScreen>
 #include <QBitmap>
+#include <QPainterPath>
 
 #include <math.h>
 
@@ -69,7 +70,7 @@ dWa constant is used differently which is why the more convenient dH is used ins
 AHRSCanvas::AHRSCanvas( QWidget *parent )
     : QWidget( parent ),
       m_bFuelFlowStarted( false ),
-      m_pCanvas( Q_NULLPTR ),
+      m_pCanvas( nullptr ),
       m_bInitialized( false ),
       m_iHeadBugAngle( -1 ),
       m_iWindBugAngle( -1 ),
@@ -90,7 +91,8 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
       m_dBaroPress( 29.92 ),
       m_lastTrafficUpdate( QDateTime::currentDateTime() ),
-      m_bDark( false )
+      m_bDark( false ),
+      m_iRecCount( 0 )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -192,6 +194,7 @@ void AHRSCanvas::loadSettings()
     m_settings.bShowRunways = g_pSet->value( "ShowRunways", true ).toBool();
     m_settings.bShowAirspaces = g_pSet->value( "ShowAirspaces", true ).toBool();
     m_settings.bShowAltitudes = g_pSet->value( "ShowAltitudes", true ).toBool();
+    m_settings.bAutoRec = g_pSet->value( "AutoRec", false ).toBool();
     m_iMagDev = g_pSet->value( "MagDev", 0 ).toInt();
     g_eUnitsAirspeed = m_settings.eUnits = static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed", true ).toInt() );
 
@@ -320,6 +323,32 @@ void AHRSCanvas::situation( StratuxSituation s )
         g_situation.dAHRSMagHeading += 360.0;
     else if( g_situation.dAHRSMagHeading > 360.0 )
         g_situation.dAHRSMagHeading -= 360.0;
+
+    // Start - for now don't auto-stop
+    if( (g_situation.dGPSGroundSpeed > 5.0) && (!static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->isRecording()) && m_settings.bAutoRec )
+        static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->recordFlight( true );
+
+    // Record the track point if recording is enabled
+    if( static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->isRecording() )
+    {
+        if( m_iRecCount == 10 )
+        {
+            TrackPoint tp;
+
+            tp.timestamp = QDateTime::currentDateTime();
+            tp.dLat = s.dGPSlat;
+            tp.dLong = s.dGPSlong;
+            tp.dAlt = s.dBaroPressAlt;
+            tp.dPitch = s.dAHRSpitch;
+            tp.dRoll = s.dAHRSroll;
+            tp.dHead = s.dAHRSMagHeading;
+
+            static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->appendTrackPt( tp );
+            m_iRecCount = 0;
+        }
+        m_iRecCount++;
+    }
+
     m_bUpdated = true;
     update();
 }
@@ -1087,6 +1116,16 @@ void AHRSCanvas::paintPortrait()
 
     draw.drawDirectOrFromTo();
 
+    // Update the airspace positions
+    draw.updateAirspaces();
+
+    // Update the airport positions
+    if( m_settings.eShowAirports != Canvas::ShowNoAirports )
+        draw.updateAirports();
+
+    // Update the traffic positions
+    draw.updateTraffic();
+
     // Draw the central airplane
     ahrs.drawPixmap( c.dW2 - c.dW20, c.dH - 10.0 - c.dHeadDiam2 - c.dW20, c.dW10, c.dW10, m_planeIcon );
 
@@ -1153,16 +1192,6 @@ void AHRSCanvas::paintPortrait()
     ahrs.drawPolygon( arrow );
     ahrs.resetTransform();
 
-    // Update the airspace positions
-    draw.updateAirspaces();
-
-    // Update the airport positions
-    if( m_settings.eShowAirports != Canvas::ShowNoAirports )
-        draw.updateAirports();
-
-    // Update the traffic positions
-    draw.updateTraffic();
-
     ahrs.drawPixmap( c.dW40, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_DirectTo );
     ahrs.drawPixmap( c.dW40 + c.dH20, c.dH - c.dH20 - c.dH40, c.dH20, c.dH20, m_FromTo );
 
@@ -1193,7 +1222,7 @@ void AHRSCanvas::paintPortrait()
             linePen.setWidth( c.iThinPen );
             linePen.setColor( QColor( 0xFF, 0x90, 0x01 ) );
             ahrs.setPen( linePen );
-            ahrs.drawLine( c.dW2, c.dH - 10.0 - c.dHeadDiam, c.dW2, c.dH - 10.0 - c.dHeadDiam );
+            ahrs.drawLine( c.dW2, c.dH - 10.0 - c.dHeadDiam, c.dW2, c.dH - 10.0 - c.dHeadDiam2 );
         }
 
         ahrs.resetTransform();

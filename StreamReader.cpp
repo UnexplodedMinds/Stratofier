@@ -30,10 +30,12 @@ StreamReader::StreamReader( const QString &qsIP )
       m_bAHRSStatus( false ),
       m_bStratuxStatus( false ),
       m_bGPSStatus( false ),
+      m_bTrafficStatus( false ),
       m_bConnected( false ),
       m_qsIP( qsIP ),
       m_eUnits( Canvas::Knots ),
       m_bHaveWTtelem( false ),
+      m_bReported( false ),
       m_dBaroPress( 29.92 ),
       m_wtHost(),
       m_lastPacketDateTime( QDateTime::currentDateTime() ),
@@ -42,7 +44,6 @@ StreamReader::StreamReader( const QString &qsIP )
       m_dPitchRef( 0.0 ),
       m_dRawRoll( 0.0 ),
       m_dRawPitch( 0.0 ),
-      m_bReported( false ),
       m_dAirspeedCal( 1.0 )
 {
     m_dPitchRef = g_pSet->value( "PitchRef", 0.0 ).toDouble();

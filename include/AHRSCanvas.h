@@ -101,6 +101,7 @@ private:
     Airport   m_directAP;
     Airport   m_fromAP;
     Airport   m_toAP;
+    int       m_iRecCount;
 
     QPixmap m_HeadIndicator;
     QPixmap m_HeadIndicatorOverlay;

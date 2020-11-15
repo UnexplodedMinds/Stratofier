@@ -54,6 +54,7 @@ SettingsDialog::SettingsDialog( QWidget *pParent, Canvas *pCanvas, CanvasConstan
     m_pAirspeedCalLabel->setText( QString::number( m_settings.dAirspeedCal, 'f', 4 ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
+    connect( m_pAutoRecButton, SIGNAL( clicked() ), this, SLOT( autoRec() ) );
 
     connect( m_pMagDevLessButton, SIGNAL( clicked() ), this, SLOT( magDevChange() ) );
     connect( m_pMagDevMoreButton, SIGNAL( clicked() ), this, SLOT( magDevChange() ) );
@@ -106,6 +107,8 @@ void SettingsDialog::loadSettings()
     m_settings.bSwitchableTanks = (!g_pSet->value( "DualTanks" ).toBool());
     g_pSet->endGroup();
     switchable();
+    m_settings.bAutoRec = (!g_pSet->value( "AutoRec" ).toBool());
+    autoRec();
     m_pIPClickLabel->setText( m_settings.qsStratuxIP );
     m_pOwnshipClickLabel->setText( m_settings.qsOwnshipID );
 
@@ -465,6 +468,17 @@ void SettingsDialog::switchable()
 }
 
 
+void SettingsDialog::autoRec()
+{
+    m_settings.bAutoRec = (!m_settings.bAutoRec);
+
+    g_pSet->setValue( "AutoRec", m_settings.bAutoRec );
+    g_pSet->sync();
+
+    m_pAutoRecButton->setIcon( m_settings.bAutoRec ? QIcon( ":/icons/resources/on.png" ) : QIcon( ":/icons/resources/off.png" ) );
+}
+
+
 void SettingsDialog::selCountries()
 {
     CountryDialog dlg( this, m_pC );
@@ -564,6 +578,7 @@ void SettingsDialog::saveSettings()
     g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
     g_pSet->setValue( "MagDev", m_settings.iMagDev );
     g_pSet->setValue( "AirspeedCal", m_pAirspeedCalLabel->text().toDouble() );
+    g_pSet->setValue( "AutoRec", m_settings.bAutoRec );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );

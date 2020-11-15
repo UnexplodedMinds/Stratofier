@@ -78,9 +78,13 @@ struct BearingDist
 
 struct TrackPoint
 {
-    double dLat;
-    double dLong;
-    double dAlt;
+    QDateTime timestamp;
+    double    dLat;
+    double    dLong;
+    double    dAlt;
+    double    dPitch;
+    double    dRoll;
+    double    dHead;
 };
 
 
@@ -222,6 +226,7 @@ struct StratofierSettings
     bool                       bShowAllTraffic;
     int                        iCurrDataSet;
     bool                       bSwitchableTanks;
+    bool                       bAutoRec;
     bool                       bHalfMode;
     QString                    qsStratuxIP;
     bool                       bShowRunways;

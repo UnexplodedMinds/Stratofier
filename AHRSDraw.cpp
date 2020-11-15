@@ -11,6 +11,8 @@ Stratofier Stratux AHRS Display
 #include <QVariant>
 #include <QSettings>
 #include <QBitmap>
+#include <QPainterPath>
+
 
 #include <math.h>
 
@@ -441,7 +443,7 @@ void AHRSDraw::updateTraffic()
                 // Draw the arrow
                 trafficRect.moveCenter( ball.p2() );
                 m_pAHRS->translate( ball.p2() );
-                m_pAHRS->rotate( traffic.dTrack - 90.0 + static_cast<double>( m_iMagDev ) );
+                m_pAHRS->rotate( traffic.dTrack - 90.0 + g_situation.dAHRSMagHeading - static_cast<double>( m_iMagDev * 2.0 ) );
                 unBall.setX( -ball.p2().x() );
                 unBall.setY( -ball.p2().y() );
                 m_pAHRS->translate( unBall );

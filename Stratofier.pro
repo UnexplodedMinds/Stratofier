@@ -52,7 +52,7 @@ UI_DIR = ./gen/uic
 MOC_DIR = ./gen/moc
 RCC_DIR = ./gen/rcc
 
-#QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+QMAKE_CXXFLAGS += -Wno-reorder
 
 SOURCES += main.cpp \
            StreamReader.cpp \
@@ -113,3 +113,5 @@ FORMS += AHRSMainWin.ui \
          Keyboard.ui
 
 RESOURCES += AHRSResources.qrc
+
+ANDROID_ABIS = armeabi-v7a

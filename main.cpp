@@ -101,9 +101,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->setGeometry( 0, 0, /* 768, 1024 */ 648, 1152 );
+            pMainWin->setGeometry( 50, 50, /* 768, 1024 */ 1024, 1820 );
         else
-            pMainWin->setGeometry( 0, 0, /* 1024, 768 */ 1152, 648 );
+            pMainWin->setGeometry( 50, 50, /* 1024, 768 */ 1820, 1024 );
 	}
 
     guiApp.exec();

@@ -33,7 +33,6 @@ public:
 
 private:
     void          loadSettings();
-    void          saveSettings();
     void          startRequestAirports( QUrl url );
     void          startRequestAirspace( QUrl url );
     const QString settingsRoot();
@@ -65,6 +64,8 @@ private slots:
     void switchable();
     void selCountries();
     void magDevChange();
+    void saveSettings();
+    void autoRec();
 
     // Download slots
     void httpReadyRead();

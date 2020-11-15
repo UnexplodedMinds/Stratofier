@@ -8,6 +8,8 @@ Stratofier Stratux AHRS Display
 
 #include <QMainWindow>
 #include <QDateTime>
+#include <QUdpSocket>
+#include <QFile>
 
 #include "ui_AHRSMainWin.h"
 #include "Canvas.h"
@@ -17,7 +19,6 @@ Stratofier Stratux AHRS Display
 class StreamReader;
 class AHRSCanvas;
 class MenuDialog;
-class QPushButton;
 
 
 class AHRSMainWin : public QMainWindow, public Ui::AHRSMainWin
@@ -33,12 +34,15 @@ public:
     void          stopTimer();
     AHRSCanvas   *disp() { return m_pAHRSDisp; }
     StreamReader *streamReader() { return m_pStratuxStream; }
+    bool          isRecording() { return m_bRecording; }
+    void          appendTrackPt( TrackPoint tp );
 
 public slots:
     void menu();
     void changeTimer();
     void init();
     void splashOff();
+    void recordFlight( bool bRec );
 
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );
@@ -61,6 +65,11 @@ private:
     bool          m_bRecording;
 
     QList<TrackPoint> m_Track;
+    QUdpSocket       *m_pHostListener;
+    QHostAddress      m_hostAddress;
+    QTcpSocket       *m_pSender;
+    qint64            m_iSent;
+    qint64            m_iBufferSize;
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
@@ -78,7 +87,9 @@ private slots:
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
     void magDev( int iMagDev );
-    void recordFlight( bool bRec );
+    void downloaderConnected();
+    void senderConnected();
+    void senderWritten( qint64 sent );
 };
 
 #endif // __AHRSMAINWIN_H__
