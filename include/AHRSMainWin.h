@@ -42,7 +42,6 @@ public slots:
     void changeTimer();
     void init();
     void splashOff();
-    void recordFlight( bool bRec );
 
 protected:
     void keyReleaseEvent( QKeyEvent *pEvent );

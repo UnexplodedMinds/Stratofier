@@ -31,10 +31,6 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording )
     int             iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );
 
     setupUi( this );
-    if( m_bRecording )
-        m_pRecFlightButton->setText( "STOP" );
-    else
-        m_pRecFlightButton->setText( "RECORD" );
 
     QList<QPushButton*> kids = findChildren<QPushButton *>();
     QPushButton        *pKid;
@@ -58,7 +54,6 @@ MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording )
     connect( m_pUnitsAirspeedButton, SIGNAL( clicked() ), this, SIGNAL( unitsAirspeed() ) );
     connect( m_pSettingsButton, SIGNAL( clicked() ), this, SLOT( settings() ) );
     connect( m_pHelpButton, SIGNAL( clicked() ), this, SLOT( help() ) );
-    connect( m_pRecFlightButton, SIGNAL( clicked() ), this, SLOT( recordFlight() ) );
 }
 
 
@@ -117,17 +112,3 @@ void MenuDialog::settings()
     emit halfMode( g_pSet->value( "HalfMode" ).toBool() );
     emit settingsClosed();
 }
-
-
-void MenuDialog::recordFlight()
-{
-    if( m_bRecording )
-        m_pRecFlightButton->setText( "RECORD" );
-    else
-        m_pRecFlightButton->setText( "STOP" );
-
-    m_bRecording = (!m_bRecording);
-
-    emit recordFlight( m_bRecording );
-}
-

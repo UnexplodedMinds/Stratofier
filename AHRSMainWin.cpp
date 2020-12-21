@@ -287,7 +287,6 @@ void AHRSMainWin::menu()
         connect( m_pMenuDialog, SIGNAL( setSwitchableTanks( bool ) ), this, SLOT( setSwitchableTanks( bool ) ) );
         connect( m_pMenuDialog, SIGNAL( settingsClosed() ), this, SLOT( settingsClosed() ) );
         connect( m_pMenuDialog, SIGNAL( magDev( int ) ), this, SLOT( magDev( int ) ) );
-        connect( m_pMenuDialog, SIGNAL( recordFlight( bool ) ), this, SLOT( recordFlight( bool ) ) );
     }
     else
     {
@@ -347,8 +346,6 @@ void AHRSMainWin::upgradeStratofier()
 
 void AHRSMainWin::shutdownStratofier()
 {
-    if( m_bRecording )
-        recordFlight( false );
     qApp->exit( 0 );
 }
 
@@ -503,51 +500,6 @@ void AHRSMainWin::setSwitchableTanks( bool bSwitchable )
 void AHRSMainWin::magDev( int iMagDev )
 {
     m_pAHRSDisp->setMagDev( iMagDev );
-}
-
-
-void AHRSMainWin::recordFlight( bool bRec )
-{
-    if( bRec )
-    {
-        // Probably not necessary but doesn't hurt either
-        m_Track.clear();
-    }
-    else
-    {
-        QString qsInternal;
-        Airport ap = TrafficMath::getCurrentAirport();
-
-        Builder::getStorage( &qsInternal );
-        qsInternal.append( QString( "/data/space.skyfun.stratofier/Stratofier_%1.srd" ).arg( QDateTime::currentDateTime().toString( Qt::ISODate ).remove( ':' ).remove( '-' ) ) );  // SRD = Stratofier Raw Data
-
-        TrackPoint   tp;
-        QFile        track( qsInternal );
-        QString      qsTrack;
-
-        if( track.open( QIODevice::WriteOnly ) )
-        {
-            foreach( tp, m_Track )
-            {
-                qsTrack.append( QString( "%1,%2,%3,%4,%5,%6,%7\n" )
-                                    .arg( tp.timestamp.toString( Qt::ISODate ) )
-                                    .arg( tp.dLat )
-                                    .arg( tp.dLong )
-                                    .arg( tp.dAlt )
-                                    .arg( tp.dPitch )
-                                    .arg( tp.dRoll )
-                                    .arg( tp.dHead ) );
-            }
-
-            track.write( qsTrack.toLatin1() );
-            track.close();
-        }
-
-        // We're done so free the memory
-        m_Track.clear();
-    }
-
-    m_bRecording = bRec;
 }
 
 

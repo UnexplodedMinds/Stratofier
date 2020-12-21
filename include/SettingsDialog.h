@@ -65,7 +65,6 @@ private slots:
     void selCountries();
     void magDevChange();
     void saveSettings();
-    void autoRec();
 
     // Download slots
     void httpReadyRead();

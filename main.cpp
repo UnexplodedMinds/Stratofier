@@ -104,9 +104,9 @@ int main( int argc, char *argv[] )
 	{
         pMainWin->show();
         if( bPortrait )
-            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 1024, 1820 );
+            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 562, 1000 );
         else
-            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 1820, 1024 );
+            pMainWin->setGeometry( bWindowed ? 50 : 0, bWindowed ? 50 : 0, 1000, 562 );
 	}
 
     guiApp.exec();

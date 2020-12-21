@@ -90,9 +90,7 @@ AHRSCanvas::AHRSCanvas( QWidget *parent )
       m_iSwiping( 0 ),
       m_tanks( { 0.0, 0.0, 0.0, 0.0, 9.0, 10.0, 8.0, 5.0, 30, true, true, QDateTime::currentDateTime() } ),
       m_dBaroPress( 29.92 ),
-      m_lastTrafficUpdate( QDateTime::currentDateTime() ),
-      m_bDark( false ),
-      m_iRecCount( 0 )
+      m_lastTrafficUpdate( QDateTime::currentDateTime() )
 {
     m_directAP.qsID = "NULL";
     m_directAP.qsName = "NULL";
@@ -323,31 +321,6 @@ void AHRSCanvas::situation( StratuxSituation s )
         g_situation.dAHRSMagHeading += 360.0;
     else if( g_situation.dAHRSMagHeading > 360.0 )
         g_situation.dAHRSMagHeading -= 360.0;
-
-    // Start - for now don't auto-stop
-    if( (g_situation.dGPSGroundSpeed > 5.0) && (!static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->isRecording()) && m_settings.bAutoRec )
-        static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->recordFlight( true );
-
-    // Record the track point if recording is enabled
-    if( static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->isRecording() )
-    {
-        if( m_iRecCount == 10 )
-        {
-            TrackPoint tp;
-
-            tp.timestamp = QDateTime::currentDateTime();
-            tp.dLat = s.dGPSlat;
-            tp.dLong = s.dGPSlong;
-            tp.dAlt = s.dBaroPressAlt;
-            tp.dPitch = s.dAHRSpitch;
-            tp.dRoll = s.dAHRSroll;
-            tp.dHead = s.dAHRSMagHeading;
-
-            static_cast<AHRSMainWin *>( parentWidget()->parentWidget() )->appendTrackPt( tp );
-            m_iRecCount = 0;
-        }
-        m_iRecCount++;
-    }
 
     m_bUpdated = true;
     update();

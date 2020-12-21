@@ -29,7 +29,6 @@ private slots:
     void fuel();
     void settings();
     void help();
-    void recordFlight();
 
 signals:
     void resetLevel();
@@ -45,7 +44,6 @@ signals:
     void halfMode( bool );
     void settingsClosed();
     void magDev( int );
-    void recordFlight( bool );
 };
 
 #endif // __MENUDIALOG_H__

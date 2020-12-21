@@ -18,18 +18,18 @@ CONFIG += mobility
 VPATH += $$PWD/android
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_NDK_PLATFORM = android-21
+ANDROID_NDK_PLATFORM = android-29
 
 DISTFILES += AndroidManifest.xml \
-             gradle/wrapper/gradle-wrapper.jar \
-             gradlew \
+#             gradle/wrapper/gradle-wrapper.jar \
+#             gradlew \
              res/values/libs.xml \
              res/drawable-ldpi/icon.png \
              res/drawable-mdpi/icon.png \
              res/drawable-hdpi/icon.png \
-             build.gradle \
-             gradle/wrapper/gradle-wrapper.properties \
-             gradlew.bat
+#             build.gradle \
+#             gradle/wrapper/gradle-wrapper.properties \
+#             gradlew.bat
 
 SOURCES += ScreenLocker.cpp
 HEADERS += ScreenLocker.h
