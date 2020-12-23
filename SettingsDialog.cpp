@@ -39,7 +39,6 @@ SettingsDialog::SettingsDialog( QWidget *pParent, Canvas *pCanvas, CanvasConstan
         pCL->setCanvas( pCanvas );
 
     m_pDataProgress->hide();
-    m_pAirspeedCalLabel->setDecimals( 4 );
 
     m_pIPClickLabel->setFullKeyboard( true );
     m_pOwnshipClickLabel->setFullKeyboard( true );
@@ -51,7 +50,6 @@ SettingsDialog::SettingsDialog( QWidget *pParent, Canvas *pCanvas, CanvasConstan
 
     loadSettings();
     m_pMagDevLabel->setText( QString::number( m_settings.iMagDev ) );
-    m_pAirspeedCalLabel->setText( QString::number( m_settings.dAirspeedCal, 'f', 4 ) );
 
     connect( m_pSwitchableButton, SIGNAL( clicked() ), this, SLOT( switchable() ) );
 
@@ -563,7 +561,6 @@ void SettingsDialog::saveSettings()
     g_pSet->setValue( "StratuxIP", m_pIPClickLabel->text().simplified().remove( ' ' ) );
     g_pSet->setValue( "OwnshipID", m_pOwnshipClickLabel->text().simplified().toUpper().remove( ' ' ) );
     g_pSet->setValue( "MagDev", m_settings.iMagDev );
-    g_pSet->setValue( "AirspeedCal", m_pAirspeedCalLabel->text().toDouble() );
 
     g_pSet->beginGroup( "FuelTanks" );
     g_pSet->setValue( "DualTanks", m_settings.bSwitchableTanks );

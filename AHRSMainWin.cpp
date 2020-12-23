@@ -119,9 +119,6 @@ AHRSMainWin::~AHRSMainWin()
 
     delete m_pAHRSDisp;
     m_pAHRSDisp = nullptr;
-
-    delete m_pHostListener;
-    m_pHostListener = nullptr;
 }
 
 
@@ -131,11 +128,6 @@ void AHRSMainWin::splashOff()
 
     delete m_pSplashLabel;
     m_pSplashLabel = nullptr;
-
-    m_pHostListener = new QUdpSocket( this );
-    connect( m_pHostListener, SIGNAL( readyRead() ), this, SLOT( downloaderConnected() ) );
-    if( !myAddresses.isEmpty() )
-        m_pHostListener->bind( myAddresses.last(), 19999 );
 }
 
 
@@ -229,8 +221,10 @@ void AHRSMainWin::upgradeStratofier()
                                                 "Select 'Yes' to download and install the latest Stratofier version.",
                                QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
     {
+#ifdef Q_OS_LINUX
         if( system( "/home/pi/Stratofier/upgrade.sh > /dev/null 2>&1 &" ) != 0 )
             qDebug() << "Error executing upgrade script.";
+#endif
         QApplication::processEvents();
         qApp->closeAllWindows();
     }
@@ -246,8 +240,10 @@ void AHRSMainWin::shutdownStratofier()
 void AHRSMainWin::shutdownStratux()
 {
     qApp->exit( 0 );
+#ifdef Q_OS_LINUX
     if( system( "sudo shutdown -h now" ) != 0 )
         qDebug() << "Error shutting down.";
+#endif
 }
 
 

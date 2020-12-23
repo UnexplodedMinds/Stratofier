@@ -60,8 +60,6 @@ private:
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
 
-    QUdpSocket       *m_pHostListener;
-    QHostAddress      m_hostAddress;
     QTcpSocket       *m_pSender;
     qint64            m_iSent;
     qint64            m_iBufferSize;
