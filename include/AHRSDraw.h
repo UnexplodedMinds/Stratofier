@@ -47,7 +47,6 @@ public:
     void updateAirports();
     void updateAirspaces();
     void updateTraffic();
-    void paintTemp();
     void paintSwitchNotice( FuelTanks *pTanks );
     void paintInfo();
     void paintTimer( int iTimerMin, int iTimerSec );

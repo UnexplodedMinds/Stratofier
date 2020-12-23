@@ -67,7 +67,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
       m_bTimerActive( false ),
       m_iReconnectTimer( -1 ),
       m_iTimerTimer( -1 ),
-      m_bRecording( false ),
       m_iSent( 0 )
 {
     m_pStratuxStream->setUnits( static_cast<Canvas::Units>( g_pSet->value( "UnitsAirspeed" ).toInt() ) );
@@ -89,7 +88,6 @@ AHRSMainWin::AHRSMainWin( const QString &qsIP, bool bPortrait, StreamReader *pSt
     connect( m_pStratuxStream, SIGNAL( newSituation( StratuxSituation ) ), m_pAHRSDisp, SLOT( situation( StratuxSituation ) ) );
     connect( m_pStratuxStream, SIGNAL( newTraffic( StratuxTraffic ) ), m_pAHRSDisp, SLOT( traffic( StratuxTraffic ) ) );
     connect( m_pStratuxStream, SIGNAL( newStatus( bool, bool, bool, bool ) ), this, SLOT( statusUpdate( bool, bool, bool, bool ) ) );
-    connect( m_pStratuxStream, SIGNAL( newWTStatus( bool ) ), this, SLOT( WTUpdate( bool ) ) );
 
     m_pStratuxStream->connectStreams();
 
@@ -141,101 +139,6 @@ void AHRSMainWin::splashOff()
 }
 
 
-void AHRSMainWin::downloaderConnected()
-{
-    if( m_pHostListener->hasPendingDatagrams() )
-    {
-        char    addr[64];
-
-        // Disconnect the listener
-        disconnect( m_pHostListener, SIGNAL( readyRead() ), this, SLOT( downloaderConnected() ) );
-
-        // Get the datagram announcement; all we really care about is the address it came from
-        m_pHostListener->readDatagram( addr, 64, &m_hostAddress );
-
-        m_pSender = new QTcpSocket( this );
-        connect( m_pSender, SIGNAL( connected() ), this, SLOT( senderConnected() ) );
-        m_pSender->connectToHost( m_hostAddress, 19998 );
-    }
-}
-
-
-void AHRSMainWin::senderConnected()
-{
-    QString qsFilename;
-    QString qsInternal;
-
-    // Find the next log file
-    Builder::getStorage( &qsInternal );
-    qsInternal.append( "/data/space.skyfun.stratofier" );
-
-    QDir          logsDir( qsInternal );
-    QFileInfoList files = logsDir.entryInfoList( QDir::Files );
-    QFileInfo     file;
-    QByteArray    buffer;
-    QFile         logFile;
-
-    // Nothing to do
-    if( files.isEmpty() )
-    {
-        m_pSender->disconnectFromHost();
-        return;
-    }
-
-    foreach( file, files )
-    {
-        if( file.fileName().endsWith( ".srd" ) )
-        {
-            QString qsFilename = "F:" + file.fileName() + "\n";
-
-            buffer.append( qsFilename.toLatin1() );
-            logFile.setFileName( file.absoluteFilePath() );
-            logFile.open( QIODevice::ReadOnly );
-            buffer.append( logFile.readAll() );
-            logFile.close();
-        }
-    }
-
-    m_iBufferSize = buffer.size();
-
-    // Still nothing to do
-    if( m_iBufferSize == 0 )
-    {
-        m_pSender->disconnectFromHost();
-        return;
-    }
-
-    connect( m_pSender, SIGNAL( bytesWritten( qint64 ) ), this, SLOT( senderWritten( qint64 ) ) );
-    m_pSender->write( buffer );
-}
-
-
-// Note we don't care how many were written since the packets are small
-void AHRSMainWin::senderWritten( qint64 sent )
-{
-    m_iSent += sent;
-    if( m_iSent >= m_iBufferSize )
-    {
-        QString qsInternal;
-
-        Builder::getStorage( &qsInternal );
-        qsInternal.append( "/data/space.skyfun.stratofier" );
-
-        QDir          logsDir( qsInternal );
-        QFileInfoList files = logsDir.entryInfoList( QDir::Files );
-        QFileInfo     file;
-
-        foreach( file, files )
-        {
-            if( file.fileName().endsWith( ".srd" ) )
-                QFile::remove( file.absoluteFilePath() );
-        }
-
-        m_pSender->disconnectFromHost();
-    }
-}
-
-
 // Status stream is received here instead of the canvas since here is where the indicators are
 void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic )
 {
@@ -251,16 +154,6 @@ void AHRSMainWin::statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraf
 }
 
 
-// Valid WingThing data is being received
-void AHRSMainWin::WTUpdate( bool bValid )
-{
-    if( bValid )
-        m_pSensIndicator->setStyleSheet( "QLabel { border: none; background-color: LimeGreen; color: black; margin: 0px; }" );
-    else
-        m_pSensIndicator->setStyleSheet( "QLabel { border: none; background-color: LightCoral; color: black; margin: 0px; }" );
-}
-
-
 // Display the menu dialog and handle specific returns
 void AHRSMainWin::menu()
 {
@@ -268,7 +161,7 @@ void AHRSMainWin::menu()
     {
         CanvasConstants c = m_pAHRSDisp->canvas()->constants();
 
-        m_pMenuDialog = new MenuDialog( this, m_bPortrait, m_bRecording );
+        m_pMenuDialog = new MenuDialog( this, m_bPortrait );
 
         // Scale the menu dialog according to screen resolution
         m_pMenuDialog->setMinimumWidth( static_cast<int>( c.dW4 ) );
@@ -506,11 +399,5 @@ void AHRSMainWin::magDev( int iMagDev )
 void AHRSMainWin::settingsClosed()
 {
     QTimer::singleShot( 100, this, SLOT( menu() ) );
-}
-
-
-void AHRSMainWin::appendTrackPt( TrackPoint tp )
-{
-    m_Track.append( tp );
 }
 

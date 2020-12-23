@@ -34,11 +34,7 @@ StreamReader::StreamReader( const QString &qsIP )
       m_bConnected( false ),
       m_qsIP( qsIP ),
       m_eUnits( Canvas::Knots ),
-      m_bHaveWTtelem( false ),
-      m_bReported( false ),
       m_dBaroPress( 29.92 ),
-      m_wtHost(),
-      m_lastPacketDateTime( QDateTime::currentDateTime() ),
       m_iMagCalIndex( 0 ),
       m_dRollRef( 0.0 ),
       m_dPitchRef( 0.0 ),
@@ -53,84 +49,6 @@ StreamReader::StreamReader( const QString &qsIP )
     // If one connects there's a 99.99% chance they all will so just use the status
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxConnected() ) );
     connect( &m_stratuxStatus, SIGNAL( connected() ), this, SLOT( stratuxDisconnected() ) );
-
-    connect( &m_wtSocket, SIGNAL( readyRead() ), this, SLOT( wtDataAvail() ) );
-    connect( &m_wtSocket, SIGNAL( disconnected() ), this, SLOT( wtDisconnected() ) );
-    m_wtSocket.bind( QHostAddress( "192.168.10.255" ), 45678 );
-
-    // Re-transmit the currently set barometric pressure every ten seconds in case the WingThing restarted
-    startTimer( 10000 );
-}
-
-
-// This will likely not get called but it needs to be here just in case
-void StreamReader::wtDisconnected()
-{
-    m_bHaveWTtelem = false;
-    emit newWTStatus( false );
-}
-
-
-void StreamReader::wtDataAvail()
-{
-    QNetworkDatagram sensorData = m_wtSocket.receiveDatagram();
-
-    // Format coming from the WingThing is:
-    // <Firmware Version>,<Airspeed>,<Altitude>,<Temp>,<Mag X>,<Mag Y>,<Mag Z>,<Orient X>,<Orient Y>,<Orient Z>,<Accel X>,<Accel Y>,<Accel Z>
-    QString               qsBuffer( sensorData.data() );
-    QStringList           qslFields = qsBuffer.split( ',' );
-    double                dAS;
-
-    // Firmware Version (e.g. 213), Airspeed, Altitude, Heading, Baro Press (placeholder), Temp, Mag X, Mag Y, Mag Z
-    if( qslFields.count() == 13 )
-    {
-        m_wtTelem.qsFWversion = qslFields.first();
-
-        dAS = qslFields.at( 1 ).toDouble() / 8192.0 * 173.7952 * m_dAirspeedCal;    // Ratio of sensor value over sensor maximum times the rated maximum speed times a calibration factor
-        m_airspeedSamples.append( dAS );
-
-        m_wtTelem.dAltitude = qslFields.at( 2 ).toDouble();
-        m_wtTelem.dTemp = qslFields.at( 3 ).toDouble();
-        m_wtTelem.dMagX = qslFields.at( 4 ).toDouble();
-        m_wtTelem.dMagY = qslFields.at( 5 ).toDouble();
-        m_wtTelem.dMagZ = qslFields.at( 6 ).toDouble();
-        calcHeading( m_wtTelem.dMagX, m_wtTelem.dMagY, m_wtTelem.dMagZ );   // m_wtTelem.dHeading will be set in the function
-        m_wtTelem.dOrientX = qslFields.at( 7 ).toDouble();                  // Yaw  0 to 360 (not currently used)
-
-        m_dRawPitch = qslFields.at( 8 ).toDouble() / 4.0;
-        m_dRawRoll = qslFields.at( 9 ).toDouble();
-        m_pitchSamples.append( m_dRawPitch );
-        m_rollSamples.append( m_dRawRoll );
-
-        m_wtTelem.dAccelX = qslFields.at( 10 ).toDouble();
-        m_wtTelem.dAccelY = qslFields.at( 11 ).toDouble();
-        m_wtTelem.dAccelZ = qslFields.last().toDouble();
-        m_bHaveWTtelem = true;
-        m_wtHost = sensorData.senderAddress();  // So we know where to send data TO
-        m_lastPacketDateTime = QDateTime::currentDateTime();
-
-        m_wtLast = m_wtTelem;
-
-        if( m_airspeedSamples.count() == 4 )
-        {
-            dAS = (m_airspeedSamples.first() + m_airspeedSamples.at( 1 ) + m_airspeedSamples.at( 2 ) + m_airspeedSamples.last()) / 4.0;
-            m_airspeedSamples.removeFirst();
-            m_dRawRoll = (m_rollSamples.first() + m_rollSamples.at( 1 ) + m_rollSamples.at( 2 ) + m_rollSamples.last()) / 4.0;
-            m_rollSamples.removeFirst();
-            m_dRawPitch = (m_pitchSamples.first() + m_pitchSamples.at( 1 ) + m_pitchSamples.at( 2 ) + m_pitchSamples.last()) / 4.0;
-            m_pitchSamples.removeFirst();
-        }
-        m_wtTelem.dAirspeed = dAS;
-        m_wtTelem.dOrientY = m_dRawPitch - m_dPitchRef;     // Pitch -90 to 90, negative is down
-        m_wtTelem.dOrientZ = m_dRawRoll - m_dRollRef;       // Roll -90 to 90, negative is left
-
-        // Don't rapid fire this signal
-        if( !m_bReported )
-        {
-            m_bReported = true;
-            emit newWTStatus( true );
-        }
-    }
 }
 
 
@@ -156,34 +74,6 @@ void StreamReader::calcHeading( double dX, double dY, double dZ )
     {
         dHead = (m_headSamples.first() + m_headSamples.at( 1 ) + m_headSamples.at( 2 ) + m_headSamples.last()) / 4.0;
         m_headSamples.removeFirst();
-    }
-
-    m_wtTelem.dHeading = dHead;
-}
-
-
-void StreamReader::timerEvent( QTimerEvent* )
-{
-    if( m_bHaveWTtelem && (m_lastPacketDateTime.secsTo( QDateTime::currentDateTime() ) > 10) )
-    {
-        m_bHaveWTtelem = false;
-        m_bReported = false;
-        emit newWTStatus( false );
-    }
-
-    setBaroPress( m_dBaroPress );
-}
-
-
-void StreamReader::setBaroPress( double dBaro )
-{
-    if( !m_wtHost.isNull() )
-    {
-        m_dBaroPress = dBaro;
-
-        QString qsData = QString( "%1" ).arg( m_dBaroPress, 5, 'f', 2, QChar( '0' ) );
-
-        m_wtSocket.writeDatagram( qsData.toLatin1(), m_wtHost, 45678 );
     }
 }
 
@@ -319,20 +209,6 @@ void StreamReader::situationUpdate( const QString &qsMessage )
             situation.lastAHRSAttTime.fromString( qsVal, Qt::ISODate );
         else if( qsTag == "AHRSStatus" )
             situation.iAHRSStatus = iVal;
-    }
-
-    // Replace Stratux telemetry with actual air data from the sensor sending UDP data
-    if( m_bHaveWTtelem )
-    {
-        situation.bHaveWTData = true;
-        situation.dTAS = m_wtTelem.dAirspeed;
-        situation.dAHRSMagHeading = m_wtTelem.dHeading;
-        situation.dBaroPressAlt = m_wtTelem.dAltitude;
-        situation.dBaroTemp = m_wtTelem.dTemp;
-        situation.dAHRSSlipSkid = m_wtTelem.dAccelY;
-        situation.dAHRSroll = m_wtTelem.dOrientZ;
-        situation.dAHRSpitch = m_wtTelem.dOrientY;
-        situation.qsBADASPversion = m_wtTelem.qsFWversion;
     }
 
     while( situation.dAHRSGyroHeading > 360 )
@@ -578,7 +454,6 @@ void StreamReader::initSituation( StratuxSituation &situation )
     situation.dAHRSGLoadMax = 1.0;
     situation.lastAHRSAttTime = nullDateTime;
     situation.iAHRSStatus = 0;
-    situation.bHaveWTData = false;
     situation.dTAS = 0.0;
 }
 

@@ -17,13 +17,12 @@ class MenuDialog : public QDialog, public Ui::MenuDialog
     Q_OBJECT
 
 public:
-    explicit MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording );
+    explicit MenuDialog( QWidget *pParent, bool bPortrait );
     ~MenuDialog();
 
 private:
     Canvas::ShowAirports m_eShowAirports;
     bool                 m_bPortrait;
-    bool                 m_bRecording;
 
 private slots:
     void fuel();

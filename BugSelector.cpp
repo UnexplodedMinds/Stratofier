@@ -17,7 +17,6 @@ BugSelector::BugSelector( QWidget *pParent )
     connect( m_pClearButton, SIGNAL( clicked() ), this, SLOT( clearBugs() ) );
     connect( m_pAirportsButton, SIGNAL( clicked() ), this, SLOT( airports() ) );
     connect( m_pOverlaysButton, SIGNAL( clicked() ), this, SLOT( overlays() ) );
-    connect( m_pBaroPressButton, SIGNAL( clicked() ), this, SLOT( baroPress() ) );
 }
 
 
@@ -53,12 +52,6 @@ void BugSelector::airports()
 void BugSelector::overlays()
 {
     done( static_cast<int>( Overlays ) );
-}
-
-
-void BugSelector::baroPress()
-{
-    done( static_cast<int>( BaroPress ) );
 }
 
 

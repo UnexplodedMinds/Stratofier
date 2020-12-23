@@ -33,7 +33,6 @@ public:
     static void initStatus( StratuxStatus &status );
 
     void setUnits( Canvas::Units eUnits ) { m_eUnits = eUnits; }
-    void setBaroPress( double dBaro );
     void snapshotOrientation();
 
     void setAirspeedCal( double dCal ) { m_dAirspeedCal = dCal; }
@@ -41,9 +40,6 @@ public:
 public slots:
     void connectStreams();
     void disconnectStreams();
-
-protected:
-    void timerEvent( QTimerEvent* ) override;
 
 private:
     double unitsMult();
@@ -65,21 +61,15 @@ private:
     Canvas::Units m_eUnits;
     QUdpSocket    m_wtSocket;
 
-    bool               m_bHaveWTtelem;
-    bool               m_bReported;
-    double             m_dBaroPress;
-    bool               m_bWTConnected;
-    WingThingTelemetry m_wtTelem, m_wtLast;
-    QHostAddress       m_wtHost;
-    QDateTime          m_lastPacketDateTime;
-    int                m_iMagCalIndex;
-    QList<double>      m_headSamples;
-    QList<double>      m_airspeedSamples;
-    QList<double>      m_pitchSamples;
-    QList<double>      m_rollSamples;
+    double        m_dBaroPress;
+    int           m_iMagCalIndex;
+    QList<double> m_headSamples;
+    QList<double> m_airspeedSamples;
+    QList<double> m_pitchSamples;
+    QList<double> m_rollSamples;
 
-    double             m_dRollRef, m_dPitchRef, m_dRawRoll, m_dRawPitch;
-    double             m_dAirspeedCal;
+    double        m_dRollRef, m_dPitchRef, m_dRawRoll, m_dRawPitch;
+    double        m_dAirspeedCal;
 
 private slots:
     void situationUpdate( const QString &qsMessage );
@@ -88,14 +78,10 @@ private slots:
     void stratuxConnected();
     void stratuxDisconnected();
 
-    void wtDataAvail();
-    void wtDisconnected();
-
 signals:
     void newSituation( StratuxSituation );
     void newTraffic( StratuxTraffic );          // ICAO, Rest of traffic struct
     void newStatus( bool, bool, bool, bool );   // Stratux available, AHRS available, GPS available, Traffic available
-    void newWTStatus( bool );                   // Valid WingThing sensor data has been received
 };
 
 #endif // __STREAMREADER_H__

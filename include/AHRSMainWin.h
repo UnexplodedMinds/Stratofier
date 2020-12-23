@@ -34,8 +34,6 @@ public:
     void          stopTimer();
     AHRSCanvas   *disp() { return m_pAHRSDisp; }
     StreamReader *streamReader() { return m_pStratuxStream; }
-    bool          isRecording() { return m_bRecording; }
-    void          appendTrackPt( TrackPoint tp );
 
 public slots:
     void menu();
@@ -61,9 +59,7 @@ private:
     bool          m_bTimerActive;
     int           m_iReconnectTimer;
     int           m_iTimerTimer;
-    bool          m_bRecording;
 
-    QList<TrackPoint> m_Track;
     QUdpSocket       *m_pHostListener;
     QHostAddress      m_hostAddress;
     QTcpSocket       *m_pSender;
@@ -72,7 +68,6 @@ private:
 
 private slots:
     void statusUpdate( bool bStratux, bool bAHRS, bool bGPS, bool bTraffic );
-    void WTUpdate( bool bValid );
     void resetLevel();
     void resetGMeter();
     void upgradeStratofier();
@@ -86,9 +81,6 @@ private slots:
     void setSwitchableTanks( bool bSwitchable );
     void settingsClosed();
     void magDev( int iMagDev );
-    void downloaderConnected();
-    void senderConnected();
-    void senderWritten( qint64 sent );
 };
 
 #endif // __AHRSMAINWIN_H__

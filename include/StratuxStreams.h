@@ -51,7 +51,6 @@ struct StratuxSituation
     double    dAHRSGLoadMax;
     QDateTime lastAHRSAttTime;
     int       iAHRSStatus;
-    bool      bHaveWTData;
     double    dTAS;
     QString   qsBADASPversion;
 };

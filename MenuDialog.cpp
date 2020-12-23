@@ -22,10 +22,9 @@ extern QSettings    *g_pSet;
 extern Canvas::Units g_eUnitsAirspeed;
 
 
-MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait, bool bRecording )
+MenuDialog::MenuDialog( QWidget *pParent, bool bPortrait )
     : QDialog( pParent, Qt::Dialog | Qt::FramelessWindowHint ),
-      m_bPortrait( bPortrait ),
-      m_bRecording( bRecording )
+      m_bPortrait( bPortrait )
 {
     CanvasConstants c = static_cast<AHRSMainWin *>( pParent )->disp()->canvas()->constants();
     int             iIconSize = static_cast<int>( c.dH * (bPortrait ? 0.05 : 0.07) );

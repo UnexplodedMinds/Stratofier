@@ -219,9 +219,6 @@ void AHRSDraw::updateAirports()
     double       dHead = g_situation.dAHRSGyroHeading;
     int          iAP = 0;
 
-    if( g_situation.bHaveWTData )
-        dHead = g_situation.dAHRSMagHeading;
-
     QFontMetrics apMetrics( tiny );
 
     m_pAHRS->setFont( tiny );
@@ -328,10 +325,7 @@ void AHRSDraw::updateAirspaces()
             ball.setP2( QPointF( (m_pC->bPortrait ? 0.0 : m_pC->dW) + m_pC->dW2, m_pC->dH - 10.0 - m_pC->dHeadDiam2 - dASDist ) );
 
             // Airspace polygon point angle in reference to you (which clock position it's at)
-            if( g_situation.bHaveWTData )
-                ball.setAngle( bd.dBearing - g_situation.dAHRSMagHeading - 90.0 );
-            else
-                ball.setAngle( bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
+            ball.setAngle( bd.dBearing - g_situation.dAHRSGyroHeading - 90.0 );
             // Qt Y coords are backward
             deltaY = ball.p2().y() - (m_pC->dH - 10.0 - m_pC->dHeadDiam2);
             ball.setP2( QPointF( ball.p2().x(), m_pC->dH - 10.0 - m_pC->dHeadDiam2 - deltaY ) );
@@ -414,9 +408,6 @@ void AHRSDraw::updateTraffic()
     QRectF         trafficRect( 0.0, 0.0, m_pC->dW20, m_pC->dW20 );
     QPointF        unBall;
     double         dHead = g_situation.dAHRSGyroHeading;
-
-    if( g_situation.bHaveWTData )
-        dHead = g_situation.dAHRSMagHeading;
 
     maskHeading();
 
@@ -548,19 +539,6 @@ void AHRSDraw::updateTraffic()
 }
 
 
-void AHRSDraw::paintTemp()
-{
-    // Draw the outside temp if we have it
-    if( g_situation.bHaveWTData )
-    {
-        m_pAHRS->setPen( Qt::yellow );
-        m_pAHRS->setFont( small );
-        m_pAHRS->drawText( m_pC->dW - m_pC->dW5 - m_pC->dW5, m_pC->dH20 + m_pC->dH80,
-                           QString( "%1%2" ).arg( g_situation.dBaroTemp, 0, 'f', 1 ).arg( QChar( 0xB0 ) ) );
-    }
-}
-
-
 void AHRSDraw::paintSwitchNotice( FuelTanks *pTanks )
 {
     QLinearGradient cloudyGradient( 0.0, 50.0, 0.0, m_pC->dH - 50.0 );
@@ -666,8 +644,6 @@ void AHRSDraw::paintInfo()
     m_pAHRS->setFont( med );
     m_pAHRS->setPen( Qt::blue );
     m_pAHRS->drawText( 75, m_pC->bPortrait ? m_pCanvas->scaledV( 700.0 ) : m_pCanvas->scaledV( 390.0 ), QString( "Version: %1" ).arg( g_qsStratofierVersion ) );
-    if( g_situation.bHaveWTData )
-        m_pAHRS->drawText( 75, m_pC->bPortrait ? m_pCanvas->scaledV( 750.0 ) : m_pCanvas->scaledV( 440.0 ), QString( "BADASP: %1" ).arg( g_situation.qsBADASPversion ) );
 }
 
 

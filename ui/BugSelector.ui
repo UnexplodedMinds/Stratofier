@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>619</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -315,56 +315,6 @@ QPushButton::pressed
      </property>
      <property name="text">
       <string>AIRPORTS</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="m_pBaroPressButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <family>Droid Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	border: none;
-	color: black;
-	background-color: Plum;
-	margin: 0px;
-}
-QPushButton::pressed
-{
-	border: none;
-	color: black;
-	background-color: Lavender;
-	margin: 0px;
-}
-</string>
-     </property>
-     <property name="text">
-      <string>BARO PRESS</string>
      </property>
      <property name="iconSize">
       <size>

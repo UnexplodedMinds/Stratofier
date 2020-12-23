@@ -22,8 +22,7 @@ public:
 		WindBug    = 20,
         ClearBugs  = 30,
         Airports   = 40,
-        Overlays   = 50,
-        BaroPress  = 60,
+        Overlays   = 50,    // Baro pressure was removed
         Calibrate  = 70
 	};
 
@@ -36,7 +35,6 @@ private slots:
     void clearBugs();
     void airports();
     void overlays();
-    void baroPress();
     void calibrate();
 };
 
